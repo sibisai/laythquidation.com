@@ -3,6 +3,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: Arial, sans-serif;
 }
 
 .header-container {
@@ -53,16 +54,20 @@ body {
   overflow-y: auto;
 }
 
-.top-locations,
-.other-locations {
+.top-locations {
   margin-bottom: 20px;
-}
-
-.scrollable-list {
-  max-height: 400px;
-  overflow-y: auto;
 }
 
 .nz-list-item {
   margin-bottom: 10px;
+}
+
+.nz-card {
+  margin-bottom: 10px;
+}
+
+.nz-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }

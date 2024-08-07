@@ -10,8 +10,11 @@ import { TripPlannerService } from '../trip-planner.service';
 export class MapComponent implements OnInit {
   originControl = new FormControl('');
   stores: any[] = [];
+  paginatedStores: any[] = [];
   map!: google.maps.Map;
   userLocation!: google.maps.LatLng;
+  pageSize = 10;
+  currentPage = 1;
 
   constructor(private tripPlannerService: TripPlannerService, private ngZone: NgZone) { }
 
@@ -24,7 +27,6 @@ export class MapComponent implements OnInit {
         });
       } else {
         console.error("Geolocation is not supported by this browser.");
-        this.userLocation = new google.maps.LatLng(40.749933, -73.98633); // Default location
         this.initMap();
       }
     });
@@ -48,10 +50,12 @@ export class MapComponent implements OnInit {
   }
 
   initMap() {
+    const input = document.getElementById('location-input') as HTMLInputElement;
+    const autocomplete = new google.maps.places.Autocomplete(input);
     const mapElement = document.getElementById('map') as HTMLElement;
 
     this.map = new google.maps.Map(mapElement, {
-      center: this.userLocation,
+      center: this.userLocation || { lat: 40.749933, lng: -73.98633 },
       zoom: 13,
       mapTypeControl: false
     });
@@ -61,9 +65,6 @@ export class MapComponent implements OnInit {
       position: this.userLocation,
       title: 'Your Location'
     });
-
-    const input = document.getElementById('location-input') as HTMLInputElement;
-    const autocomplete = new google.maps.places.Autocomplete(input);
 
     autocomplete.addListener('place_changed', () => {
       this.ngZone.run(() => {
@@ -91,7 +92,7 @@ export class MapComponent implements OnInit {
       this.tripPlannerService.calculateDistance(origin).subscribe(
         response => {
           this.stores = response.top25Closest;
-          this.addMarkers();
+          this.updatePaginatedStores();
         },
         error => {
           console.error('Error calculating distances:', error);
@@ -102,14 +103,16 @@ export class MapComponent implements OnInit {
     }
   }
 
-  addMarkers() {
-    this.stores.forEach(store => {
-      const position = new google.maps.LatLng(store.latitude, store.longitude);
-      new google.maps.Marker({
-        position,
-        map: this.map,
-        title: store.storeName
-      });
-    });
+  updatePaginatedStores() {
+    this.paginatedStores = this.stores.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize);
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.updatePaginatedStores();
+  }
+
+  generateRoute() {
+    // Your logic to generate the route
   }
 }

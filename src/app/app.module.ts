@@ -8,11 +8,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-
-import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzListModule } from 'ng-zorro-antd/list';
-import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzInputModule } from 'ng-zorro-antd/input';
 
 import { AppComponent } from './app.component';
@@ -38,13 +36,12 @@ import { MapComponent } from './map/map.component';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
-    NzSpaceModule,
-    NzCardModule,
-    NzListModule,
-    NzFormModule,
-    NzInputModule,
     GoogleMapsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NzListModule,
+    NzPaginationModule,
+    NzCheckboxModule,
+    NzInputModule,
   ],
   providers: [TripPlannerService],
   bootstrap: [AppComponent]

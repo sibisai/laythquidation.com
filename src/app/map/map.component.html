@@ -5,41 +5,30 @@
 <div class="content-container">
   <div class="map-container">
     <div class="place-picker-container">
-      <nz-form-item>
-        <nz-form-control>
-          <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl">
-        </nz-form-control>
-      </nz-form-item>
+      <nz-input-group [nzSuffix]="suffixTemplate">
+        <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl" />
+      </nz-input-group>
+      <ng-template #suffixTemplate>
+        <i nz-icon nzType="search"></i>
+      </ng-template>
     </div>
     <div id="map"></div>
   </div>
 
   <div class="locations-container">
-    <nz-space nzDirection="vertical" nzSize="large">
-      <div class="top-locations">
-        <h2>Top 10 Locations</h2>
-        <nz-list [nzDataSource]="stores.slice(0, 10)" [nzRenderItem]="store" [nzItemLayout]="'horizontal'">
-          <ng-template #store let-store>
-            <nz-list-item>
-              <nz-list-item-meta nzTitle="{{ store.storeName }}"
-                nzDescription="Address: {{ store.address }} | Distance: {{ store.distance }} | Duration: {{ store.duration }}">
-              </nz-list-item-meta>
-            </nz-list-item>
-          </ng-template>
-        </nz-list>
-      </div>
-      <div class="other-locations">
-        <h2>Other Locations</h2>
-        <div class="scrollable-list">
-          <nz-space nzDirection="vertical" nzSize="middle">
-            <nz-card *ngFor="let store of stores.slice(10)">
-              <nz-card-meta nzTitle="{{ store.storeName }}"
-                nzDescription="Address: {{ store.address }} | Distance: {{ store.distance }} | Duration: {{ store.duration }}">
-              </nz-card-meta>
-            </nz-card>
-          </nz-space>
-        </div>
-      </div>
-    </nz-space>
+    <h2>Top 10 Locations</h2>
+    <nz-list [nzDataSource]="paginatedStores" [nzRenderItem]="store" [nzItemLayout]="'horizontal'">
+      <ng-template #store let-store>
+        <nz-list-item>
+          <nz-list-item-meta
+            nzTitle="<label nz-checkbox [(ngModel)]='store.selected'>{{ store.storeName }} ({{ store.distance }} | {{ store.duration }})</label>"
+            nzDescription="Address: {{ store.address }}">
+          </nz-list-item-meta>
+        </nz-list-item>
+      </ng-template>
+    </nz-list>
+    <nz-pagination [nzTotal]="stores.length" [nzPageSize]="pageSize" [nzPageIndex]="currentPage"
+      (nzPageIndexChange)="onPageChange($event)">
+    </nz-pagination>
   </div>
 </div>
