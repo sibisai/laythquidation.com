@@ -18,10 +18,16 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+.content-container {
+  display: flex;
+  height: calc(100% - 60px);
+  /* Adjusted for header height */
+}
+
 .map-container {
   position: relative;
-  height: 500px;
-  width: 100%;
+  height: 100%;
+  width: 50%;
 }
 
 .place-picker-container {
@@ -38,5 +44,25 @@ body {
 
 #map {
   height: 100%;
+  width: 100%;
+}
+
+.locations-container {
   width: 50%;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.top-locations,
+.other-locations {
+  margin-bottom: 20px;
+}
+
+.scrollable-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.nz-list-item {
+  margin-bottom: 10px;
 }

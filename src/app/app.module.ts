@@ -9,6 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzListModule } from 'ng-zorro-antd/list';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -32,6 +38,11 @@ import { MapComponent } from './map/map.component';
     MatInputModule,
     MatCardModule,
     MatButtonModule,
+    NzSpaceModule,
+    NzCardModule,
+    NzListModule,
+    NzFormModule,
+    NzInputModule,
     GoogleMapsModule,
     AppRoutingModule
   ],
