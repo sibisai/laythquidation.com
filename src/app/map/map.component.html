@@ -1,10 +1,15 @@
-<mat-form-field>
-  <input matInput id="location-input" placeholder="Enter your location" [formControl]="originControl">
-</mat-form-field>
-<button mat-raised-button color="primary" (click)="calculateDistances(originControl.value || '')">Calculate
-  Distances</button>
+<div class="header-container">
+  <h1 class="welcome-header">Welcome Layth,</h1>
+</div>
 
-<div id="map" style="height: 500px; width: 100%;"></div>
+<div class="map-container">
+  <div class="place-picker-container">
+    <mat-form-field>
+      <input matInput id="location-input" placeholder="Enter a place to start" [formControl]="originControl">
+    </mat-form-field>
+  </div>
+  <div id="map"></div>
+</div>
 
 <mat-card *ngFor="let store of stores">
   <mat-card-title>{{ store.storeName }}</mat-card-title>

@@ -24,6 +24,7 @@ export class MapComponent implements OnInit {
         });
       } else {
         console.error("Geolocation is not supported by this browser.");
+        this.userLocation = new google.maps.LatLng(40.749933, -73.98633); // Default location
         this.initMap();
       }
     });
@@ -47,12 +48,10 @@ export class MapComponent implements OnInit {
   }
 
   initMap() {
-    const input = document.getElementById('location-input') as HTMLInputElement;
-    const autocomplete = new google.maps.places.Autocomplete(input);
     const mapElement = document.getElementById('map') as HTMLElement;
 
     this.map = new google.maps.Map(mapElement, {
-      center: this.userLocation || { lat: 40.749933, lng: -73.98633 },
+      center: this.userLocation,
       zoom: 13,
       mapTypeControl: false
     });
@@ -62,6 +61,9 @@ export class MapComponent implements OnInit {
       position: this.userLocation,
       title: 'Your Location'
     });
+
+    const input = document.getElementById('location-input') as HTMLInputElement;
+    const autocomplete = new google.maps.places.Autocomplete(input);
 
     autocomplete.addListener('place_changed', () => {
       this.ngZone.run(() => {

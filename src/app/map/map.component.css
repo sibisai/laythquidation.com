@@ -5,6 +5,38 @@ body {
   padding: 0;
 }
 
-.place-picker-container {
+.header-container {
+  text-align: left;
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.welcome-header {
+  margin: 0;
   padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.map-container {
+  position: relative;
+  height: 500px;
+  width: 100%;
+}
+
+.place-picker-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 5;
+  width: 300px;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#map {
+  height: 100%;
+  width: 50%;
 }
