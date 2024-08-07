@@ -1,0 +1,11 @@
+<form (ngSubmit)="onSubmit()" class="origin-form">
+  <mat-form-field appearance="fill">
+    <mat-label>Origin</mat-label>
+    <input matInput placeholder="Enter origin" [(ngModel)]="origin" name="origin" required>
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>Location</mat-label>
+    <input matInput placeholder="Enter location" [(ngModel)]="location" name="location" required>
+  </mat-form-field>
+  <button mat-raised-button color="primary">Generate Route</button>
+</form>
