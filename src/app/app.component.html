@@ -1,14 +1,1 @@
-<mat-form-field>
-  <input matInput id="location-input" placeholder="Enter your location" [formControl]="originControl">
-</mat-form-field>
-<button mat-raised-button color="primary" (click)="calculateDistances(originControl.value || '')">Calculate
-  Distances</button>
-
-<mat-card *ngFor="let store of stores">
-  <mat-card-title>{{ store.storeName }}</mat-card-title>
-  <mat-card-content>
-    <p>Address: {{ store.address }}</p>
-    <p>Distance: {{ store.distance }}</p>
-    <p>Duration: {{ store.duration }}</p>
-  </mat-card-content>
-</mat-card>
+<app-map></app-map>

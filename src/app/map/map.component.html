@@ -4,6 +4,8 @@
 <button mat-raised-button color="primary" (click)="calculateDistances(originControl.value || '')">Calculate
   Distances</button>
 
+<div id="map" style="height: 500px; width: 100%;"></div>
+
 <mat-card *ngFor="let store of stores">
   <mat-card-title>{{ store.storeName }}</mat-card-title>
   <mat-card-content>

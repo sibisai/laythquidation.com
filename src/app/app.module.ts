@@ -14,12 +14,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { GoogleMapsModule } from '@angular/google-maps';
 
 import { TripPlannerService } from './trip-planner.service';
-import { OriginFormComponent } from './origin-form/origin-form.component';
+import { MapComponent } from './map/map.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    OriginFormComponent,
+    MapComponent,
     // Other components
   ],
   imports: [
