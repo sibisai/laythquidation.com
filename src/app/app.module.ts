@@ -4,27 +4,22 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { NzListModule } from 'ng-zorro-antd/list';
-import { NzPaginationModule } from 'ng-zorro-antd/pagination';
-import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { GoogleMapsModule } from '@angular/google-maps';
+import { MapComponent } from './map/map.component';
 
 import { TripPlannerService } from './trip-planner.service';
-import { MapComponent } from './map/map.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     MapComponent,
-    // Other components
   ],
   imports: [
     BrowserModule,
@@ -32,16 +27,12 @@ import { MapComponent } from './map/map.component';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatButtonModule,
-    GoogleMapsModule,
-    AppRoutingModule,
-    NzListModule,
-    NzPaginationModule,
-    NzCheckboxModule,
+    NzTableModule,
     NzInputModule,
+    NzIconModule,
+    NzButtonModule,
+    NzPaginationModule,
+    AppRoutingModule,
   ],
   providers: [TripPlannerService],
   bootstrap: [AppComponent]

@@ -15,20 +15,48 @@
     <div id="map"></div>
   </div>
 
-  <div class="locations-container">
-    <h2>Top 10 Locations</h2>
-    <nz-list [nzDataSource]="paginatedStores" [nzRenderItem]="store" [nzItemLayout]="'horizontal'">
-      <ng-template #store let-store>
-        <nz-list-item>
-          <nz-list-item-meta
-            nzTitle="<label nz-checkbox [(ngModel)]='store.selected'>{{ store.storeName }} ({{ store.distance }} | {{ store.duration }})</label>"
-            nzDescription="Address: {{ store.address }}">
-          </nz-list-item-meta>
-        </nz-list-item>
-      </ng-template>
-    </nz-list>
+  <div class="table-container">
+    <button nz-button nzType="primary" (click)="generateRoute()" [disabled]="!hasSelected" [nzLoading]="loading">
+      Generate Route
+    </button>
+    <span *ngIf="hasSelected">{{ selectedRowKeys.length }} items selected</span>
+
+    <nz-table #basicTable [nzData]="paginatedStores" [nzLoading]="loading" [nzBordered]="true" [nzSize]="'middle'"
+      [(nzPageIndex)]="currentPage" [nzPageSize]="pageSize" [nzTotal]="stores.length"
+      (nzPageIndexChange)="onPageChange($event)">
+      <thead>
+        <tr>
+          <th nzWidth="25%">Name</th>
+          <th nzWidth="25%">Distance</th>
+          <th nzWidth="25%">Duration</th>
+          <th nzWidth="25%">Address</th>
+          <th nzWidth="25%">Select</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let store of paginatedStores">
+          <td>{{ store.storeName }}</td>
+          <td>{{ store.distance }}</td>
+          <td>{{ store.duration }}</td>
+          <td>{{ store.address }}</td>
+          <td>
+            <input type="checkbox" (change)="onSelectRow(store, $event)">
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
     <nz-pagination [nzTotal]="stores.length" [nzPageSize]="pageSize" [nzPageIndex]="currentPage"
       (nzPageIndexChange)="onPageChange($event)">
     </nz-pagination>
+  </div>
+
+  <div *ngIf="routeInfo.length">
+    <h2>Route Information</h2>
+    <ol>
+      <li *ngFor="let step of routeInfo">
+        {{ step.step }}. {{ step.address }}
+      </li>
+    </ol>
+    <p><a [href]="googleMapsUrl" target="_blank">View on Google Maps</a></p>
   </div>
 </div>

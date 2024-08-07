@@ -1,6 +1,8 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { TripPlannerService } from '../trip-planner.service';
+
+declare var google: any;
 
 @Component({
   selector: 'app-map',
@@ -8,6 +10,7 @@ import { TripPlannerService } from '../trip-planner.service';
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit {
+  @Output() tripGenerated = new EventEmitter<any>();
   originControl = new FormControl('');
   stores: any[] = [];
   paginatedStores: any[] = [];
@@ -15,6 +18,12 @@ export class MapComponent implements OnInit {
   userLocation!: google.maps.LatLng;
   pageSize = 10;
   currentPage = 1;
+  loading = false;
+  selectedRowKeys: any[] = [];
+  hasSelected = false;
+  selectAll = false;
+  routeInfo: any[] = [];
+  googleMapsUrl = '';
 
   constructor(private tripPlannerService: TripPlannerService, private ngZone: NgZone) { }
 
@@ -91,7 +100,7 @@ export class MapComponent implements OnInit {
     if (origin) {
       this.tripPlannerService.calculateDistance(origin).subscribe(
         response => {
-          this.stores = response.top25Closest;
+          this.stores = response.top25Closest.map((store: any) => ({ ...store, selected: false }));
           this.updatePaginatedStores();
         },
         error => {
@@ -113,6 +122,47 @@ export class MapComponent implements OnInit {
   }
 
   generateRoute() {
-    // Your logic to generate the route
+    const selectedStores = this.stores.filter(store => store.selected);
+    if (selectedStores.length > 10) {
+      window.alert('You can select up to 10 addresses only.');
+      return;
+    }
+
+    if (selectedStores.length === 0) {
+      window.alert('Please select at least one location.');
+      return;
+    }
+
+    const origin = this.originControl.value;  // Get origin from the input field
+    if (!origin) {
+      window.alert('Please enter a valid origin address.');
+      return;
+    }
+
+    const locations = selectedStores.map(store => store.address);
+
+    // Send data to the second endpoint
+    this.tripPlannerService.generateRouteAndMetrics({ origin, locations }).subscribe(
+      response => {
+        this.routeInfo = response.route;
+        this.googleMapsUrl = response.googleMapsUrl;
+        this.tripGenerated.emit(response);  // Emit the response event
+      },
+      error => {
+        console.error('Error generating route:', error);
+      }
+    );
+  }
+
+  onSelectRow(store: any, event: any) {
+    store.selected = event.target.checked;
+    this.selectedRowKeys = this.stores.filter(store => store.selected).map(store => store.key);
+    this.hasSelected = this.selectedRowKeys.length > 0;
+  }
+
+  toggleSelectAll(checked: boolean) {
+    this.selectAll = checked;
+    this.paginatedStores.forEach(store => store.selected = checked);
+    this.onSelectRow(this.paginatedStores, checked);
   }
 }

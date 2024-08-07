@@ -7,6 +7,8 @@ import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 
 @NgModule({
   exports: [
@@ -17,7 +19,9 @@ import { NzTypographyModule } from 'ng-zorro-antd/typography';
     NzCheckboxModule,
     NzListModule,
     NzSpaceModule,
-    NzTypographyModule
+    NzTypographyModule,
+    NzTableModule,
+    NzPaginationModule
   ]
 })
 export class NgZorroAntdModule { }

@@ -1,1 +1,11 @@
-<app-map></app-map>
+<app-map (tripGenerated)="handleTripGenerated($event)"></app-map>
+
+<div *ngIf="tripInfo">
+  <h2>Generated Trip Information</h2>
+  <ol>
+    <li *ngFor="let step of tripInfo.route">
+      {{ step.step }}. {{ step.address }}
+    </li>
+  </ol>
+  <p><a [href]="tripInfo.googleMapsUrl" target="_blank">View on Google Maps</a></p>
+</div>

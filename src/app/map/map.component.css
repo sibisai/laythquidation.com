@@ -3,7 +3,6 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
 }
 
 .header-container {
@@ -22,7 +21,7 @@ body {
 .content-container {
   display: flex;
   height: calc(100% - 60px);
-  /* Adjusted for header height */
+  justify-content: space-between;
 }
 
 .map-container {
@@ -48,26 +47,8 @@ body {
   width: 100%;
 }
 
-.locations-container {
-  width: 50%;
+.table-container {
+  width: 45%;
   padding: 20px;
   overflow-y: auto;
-}
-
-.top-locations {
-  margin-bottom: 20px;
-}
-
-.nz-list-item {
-  margin-bottom: 10px;
-}
-
-.nz-card {
-  margin-bottom: 10px;
-}
-
-.nz-pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
 }
