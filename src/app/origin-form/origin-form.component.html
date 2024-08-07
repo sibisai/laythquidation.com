@@ -1,11 +1,14 @@
-<form (ngSubmit)="onSubmit()" class="origin-form">
-  <mat-form-field appearance="fill">
-    <mat-label>Origin</mat-label>
-    <input matInput placeholder="Enter origin" [(ngModel)]="origin" name="origin" required>
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>Location</mat-label>
-    <input matInput placeholder="Enter location" [(ngModel)]="location" name="location" required>
-  </mat-form-field>
-  <button mat-raised-button color="primary">Generate Route</button>
-</form>
+<mat-form-field>
+  <input matInput id="location-input" placeholder="Enter your location" [formControl]="originControl">
+</mat-form-field>
+<button mat-raised-button color="primary" (click)="calculateDistances(originControl.value || '')">Calculate
+  Distances</button>
+
+<mat-card *ngFor="let store of stores">
+  <mat-card-title>{{ store.storeName }}</mat-card-title>
+  <mat-card-content>
+    <p>Address: {{ store.address }}</p>
+    <p>Distance: {{ store.distance }}</p>
+    <p>Duration: {{ store.duration }}</p>
+  </mat-card-content>
+</mat-card>

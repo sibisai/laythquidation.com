@@ -13,4 +13,8 @@ export class TripPlannerService {
   generateRoute(origin: string, locations: string[]): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/generate-route-and-metrics`, { origin, locations });
   }
+
+  calculateDistance(origin: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/calculate-distance`, { origin });
+  }
 }

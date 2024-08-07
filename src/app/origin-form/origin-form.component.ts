@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { TripPlannerService } from '../trip-planner.service';
 
 @Component({
@@ -6,22 +7,39 @@ import { TripPlannerService } from '../trip-planner.service';
   templateUrl: './origin-form.component.html',
   styleUrls: ['./origin-form.component.css']
 })
-export class OriginFormComponent {
-  @Output() tripGenerated = new EventEmitter<any>();
+export class OriginFormComponent implements OnInit {
+  originControl = new FormControl('');
+  stores: any[] = [];
 
-  origin: string = '';
-  location: string = '';
+  constructor(private tripPlannerService: TripPlannerService, private ngZone: NgZone) { }
 
-  constructor(private tripPlannerService: TripPlannerService) { }
+  ngOnInit() {
+    const input = document.getElementById('location-input') as HTMLInputElement;
+    const autocomplete = new google.maps.places.Autocomplete(input);
 
-  onSubmit() {
-    this.tripPlannerService.generateRoute(this.origin, [this.location]).subscribe(
-      (data) => {
-        this.tripGenerated.emit(data);
-      },
-      (error) => {
-        console.error('Error generating route:', error);
-      }
-    );
+    autocomplete.addListener('place_changed', () => {
+      this.ngZone.run(() => {
+        const place = autocomplete.getPlace();
+        if (place.geometry && place.geometry.location) {
+          const origin = place.formatted_address || '';
+          this.calculateDistances(origin);
+        }
+      });
+    });
+  }
+
+  calculateDistances(origin: string) {
+    if (origin) {
+      this.tripPlannerService.calculateDistance(origin).subscribe(
+        response => {
+          this.stores = response.top25Closest;
+        },
+        error => {
+          console.error('Error calculating distances:', error);
+        }
+      );
+    } else {
+      console.error('Origin is undefined or empty');
+    }
   }
 }
