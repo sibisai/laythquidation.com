@@ -13,8 +13,9 @@ declare var google: any;
 export class OriginSelectionComponent implements OnInit {
   originControl = new FormControl('');
   map!: google.maps.Map;
-  userLocation!: google.maps.LatLng;
+  userLocation: google.maps.LatLng = new google.maps.LatLng(37.0902, -95.7129); // Default to center of USA
   loading = false;
+  showProceedButton = false;
 
   constructor(
     private tripPlannerService: TripPlannerService,
@@ -24,15 +25,7 @@ export class OriginSelectionComponent implements OnInit {
 
   ngOnInit() {
     this.loadGoogleMapsScript().then(() => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-          this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          this.initMap();
-        });
-      } else {
-        console.error("Geolocation is not supported by this browser.");
-        this.initMap();
-      }
+      this.initMap();
     });
   }
 
@@ -59,8 +52,8 @@ export class OriginSelectionComponent implements OnInit {
     const mapElement = document.getElementById('map') as HTMLElement;
 
     this.map = new google.maps.Map(mapElement, {
-      center: this.userLocation || { lat: 40.749933, lng: -73.98633 },
-      zoom: 13,
+      center: this.userLocation,
+      zoom: 4, // Zoom out to show the entire USA
       mapTypeControl: false
     });
 
@@ -88,16 +81,49 @@ export class OriginSelectionComponent implements OnInit {
         marker.setPosition(place.geometry.location);
         this.originControl.setValue(place.formatted_address);
 
-        // Log the selected address
+        this.showProceedButton = true;
+
         console.log('Selected address:', place.formatted_address);
       });
     });
   }
 
+  useCurrentLocation() {
+  if (navigator.geolocation) {
+    this.loading = true;
+    navigator.geolocation.getCurrentPosition(position => {
+      this.ngZone.run(() => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const geocoder = new google.maps.Geocoder();
+        const latLng = new google.maps.LatLng(lat, lng);
+
+        geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+          if (status === google.maps.GeocoderStatus.OK && results[0]) {
+            const address = results[0].formatted_address;
+            this.originControl.setValue(address);
+            this.map.setCenter(latLng);
+            this.map.setZoom(17);
+            this.showProceedButton = true;
+            console.log('Current location address:', address);
+          } else {
+            window.alert('Geocoder failed due to: ' + status);
+          }
+          this.loading = false;
+        });
+      });
+    }, () => {
+      this.loading = false;
+      window.alert('Geolocation failed or permission denied.');
+    });
+  } else {
+    window.alert("Geolocation is not supported by this browser.");
+  }
+}
+
   proceedToStores() {
     const origin = this.originControl.value;
     if (origin) {
-      // Log the address being sent to the endpoint
       console.log('Address sent to endpoint:', origin);
       this.loading = true;
       this.tripPlannerService.calculateDistance(origin).subscribe(

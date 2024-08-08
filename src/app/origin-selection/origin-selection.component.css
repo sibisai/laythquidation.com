@@ -9,21 +9,20 @@ body {
   text-align: left;
   margin-left: 20px;
   margin-bottom: 5px;
-  /* Reduced margin-bottom */
 }
 
 .welcome-header {
   margin: 0;
   font-size: 24px;
   padding-top: 20px;
-  /* Added padding-top to match the original padding */
 }
 
 .content-container {
   display: flex;
   flex-direction: column;
   height: calc(100% - 60px);
-  justify-content: space-between;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .map-container {
@@ -38,30 +37,32 @@ body {
   left: 20px;
   z-index: 5;
   max-width: calc(100% - 40px);
-  /* Ensure it doesn't overflow the map */
   padding: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   display: flex;
-  /* Added to ensure the input expands within the container */
   width: 300px;
-  /* Ensure the container takes the full width */
 }
 
 nz-input-group {
   flex: 1;
-  /* Ensure the input group takes the full width of its container */
+  display: flex;
+  align-items: center;
 }
 
 #location-input {
-  width: 50%;
-  /* Ensure the input field expands to full width */
-  min-width: 240px;
-  /* Set a minimum width for the input field */
+  width: 100%;
 }
 
 #map {
   height: 100%;
   width: 100%;
+}
+
+.button-container {
+  margin-top: 20px;
+  /* Add margin to separate the button from the map */
+  display: flex;
+  justify-content: center;
 }

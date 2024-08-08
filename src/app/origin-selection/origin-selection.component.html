@@ -6,12 +6,20 @@
   <div class="map-container">
     <div class="place-picker-container">
       <nz-input-group [nzSuffix]="suffixTemplate">
-        <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl"/>
+        <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl" />
       </nz-input-group>
       <ng-template #suffixTemplate>
         <i nz-icon nzType="search"></i>
       </ng-template>
     </div>
     <div id="map"></div>
+  </div>
+  <div class="button-container">
+    <button *ngIf="!showProceedButton" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
+      Use Current Location
+    </button>
+    <button *ngIf="showProceedButton" nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
+      Proceed to store selections
+    </button>
   </div>
 </div>
