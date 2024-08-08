@@ -16,6 +16,8 @@ export class OriginSelectionComponent implements OnInit {
   userLocation: google.maps.LatLng = new google.maps.LatLng(37.0902, -95.7129); // Default to center of USA
   loading = false;
   showProceedButton = false;
+  autocomplete!: google.maps.places.Autocomplete;
+  marker!: google.maps.Marker;
 
   constructor(
     private tripPlannerService: TripPlannerService,
@@ -26,6 +28,15 @@ export class OriginSelectionComponent implements OnInit {
   ngOnInit() {
     this.loadGoogleMapsScript().then(() => {
       this.initMap();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          this.map.setCenter(this.userLocation);
+          this.marker.setPosition(this.userLocation);
+        }, () => {
+          console.error("Geolocation is not supported by this browser.");
+        });
+      }
     });
   }
 
@@ -48,77 +59,69 @@ export class OriginSelectionComponent implements OnInit {
 
   initMap() {
     const input = document.getElementById('location-input') as HTMLInputElement;
-    const autocomplete = new google.maps.places.Autocomplete(input);
+    this.autocomplete = new google.maps.places.Autocomplete(input);
     const mapElement = document.getElementById('map') as HTMLElement;
 
     this.map = new google.maps.Map(mapElement, {
       center: this.userLocation,
-      zoom: 4, // Zoom out to show the entire USA
+      zoom: 3.5,
       mapTypeControl: false
     });
 
-    const marker = new google.maps.Marker({
+    this.marker = new google.maps.Marker({
       map: this.map,
       position: this.userLocation,
       title: 'Your Location'
     });
 
-    autocomplete.addListener('place_changed', () => {
+    this.autocomplete.addListener('place_changed', () => {
       this.ngZone.run(() => {
-        const place = autocomplete.getPlace();
+        const place = this.autocomplete.getPlace();
         if (!place.geometry || !place.geometry.location) {
           window.alert("No details available for input: '" + place.name + "'");
           return;
         }
 
-        if (place.geometry.viewport) {
-          this.map.fitBounds(place.geometry.viewport);
+        this.map.setCenter(place.geometry.location);
+        this.map.setZoom(17);
+        this.marker.setPosition(place.geometry.location);
+        if (place.formatted_address) {
+          this.originControl.setValue(place.formatted_address);
+          // Show the proceed button when an address is selected
+          this.showProceedButton = true;
+          // Log the selected address
+          console.log('Selected address:', place.formatted_address);
         } else {
-          this.map.setCenter(place.geometry.location);
-          this.map.setZoom(17);
+          console.error('No formatted address available');
         }
+      });
+    });
+  }
 
-        marker.setPosition(place.geometry.location);
-        this.originControl.setValue(place.formatted_address);
+useCurrentLocation() {
+  this.loading = true;
+  const latLng = this.userLocation;
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+    this.ngZone.run(() => {
+      if (status === google.maps.GeocoderStatus.OK && results[0]) {
+        const formattedAddress = results[0].formatted_address;
+        this.originControl.setValue(formattedAddress);
+        this.map.setCenter(latLng);
+        this.map.setZoom(17);
+        this.marker.setPosition(latLng);
 
+        // Update the autocomplete input value directly
+        (document.getElementById('location-input') as HTMLInputElement).value = formattedAddress;
+        
+        // Show the proceed button
         this.showProceedButton = true;
-
-        console.log('Selected address:', place.formatted_address);
-      });
-    });
-  }
-
-  useCurrentLocation() {
-  if (navigator.geolocation) {
-    this.loading = true;
-    navigator.geolocation.getCurrentPosition(position => {
-      this.ngZone.run(() => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const geocoder = new google.maps.Geocoder();
-        const latLng = new google.maps.LatLng(lat, lng);
-
-        geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
-          if (status === google.maps.GeocoderStatus.OK && results[0]) {
-            const address = results[0].formatted_address;
-            this.originControl.setValue(address);
-            this.map.setCenter(latLng);
-            this.map.setZoom(17);
-            this.showProceedButton = true;
-            console.log('Current location address:', address);
-          } else {
-            window.alert('Geocoder failed due to: ' + status);
-          }
-          this.loading = false;
-        });
-      });
-    }, () => {
+      } else {
+        window.alert('Geocoder failed due to: ' + status);
+      }
       this.loading = false;
-      window.alert('Geolocation failed or permission denied.');
     });
-  } else {
-    window.alert("Geolocation is not supported by this browser.");
-  }
+  });
 }
 
   proceedToStores() {
