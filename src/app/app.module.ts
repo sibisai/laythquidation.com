@@ -11,25 +11,30 @@ import { LocationSelectionComponent } from './location-selection/location-select
 import { RouteInfoComponent } from './route-info/route-info.component';
 
 import { NgZorroAntdModule } from './ng-zorro-antd.module';
+import { NzModalModule } from 'ng-zorro-antd/modal'
 import { TripPlannerService } from './trip-planner.service';
+import { LocationPermissionDialogComponent } from './location-permission-dialog/location-permission-dialog.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     OriginSelectionComponent,
     LocationSelectionComponent,
-    RouteInfoComponent
+    RouteInfoComponent,
+    LocationPermissionDialogComponent
   ],
   imports: [
     BrowserModule,
+    NzModalModule,
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
+    
     ReactiveFormsModule,
     AppRoutingModule,
     NgZorroAntdModule // Import the custom module here
   ],
   providers: [TripPlannerService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule { }

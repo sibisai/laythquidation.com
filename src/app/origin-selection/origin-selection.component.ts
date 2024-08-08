@@ -1,7 +1,9 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from '../trip-planner.service';
+import { LocationPermissionDialogComponent } from '../location-permission-dialog/location-permission-dialog.component';
 
 declare var google: any;
 
@@ -17,38 +19,21 @@ export class OriginSelectionComponent implements OnInit {
   loading = false;
   showProceedButton = false;
   locationAccessGranted = false; // Flag to check if location access is granted
+  locationSet = false; // Flag to check if the location is set
   autocomplete!: google.maps.places.Autocomplete;
   marker!: google.maps.Marker;
 
   constructor(
     private tripPlannerService: TripPlannerService,
     private ngZone: NgZone,
-    private router: Router
+    private router: Router,
+    private modal: NzModalService
   ) {}
 
   ngOnInit() {
     this.loadGoogleMapsScript().then(() => {
       this.initMap();
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          position => {
-            this.locationAccessGranted = true; // Set flag to true if location access is granted
-            this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            this.map.setCenter(this.userLocation);
-            this.marker.setPosition(this.userLocation);
-            this.map.setZoom(9)
-          },
-          () => {
-            console.error("Location access denied. Allow location access to use current location.");
-            this.map.setCenter(this.userLocation);
-            this.map.setZoom(3.5); // Set initial zoom level
-          }
-        );
-      } else {
-        console.error("Geolocation is not supported by this browser.");
-        this.map.setCenter(this.userLocation);
-        this.map.setZoom(3.5); // Set initial zoom level
-      }
+      this.checkLocationAccess();
     });
   }
 
@@ -101,6 +86,7 @@ export class OriginSelectionComponent implements OnInit {
           this.originControl.setValue(place.formatted_address);
           // Show the proceed button when an address is selected
           this.showProceedButton = true;
+          this.locationSet = true; // Set the locationSet flag to true
           // Log the selected address
           console.log('Selected address:', place.formatted_address);
         } else {
@@ -110,45 +96,89 @@ export class OriginSelectionComponent implements OnInit {
     });
   }
 
+  checkLocationAccess() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          this.locationAccessGranted = true; // Set flag to true if location access is granted
+          this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+          this.map.setCenter(this.userLocation);
+          this.marker.setPosition(this.userLocation);
+          this.map.setZoom(17);
+        },
+        () => {
+          this.ngZone.run(() => {
+            this.map.setCenter(this.userLocation);
+            this.map.setZoom(3.5); // Set initial zoom level
+          });
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      this.map.setCenter(this.userLocation);
+      this.map.setZoom(3.5); // Set initial zoom level
+    }
+  }
+
   useCurrentLocation() {
-    if (!navigator.geolocation) {
-      window.alert("Geolocation is not supported by this browser.");
+    if (!this.locationAccessGranted) {
+      this.openLocationPermissionDialog();
       return;
     }
 
     this.loading = true;
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        this.ngZone.run(() => {
-          this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          const geocoder = new google.maps.Geocoder();
-          geocoder.geocode({ 'location': this.userLocation }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
-            if (status === google.maps.GeocoderStatus.OK && results[0]) {
-              const formattedAddress = results[0].formatted_address;
-              this.originControl.setValue(formattedAddress);
-              this.map.setCenter(this.userLocation);
-              this.map.setZoom(17);
-              this.marker.setPosition(this.userLocation);
+    const latLng = this.userLocation;
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+      this.ngZone.run(() => {
+        if (status === google.maps.GeocoderStatus.OK && results[0]) {
+          const formattedAddress = results[0].formatted_address;
+          this.originControl.setValue(formattedAddress);
+          this.map.setCenter(latLng);
+          this.map.setZoom(17);
+          this.marker.setPosition(latLng);
 
-              // Update the autocomplete input value directly
-              (document.getElementById('location-input') as HTMLInputElement).value = formattedAddress;
+          // Update the autocomplete input value directly
+          (document.getElementById('location-input') as HTMLInputElement).value = formattedAddress;
+          
+          // Show the proceed button
+          this.showProceedButton = true;
+          this.locationSet = true; // Set the locationSet flag to true
+        } else {
+          window.alert('Geocoder failed due to: ' + status);
+        }
+        this.loading = false;
+      });
+    });
+  }
 
-              // Show the proceed button
-              this.showProceedButton = true;
-            } else {
-              window.alert('Geocoder failed due to: ' + status);
-            }
-            this.loading = false;
-          });
-        });
-      },
-      () => {
-        this.ngZone.run(() => {
-          window.alert("Location access denied. Allow location access to use current location.");
-          this.loading = false;
-        });
+  clearCurrentLocation() {
+    this.originControl.setValue('');
+    (document.getElementById('location-input') as HTMLInputElement).value = '';
+    this.showProceedButton = false;
+    this.locationSet = false;
+    this.map.setCenter(new google.maps.LatLng(37.0902, -95.7129)); // Reset to default center
+    this.map.setZoom(3.5); // Reset to default zoom level
+    this.marker.setPosition(new google.maps.LatLng(37.0902, -95.7129));
+  }
+
+  openLocationPermissionDialog(): void {
+    const modal = this.modal.create({
+      nzTitle: 'Location Access Required',
+      nzContent: LocationPermissionDialogComponent,
+      nzCentered: true,
+      nzFooter: null
+    });
+
+    modal.afterClose.subscribe(result => {
+      if (result) {
+        // If the dialog closed with result true, it means user chose to proceed
+        this.locationAccessGranted = true;
+        // Set location to Los Angeles
+        this.userLocation = new google.maps.LatLng(34.0522, -118.2437); // Los Angeles coordinates
+        this.useCurrentLocation();
       }
-    );
+    });
   }
 
   proceedToStores() {

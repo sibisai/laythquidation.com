@@ -1,0 +1,5 @@
+/* You can add any custom styles here */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}

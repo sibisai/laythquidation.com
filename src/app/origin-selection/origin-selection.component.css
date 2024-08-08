@@ -64,5 +64,12 @@ nz-input-group {
   margin-top: 20px;
   /* Add margin to separate the button from the map */
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  /* Add space between buttons */
+}
+
+.nz-modal-footer .ant-btn {
+  margin-left: 10px;
 }

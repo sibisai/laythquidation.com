@@ -15,8 +15,11 @@
     <div id="map"></div>
   </div>
   <div class="button-container">
-    <button *ngIf="!showProceedButton" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
+    <button *ngIf="!locationSet" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
       Use Current Location
+    </button>
+    <button *ngIf="locationSet" nz-button nzType="default" (click)="clearCurrentLocation()" [nzLoading]="loading">
+      Clear Current Location
     </button>
     <button *ngIf="showProceedButton" nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
       Proceed to store selections
