@@ -36,7 +36,7 @@ export class OriginSelectionComponent implements OnInit {
             this.userLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             this.map.setCenter(this.userLocation);
             this.marker.setPosition(this.userLocation);
-            this.map.setZoom(17)
+            this.map.setZoom(9)
           },
           () => {
             console.error("Location access denied. Allow location access to use current location.");
