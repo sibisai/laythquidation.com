@@ -189,23 +189,34 @@ export class OriginSelectionComponent implements OnInit {
     });
   }
 
-  proceedToStores() {
-    const origin = this.originControl.value;
-    if (origin) {
-      console.log('Address sent to endpoint:', origin);
-      this.loading = true;
-      this.tripPlannerService.calculateDistance(origin).subscribe(
-        response => {
-          this.router.navigate(['/location-selection'], { state: { stores: response.top25Closest, origin } });
-          this.loading = false;
-        },
-        error => {
-          console.error('Error calculating distances:', error);
-          this.loading = false;
-        }
-      );
-    } else {
-      window.alert('Please enter a valid origin address.');
-    }
+proceedToStores() {
+  const origin = this.originControl.value;
+  if (origin) {
+    this.modal.confirm({
+      nzTitle: 'Proceed with this origin location?',
+      nzContent: `You have selected "${origin}" as your origin. Do you want to continue?`,
+      nzOkText: 'Yes',
+      nzCancelText: 'No',
+      nzOnOk: () => {
+        this.loading = true;
+        this.tripPlannerService.calculateDistance(origin).subscribe(
+          response => {
+            this.router.navigate(['/select-locations'], { state: { stores: response.top25Closest, origin } });
+            this.loading = false;
+          },
+          error => {
+            console.error('Error calculating distances:', error);
+            this.loading = false;
+          }
+        );
+      },
+      nzOnCancel: () => {
+        // If the user cancels, nothing happens
+        console.log('User canceled proceeding to store selection.');
+      }
+    });
+  } else {
+    window.alert('Please enter a valid origin address.');
   }
+}
 }

@@ -6,8 +6,8 @@ import { RouteInfoComponent } from './route-info/route-info.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/origin-selection', pathMatch: 'full' },
-  { path: 'origin-selection', component: OriginSelectionComponent },
-  { path: 'location-selection', component: LocationSelectionComponent },
+  { path: 'select-origin', component: OriginSelectionComponent },
+  { path: 'select-locations', component: LocationSelectionComponent },
   { path: 'route-info', component: RouteInfoComponent },
   { path: '**', redirectTo: '/origin-selection' }
 ];

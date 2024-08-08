@@ -1,40 +1,11 @@
-<div *ngIf="loading; else content">
-  <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+<div *ngFor="let location of locations" class="location-card">
+  <nz-card nzTitle="{{ location.storeName }}" [nzExtra]="extraTemplate">
+    <p>{{ location.address }}</p>
+    <p>{{ location.phoneNumber }}</p>
+    <p>Distance: {{ location.distance }} miles</p>
+    <p>Duration: {{ location.estimatedDuration }}</p>
+  </nz-card>
+  <ng-template #extraTemplate>
+    <button nz-button nzType="primary" (click)="selectLocation(location)">Select</button>
+  </ng-template>
 </div>
-
-<ng-template #content>
-  <div class="table-container">
-    <button nz-button nzType="primary" (click)="generateRoute()" [disabled]="!hasSelected" [nzLoading]="loading">
-      Generate Route
-    </button>
-    <span *ngIf="hasSelected">{{ selectedRowKeys.length }} items selected</span>
-
-    <nz-table #basicTable [nzData]="paginatedStores" [nzLoading]="loading" [nzBordered]="true" [nzSize]="'middle'"
-      [(nzPageIndex)]="currentPage" [nzPageSize]="pageSize" [nzTotal]="stores.length"
-      (nzPageIndexChange)="onPageChange($event)">
-      <thead>
-        <tr>
-          <th nzWidth="25%">Name</th>
-          <th nzWidth="25%">Distance</th>
-          <th nzWidth="25%">Duration</th>
-          <th nzWidth="25%">Address</th>
-          <th nzWidth="25%">Select</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let store of paginatedStores">
-          <td>{{ store.storeName }}</td>
-          <td>{{ store.distance }}</td>
-          <td>{{ store.duration }}</td>
-          <td>{{ store.address }}</td>
-          <td>
-            <input type="checkbox" (change)="onSelectRow(store, $event)">
-          </td>
-        </tr>
-      </tbody>
-    </nz-table>
-    <nz-pagination [nzTotal]="stores.length" [nzPageSize]="pageSize" [nzPageIndex]="currentPage"
-      (nzPageIndexChange)="onPageChange($event)">
-    </nz-pagination>
-  </div>
-</ng-template>
