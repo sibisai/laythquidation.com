@@ -4,22 +4,21 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { NzTableModule } from 'ng-zorro-antd/table';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzPaginationModule } from 'ng-zorro-antd/pagination';
-
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { MapComponent } from './map/map.component';
+import { OriginSelectionComponent } from './origin-selection/origin-selection.component';
+import { LocationSelectionComponent } from './location-selection/location-selection.component';
+import { RouteInfoComponent } from './route-info/route-info.component';
 
+import { NgZorroAntdModule } from './ng-zorro-antd.module';
 import { TripPlannerService } from './trip-planner.service';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent,
+    OriginSelectionComponent,
+    LocationSelectionComponent,
+    RouteInfoComponent
   ],
   imports: [
     BrowserModule,
@@ -27,12 +26,8 @@ import { TripPlannerService } from './trip-planner.service';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    NzTableModule,
-    NzInputModule,
-    NzIconModule,
-    NzButtonModule,
-    NzPaginationModule,
     AppRoutingModule,
+    NgZorroAntdModule // Import the custom module here
   ],
   providers: [TripPlannerService],
   bootstrap: [AppComponent]

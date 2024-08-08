@@ -6,15 +6,15 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TripPlannerService {
-  private baseUrl = 'http://localhost:5001';
+  private apiUrl = 'http://localhost:5001'; // Update this if needed
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   calculateDistance(origin: string): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/calculate-distance`, { origin });
+    return this.http.post(`${this.apiUrl}/calculate-distance`, { origin });
   }
 
   generateRouteAndMetrics(data: { origin: string, locations: string[] }): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/generate-route-and-metrics`, data);
+    return this.http.post(`${this.apiUrl}/generate-route-and-metrics`, data);
   }
 }

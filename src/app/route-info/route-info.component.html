@@ -1,0 +1,12 @@
+<div *ngIf="loading; else routeContent">
+  <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+</div>
+
+<ng-template #routeContent>
+  <div *ngIf="tripInfo">
+    <h2>Generated Trip Information</h2>
+    <p>Total Distance: {{ tripInfo.totalDistance }}</p>
+    <p>Total Duration: {{ tripInfo.totalDuration }}</p>
+    <p><a [href]="tripInfo.googleMapsUrl" target="_blank">View on Google Maps</a></p>
+  </div>
+</ng-template>

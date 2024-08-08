@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapComponent } from './map.component';
+import { OriginSelectionComponent } from './origin-selection.component';
 
-describe('MapComponent', () => {
-  let component: MapComponent;
-  let fixture: ComponentFixture<MapComponent>;
+describe('OriginSelectionComponent', () => {
+  let component: OriginSelectionComponent;
+  let fixture: ComponentFixture<OriginSelectionComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MapComponent]
+      imports: [OriginSelectionComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(MapComponent);
+    fixture = TestBed.createComponent(OriginSelectionComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

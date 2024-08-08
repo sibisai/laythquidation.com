@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RouteDisplayComponent } from './route-display.component';
+import { RouteInfoComponent } from './route-info.component';
 
-describe('RouteDisplayComponent', () => {
-  let component: RouteDisplayComponent;
-  let fixture: ComponentFixture<RouteDisplayComponent>;
+describe('RouteInfoComponent', () => {
+  let component: RouteInfoComponent;
+  let fixture: ComponentFixture<RouteInfoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RouteDisplayComponent]
+      imports: [RouteInfoComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(RouteDisplayComponent);
+    fixture = TestBed.createComponent(RouteInfoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

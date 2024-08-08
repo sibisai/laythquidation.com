@@ -1,20 +1,8 @@
-<div class="header-container">
-  <h1 class="welcome-header">Welcome Layth,</h1>
+<div *ngIf="loading; else content">
+  <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
 </div>
 
-<div class="content-container">
-  <div class="map-container">
-    <div class="place-picker-container">
-      <nz-input-group [nzSuffix]="suffixTemplate">
-        <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl" />
-      </nz-input-group>
-      <ng-template #suffixTemplate>
-        <i nz-icon nzType="search"></i>
-      </ng-template>
-    </div>
-    <div id="map"></div>
-  </div>
-
+<ng-template #content>
   <div class="table-container">
     <button nz-button nzType="primary" (click)="generateRoute()" [disabled]="!hasSelected" [nzLoading]="loading">
       Generate Route
@@ -49,14 +37,4 @@
       (nzPageIndexChange)="onPageChange($event)">
     </nz-pagination>
   </div>
-
-  <div *ngIf="routeInfo.length">
-    <h2>Route Information</h2>
-    <ol>
-      <li *ngFor="let step of routeInfo">
-        {{ step.step }}. {{ step.address }}
-      </li>
-    </ol>
-    <p><a [href]="googleMapsUrl" target="_blank">View on Google Maps</a></p>
-  </div>
-</div>
+</ng-template>

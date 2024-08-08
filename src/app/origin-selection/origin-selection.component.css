@@ -26,8 +26,9 @@ body {
 
 .map-container {
   position: relative;
-  height: 100%;
-  width: 50%;
+  height: 80vh;
+  /* Adjusted height for a larger map */
+  width: 100%;
 }
 
 .place-picker-container {
@@ -45,10 +46,4 @@ body {
 #map {
   height: 100%;
   width: 100%;
-}
-
-.table-container {
-  width: 45%;
-  padding: 20px;
-  overflow-y: auto;
 }

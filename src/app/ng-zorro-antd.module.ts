@@ -8,7 +8,9 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @NgModule({
   exports: [
@@ -21,7 +23,9 @@ import { NzPaginationModule } from 'ng-zorro-antd/pagination';
     NzSpaceModule,
     NzTypographyModule,
     NzTableModule,
-    NzPaginationModule
+    NzSpinModule,
+    NzPaginationModule,
+    NzIconModule
   ]
 })
 export class NgZorroAntdModule { }

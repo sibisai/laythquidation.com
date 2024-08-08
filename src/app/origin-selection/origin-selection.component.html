@@ -1,0 +1,19 @@
+<div class="header-container">
+  <h1 class="welcome-header">Welcome Layth,</h1>
+</div>
+
+<div class="content-container">
+  <div class="map-container">
+    <div class="place-picker-container">
+      <nz-input-group [nzSuffix]="suffixTemplate">
+        <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl" />
+        <ng-template #suffixTemplate>
+          <button nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
+            <i nz-icon nzType="search"></i>
+          </button>
+        </ng-template>
+      </nz-input-group>
+    </div>
+    <div id="map" style="height: 50%;"></div>
+  </div>
+</div>
