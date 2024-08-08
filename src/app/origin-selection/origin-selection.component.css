@@ -7,14 +7,16 @@ body {
 
 .header-container {
   text-align: left;
-  margin-bottom: 10px;
-  padding-left: 20px;
+  margin-left: 20px;
+  margin-bottom: 5px;
+  /* Reduced margin-bottom */
 }
 
 .welcome-header {
   margin: 0;
   font-size: 24px;
-  padding: 20px 0;
+  padding-top: 20px;
+  /* Added padding-top to match the original padding */
 }
 
 .content-container {
@@ -35,11 +37,28 @@ body {
   top: 20px;
   left: 20px;
   z-index: 5;
-  width: 300px;
+  max-width: calc(100% - 40px);
+  /* Ensure it doesn't overflow the map */
   padding: 10px;
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 4px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  display: flex;
+  /* Added to ensure the input expands within the container */
+  width: 300px;
+  /* Ensure the container takes the full width */
+}
+
+nz-input-group {
+  flex: 1;
+  /* Ensure the input group takes the full width of its container */
+}
+
+#location-input {
+  width: 50%;
+  /* Ensure the input field expands to full width */
+  min-width: 240px;
+  /* Set a minimum width for the input field */
 }
 
 #map {
