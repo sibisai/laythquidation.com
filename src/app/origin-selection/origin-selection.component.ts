@@ -121,13 +121,24 @@ export class OriginSelectionComponent implements OnInit {
   }
 
   useCurrentLocation() {
-    if (!this.locationAccessGranted) {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          this.locationAccessGranted = true;
+          this.setUserLocation(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          this.openLocationPermissionDialog();
+        }
+      );
+    } else {
       this.openLocationPermissionDialog();
-      return;
     }
+  }
 
+  setUserLocation(lat: number, lng: number) {
     this.loading = true;
-    const latLng = this.userLocation;
+    const latLng = new google.maps.LatLng(lat, lng);
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
       this.ngZone.run(() => {
@@ -173,10 +184,7 @@ export class OriginSelectionComponent implements OnInit {
     modal.afterClose.subscribe(result => {
       if (result) {
         // If the dialog closed with result true, it means user chose to proceed
-        this.locationAccessGranted = true;
-        // Set location to Los Angeles
-        this.userLocation = new google.maps.LatLng(34.0522, -118.2437); // Los Angeles coordinates
-        this.useCurrentLocation();
+        this.setUserLocation(34.0522, -118.2437); // Los Angeles coordinates
       }
     });
   }

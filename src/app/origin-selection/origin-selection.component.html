@@ -1,7 +1,6 @@
 <div class="header-container">
   <h1 class="welcome-header">Welcome, Layth!</h1>
 </div>
-
 <div class="content-container">
   <div class="map-container">
     <div class="place-picker-container">
@@ -15,14 +14,15 @@
     <div id="map"></div>
   </div>
   <div class="button-container">
-    <button *ngIf="!locationSet" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
+    <button *ngIf="!showProceedButton" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
       Use Current Location
     </button>
-    <button *ngIf="locationSet" nz-button nzType="default" (click)="clearCurrentLocation()" [nzLoading]="loading">
-      Clear Current Location
+    <button *ngIf="showProceedButton && !loading" nz-button nzType="default" (click)="clearCurrentLocation()">
+      Clear Location
     </button>
     <button *ngIf="showProceedButton" nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
       Proceed to store selections
     </button>
   </div>
 </div>
+```

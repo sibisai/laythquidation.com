@@ -6,13 +6,20 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
   templateUrl: './location-permission-dialog.component.html'
 })
 export class LocationPermissionDialogComponent {
+  isVisible = true;
+  isConfirmLoading = false;
+
   constructor(private modal: NzModalRef) {}
 
-  onClose(): void {
-    this.modal.close(false);
+  handleOk(): void {
+    this.isConfirmLoading = true;
+    setTimeout(() => {
+      this.modal.close(true);
+      this.isConfirmLoading = false;
+    }, 1000);
   }
 
-  onConfirm(): void {
-    this.modal.close(true);
+  handleCancel(): void {
+    this.modal.close(false);
   }
 }

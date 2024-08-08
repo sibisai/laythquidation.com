@@ -29,7 +29,6 @@ import { LocationPermissionDialogComponent } from './location-permission-dialog/
     BrowserAnimationsModule,
     HttpClientModule,
     FormsModule,
-    
     ReactiveFormsModule,
     AppRoutingModule,
     NgZorroAntdModule // Import the custom module here
