@@ -7,13 +7,11 @@
     <div class="place-picker-container">
       <nz-input-group [nzSuffix]="suffixTemplate">
         <input nz-input id="location-input" placeholder="Enter a place to start" [formControl]="originControl" />
-        <ng-template #suffixTemplate>
-          <button nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
-            <i nz-icon nzType="search"></i>
-          </button>
-        </ng-template>
       </nz-input-group>
+      <ng-template #suffixTemplate>
+        <i nz-icon nzType="search"></i>
+      </ng-template>
     </div>
-    <div id="map" style="height: 50%;"></div>
+    <div id="map"></div>
   </div>
 </div>

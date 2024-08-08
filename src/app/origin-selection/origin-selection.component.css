@@ -20,14 +20,14 @@ body {
 
 .content-container {
   display: flex;
+  flex-direction: column;
   height: calc(100% - 60px);
   justify-content: space-between;
 }
 
 .map-container {
   position: relative;
-  height: 80vh;
-  /* Adjusted height for a larger map */
+  height: 50vh;
   width: 100%;
 }
 
