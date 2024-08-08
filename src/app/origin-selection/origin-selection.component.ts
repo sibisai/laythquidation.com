@@ -87,6 +87,9 @@ export class OriginSelectionComponent implements OnInit {
 
         marker.setPosition(place.geometry.location);
         this.originControl.setValue(place.formatted_address);
+
+        // Log the selected address
+        console.log('Selected address:', place.formatted_address);
       });
     });
   }
@@ -94,6 +97,8 @@ export class OriginSelectionComponent implements OnInit {
   proceedToStores() {
     const origin = this.originControl.value;
     if (origin) {
+      // Log the address being sent to the endpoint
+      console.log('Address sent to endpoint:', origin);
       this.loading = true;
       this.tripPlannerService.calculateDistance(origin).subscribe(
         response => {

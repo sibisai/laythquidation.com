@@ -7,14 +7,14 @@ body {
 
 .header-container {
   text-align: left;
-  margin-left: 20px;
   margin-bottom: 10px;
+  padding-left: 20px;
 }
 
 .welcome-header {
   margin: 0;
-  padding: 20px;
   font-size: 24px;
+  padding: 20px 0;
 }
 
 .content-container {
