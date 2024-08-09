@@ -1,6 +1,5 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { QRCodeService } from '../services/qr-code.service';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
 
@@ -14,13 +13,12 @@ declare var google: any;
 export class RouteInfoComponent implements OnInit, AfterViewInit {
   tripInfo: any;
   qrCodeUrl: string = '';
-  showQRCode: any;
+  showQRCode: boolean = true;
 
   constructor(
     private router: Router,
     private routeDataService: RouteDataService,
     private locationService: LocationService,
-    private qrCodeService: QRCodeService
   ) {}
 
   ngOnInit() {
@@ -31,9 +29,8 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    console.log('tripinfo.googleMapsUrl', this.tripInfo.googleMapsUrl);
-    // Generate the QR code URL for the Google Maps link
-    this.qrCodeUrl = this.qrCodeService.generateQRCodeURL(this.tripInfo.googleMapsUrl, '400x400');
+    // Generate the QR code URL using the QRCodeService
+    this.qrCodeUrl = this.tripInfo.qrCodeUrl;
   }
 
   ngAfterViewInit() {
@@ -43,8 +40,6 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       console.error('Error loading Google Maps script:', error);
     });
   }
-
-  
 
   loadMap() {
     const mapElement = document.getElementById('map');
@@ -209,3 +204,4 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     });
   }
 }
+

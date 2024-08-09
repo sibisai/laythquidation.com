@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { QRCodeService } from './services/qr-code.service';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { OriginSelectionComponent } from './origin-selection/origin-selection.component';
@@ -35,7 +34,6 @@ import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
   ],
   providers: [
     TripPlannerService,
-    QRCodeService,
     { provide: NZ_I18N, useValue: en_US } // Ensure en_US locale is used
   ],
   bootstrap: [AppComponent],
