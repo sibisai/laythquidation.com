@@ -10,10 +10,11 @@ import { OriginSelectionComponent } from './origin-selection/origin-selection.co
 import { LocationSelectionComponent } from './location-selection/location-selection.component';
 import { RouteInfoComponent } from './route-info/route-info.component';
 
-import { NgZorroAntdModule } from './ng-zorro-antd.module';
-import { NzModalModule } from 'ng-zorro-antd/modal'
+import { NgZorroAntdModule } from './ng-zorro-antd.module'; // Assuming this is a custom module for all ng-zorro imports
+import { NzModalModule } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from './trip-planner.service';
 import { LocationPermissionDialogComponent } from './location-permission-dialog/location-permission-dialog.component';
+import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 
 @NgModule({
   declarations: [
@@ -33,7 +34,10 @@ import { LocationPermissionDialogComponent } from './location-permission-dialog/
     AppRoutingModule,
     NgZorroAntdModule // Import the custom module here
   ],
-  providers: [TripPlannerService],
+  providers: [
+    TripPlannerService,
+    { provide: NZ_I18N, useValue: en_US } // Ensure en_US locale is used
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule { }
