@@ -3,8 +3,8 @@
     <div id="map"></div>
   </div>
   <div class="locations-container">
-    <div *ngFor="let location of locations" class="location-card">
-      <nz-card nzTitle="{{ location.storeName }}" [nzExtra]="extraTemplate">
+    <div *ngFor="let location of locations; let i = index" class="location-card">
+      <nz-card nzTitle="{{ i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
         <p>{{ location.address }}</p>
         <p>{{ location.phoneNumber }}</p>
         <p>Distance: {{ location.distance }}</p>
