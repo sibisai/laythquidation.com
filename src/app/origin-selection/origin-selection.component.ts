@@ -74,6 +74,7 @@ export class OriginSelectionComponent implements OnInit {
     this.autocomplete.addListener('place_changed', () => {
       this.ngZone.run(() => {
         const place = this.autocomplete.getPlace();
+        console.log('place selected:', place);
         if (!place.geometry || !place.geometry.location) {
           window.alert("No details available for input: '" + place.name + "'");
           return;
@@ -189,34 +190,34 @@ export class OriginSelectionComponent implements OnInit {
     });
   }
 
-proceedToStores() {
-  const origin = this.originControl.value;
-  if (origin) {
-    this.modal.confirm({
-      nzTitle: 'Proceed with this origin location?',
-      nzContent: `You have selected "${origin}" as your origin. Do you want to continue?`,
-      nzOkText: 'Yes',
-      nzCancelText: 'No',
-      nzOnOk: () => {
-        this.loading = true;
-        this.tripPlannerService.calculateDistance(origin).subscribe(
-          response => {
-            this.router.navigate(['/select-locations'], { state: { stores: response.top25Closest, origin } });
-            this.loading = false;
-          },
-          error => {
-            console.error('Error calculating distances:', error);
-            this.loading = false;
-          }
-        );
-      },
-      nzOnCancel: () => {
-        // If the user cancels, nothing happens
-        console.log('User canceled proceeding to store selection.');
-      }
-    });
-  } else {
-    window.alert('Please enter a valid origin address.');
+  proceedToStores() {
+    const start = this.originControl.value;
+    if (start) {
+      this.modal.confirm({
+        nzTitle: 'Proceed with this origin location?',
+        nzContent: `You have selected "${start}" as your origin. Do you want to continue?`,
+        nzOkText: 'Yes',
+        nzCancelText: 'No',
+        nzOnOk: () => {
+          this.loading = true;
+          this.tripPlannerService.calculateDistance({ origin: start }).subscribe(
+            response => {
+              this.router.navigate(['/select-locations'], { state: { stores: response.top25Closest, start } });
+              this.loading = false;
+            },
+            error => {
+              console.error('Error calculating distances:', error);
+              this.loading = false;
+            }
+          );
+        },
+        nzOnCancel: () => {
+          // If the user cancels, nothing happens
+          console.log('User canceled proceeding to store selection.');
+        }
+      });
+    } else {
+      window.alert('Please enter a valid origin address.');
+    }
   }
-}
 }

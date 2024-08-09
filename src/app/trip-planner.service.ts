@@ -10,8 +10,8 @@ export class TripPlannerService {
 
   constructor(private http: HttpClient) {}
 
-  calculateDistance(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/calculate-distance`, { origin });
+  calculateDistance(data: { origin: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/calculate-distance`, data);
   }
 
   generateRouteAndMetrics(data: { origin: string, locations: string[] }): Observable<any> {

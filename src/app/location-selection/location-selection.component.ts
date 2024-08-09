@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TripPlannerService } from '../trip-planner.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-location-selection',
@@ -8,21 +8,23 @@ import { TripPlannerService } from '../trip-planner.service';
 })
 export class LocationSelectionComponent implements OnInit {
   locations: any[] = [];
+  origin: string = '';
 
-  constructor(private TripPlannerService: TripPlannerService) {}
-
-  ngOnInit(): void {
-    this.getLocations();
+  constructor(private router: Router) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.locations = navigation.extras.state['stores'];
+      this.origin = navigation.extras.state['start'];
+    }
   }
 
-  getLocations(): void {
-    this.TripPlannerService.calculateDistance({ origin: 'Your Origin Address' })
-      .subscribe((data: any) => {
-        this.locations = data;
-      });
+  ngOnInit(): void {
+    console.log('Locations:', this.locations);
+    console.log('Origin:', this.origin);
   }
 
   selectLocation(location: any): void {
-    // Handle the location selection logic here
+    console.log('Selected location:', location);
+    // You can implement any logic here when a location is selected.
   }
 }

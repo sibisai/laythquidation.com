@@ -1,11 +1,2 @@
-<app-origin-selection (tripGenerated)="handleTripGenerated($event)"></app-origin-selection>
-
-<div *ngIf="tripInfo">
-  <h2>Generated Trip Information</h2>
-  <ol>
-    <li *ngFor="let step of tripInfo.route">
-      {{ step.step }}. {{ step.address }}
-    </li>
-  </ol>
-  <p><a [href]="tripInfo.googleMapsUrl" target="_blank">View on Google Maps</a></p>
-</div>
+<!-- app.component.html -->
+<router-outlet></router-outlet>
