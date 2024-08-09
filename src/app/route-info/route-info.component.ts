@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 
@@ -9,7 +9,7 @@ declare var google: any;
   templateUrl: './route-info.component.html',
   styleUrls: ['./route-info.component.css']
 })
-export class RouteInfoComponent implements OnInit {
+export class RouteInfoComponent implements OnInit, AfterViewInit {
   tripInfo: any;
   showQRCode = false;
 
@@ -22,59 +22,58 @@ export class RouteInfoComponent implements OnInit {
       this.router.navigate(['/select-origin']);
       return;
     }
+  }
 
-    if (!this.tripInfo.polylineData) {
-      console.error('Polyline data is missing');
+  ngAfterViewInit() {
+    this.loadGoogleMapsScript().then(() => {
+      this.loadMap();
+    }).catch(error => {
+      console.error('Error loading Google Maps script:', error);
+    });
+  }
+  
+  loadMap() {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error('Map element not found');
       return;
     }
 
-    this.loadMap();
-  }
-
-  loadMap() {
-    const map = new google.maps.Map(document.getElementById('map'), {
-      center: { lat: 34.0522, lng: -118.2437 },
+    const map = new google.maps.Map(mapElement, {
+      center: { lat: 34.0522, lng: -118.2437 }, // Example coordinates
       zoom: 10,
       mapTypeControl: false
     });
 
-    if (google.maps.geometry && google.maps.geometry.encoding) {
-      const polylinePath = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
-
-      const polyline = new google.maps.Polyline({
-        path: polylinePath,
-        strokeColor: '#FF0000',
-        strokeOpacity: 1.0,
-        strokeWeight: 2
-      });
-
-      polyline.setMap(map);
-
-      // Add waypoints markers
-      this.tripInfo.waypointsForPins.forEach((location: string) => {
-        const [lat, lng] = location.split(',').map(Number);
-        new google.maps.Marker({
-          position: { lat, lng },
-          map,
-          title: 'Waypoint'
-        });
-      });
-
-      const bounds = new google.maps.LatLngBounds();
-      polylinePath.forEach((point: google.maps.LatLng) => {
-        bounds.extend(point);
-      });
-      map.fitBounds(bounds);
-    } else {
-      console.error('Google Maps Geometry Library is not loaded.');
-    }
+    console.log("Map initialized:", map);
   }
 
   viewInGoogleMaps() {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
 
+  toggleQRCode() {
+    this.showQRCode = !this.showQRCode;
+  }
+
   generateQRCodeURL(url: string): string {
     return `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(url)}`;
+  }
+
+  loadGoogleMapsScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof google !== 'undefined') {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg&libraries=geometry,places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = (error) => reject(error);
+      document.head.appendChild(script);
+    });
   }
 }

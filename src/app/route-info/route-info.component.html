@@ -1,18 +1,13 @@
 <div class="header-container">
-  <h1 class="trip-info-header">Total Duration: {{ tripInfo?.totalDuration }}, Distance: {{ tripInfo?.totalDistance }}
-  </h1>
+  <h1 class="welcome-header">Total Duration: {{ tripInfo.totalDuration }}, Distance: {{ tripInfo.totalDistance }}</h1>
 </div>
 <div class="content-container">
   <div class="map-container">
     <div id="map"></div>
   </div>
   <div class="button-container">
-    <a [href]="tripInfo?.googleMapsUrl" target="_blank">
-      <button nz-button nzType="primary">View in Maps</button>
-    </a>
-    <button nz-button nzType="default" (click)="showQRCode = !showQRCode">
-      {{ showQRCode ? 'Hide' : 'Show' }} QR Code
-    </button>
-    <img *ngIf="showQRCode" [src]="generateQRCodeURL(tripInfo?.googleMapsUrl)" alt="QR Code" class="qr-code" />
+    <button nz-button nzType="primary" (click)="viewInGoogleMaps()">View in Maps</button>
+    <!-- <button nz-button nzType="default" (click)="toggleQRCode()">{{ showQRCode ? 'Hide' : 'Show' }} QR Code</button> -->
+    <img *ngIf="showQRCode" [src]="generateQRCodeURL(tripInfo.googleMapsUrl)" alt="QR Code">
   </div>
 </div>
