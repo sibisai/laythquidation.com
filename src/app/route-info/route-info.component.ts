@@ -32,21 +32,77 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     });
   }
   
-  loadMap() {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) {
-      console.error('Map element not found');
-      return;
-    }
+loadMap() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Map element not found');
+    return;
+  }
 
-    const map = new google.maps.Map(mapElement, {
-      center: { lat: 34.0522, lng: -118.2437 }, // Example coordinates
-      zoom: 10,
-      mapTypeControl: false
+  const map = new google.maps.Map(mapElement, {
+    center: { lat: 34.0522, lng: -118.2437 }, // Example coordinates, replace with your origin if needed
+    zoom: 10,
+    mapTypeControl: false
+  });
+
+  console.log("Map initialized:", map);
+
+  // Decode the polyline data from the tripInfo
+  const path = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
+  console.log("Decoded path:", path);
+
+  // Define color mapping for traffic conditions
+  const speedToColor: Record<'NORMAL' | 'SLOW' | 'TRAFFIC_JAM', string> = {
+    "NORMAL": "#0000FF",  // Blue for no traffic
+    "SLOW": "#FFFF00",    // Yellow
+    "TRAFFIC_JAM": "#FF0000" // Red
+  };
+
+  // Create multiple polylines based on the traffic speed segments
+  this.tripInfo.travelAdvisory.speedReadingIntervals.forEach((interval: any) => {
+    const segmentPath = path.slice(interval.startPolylinePointIndex, interval.endPolylinePointIndex + 1);
+
+    const strokeWeight = interval.speed === "NORMAL" ? 4 : 2;  // Make "NORMAL" traffic thicker
+
+    const polyline = new google.maps.Polyline({
+      path: segmentPath,
+      strokeColor: speedToColor[interval.speed as keyof typeof speedToColor],
+      strokeOpacity: 1.0,
+      strokeWeight: strokeWeight
     });
 
-    console.log("Map initialized:", map);
+    polyline.setMap(map);
+  });
+
+  // Add markers for waypoints
+  if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
+    this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
+      const [lat, lng] = waypoint.split(',').map(Number);
+      const position = new google.maps.LatLng(lat, lng);
+
+      const marker = new google.maps.Marker({
+        position,
+        map,
+        title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<h4>Waypoint ${index + 1}</h4><p>Duration: ${this.tripInfo.waypointsDurations[index]}</p>`
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+    });
   }
+
+  // Adjust the map's bounds to fit the polyline
+  const bounds = new google.maps.LatLngBounds();
+  path.forEach((point: any) => bounds.extend(point));
+  map.fitBounds(bounds);
+
+  console.log("Bounds:", bounds);
+}
 
   viewInGoogleMaps() {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
