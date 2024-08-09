@@ -11,20 +11,28 @@ declare var google: any;
 export class LocationSelectionComponent implements OnInit {
   locations: any[] = [];
   filteredLocations: any[] = [];
+  paginatedLocations: any[] = []; // Locations to display on the current page
   origin: string = '';
   map!: google.maps.Map;
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
   selectedLocationsCount = 0; // Count of selected locations
+  selectedLocationIndices: Set<number> = new Set<number>(); // Track selected locations by index
   searchTerm: string = ''; // For search input
   loading = false; // Loading state for the nz-switch
+  currentPage = 1; // Current page index
+  pageSize = 10; // Default page size
+  totalLocations = 0; // Total number of locations
+  selectedLocationIndex: number | null = null; // Index of the selected location
 
   constructor(private router: Router, private ngZone: NgZone) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
       this.filteredLocations = [...this.locations]; // Initialize filtered locations
+      this.totalLocations = this.filteredLocations.length;
+      this.paginateLocations();
       this.origin = navigation.extras.state['start'];
     }
   }
@@ -37,6 +45,42 @@ export class LocationSelectionComponent implements OnInit {
       this.addOriginMarker();
       this.addMarkers();
     });
+  }
+
+  paginateLocations() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
+  }
+
+  filterLocations(): void {
+    this.loading = true;
+    setTimeout(() => {
+      this.filteredLocations = this.locations.filter(location =>
+        location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+      this.totalLocations = this.filteredLocations.length;
+      this.currentPage = 1; // Reset to the first page after filtering
+      this.paginateLocations();
+      this.clearAllMarkers();
+      this.addMarkers();
+      this.loading = false;
+    }, 500);
+  }
+
+  onPageIndexChange(page: number) {
+    this.currentPage = page;
+    this.paginateLocations();
+    this.clearAllMarkers();
+    this.addMarkers();
+  }
+
+  onPageSizeChange(size: number) {
+    this.pageSize = size;
+    this.currentPage = 1; // Reset to the first page after changing page size
+    this.paginateLocations();
+    this.clearAllMarkers();
+    this.addMarkers();
   }
 
   loadGoogleMapsScript(): Promise<void> {
@@ -57,26 +101,26 @@ export class LocationSelectionComponent implements OnInit {
   }
 
   initMap() {
-  const mapElement = document.getElementById('map') as HTMLElement;
+    const mapElement = document.getElementById('map') as HTMLElement;
 
-  this.map = new google.maps.Map(mapElement, {
-    center: { lat: 34.0522, lng: -118.2437 }, // Default to Los Angeles, or customize
-    zoom: 10,
-    mapTypeControl: false,
-    zoomControlOptions: {
-      position: google.maps.ControlPosition.LEFT_TOP // Move zoom controls 
-    },
-    fullscreenControlOptions: {
-      position: google.maps.ControlPosition.LEFT_TOP // Move fullscreen control 
-    },
-    streetViewControlOptions: {
-      position: google.maps.ControlPosition.LEFT_TOP // Move street view control 
-    },
-    mapTypeControlOptions: {
-      position: google.maps.ControlPosition.LEFT_TOP // Move map type control 
-    }
-  });
-}
+    this.map = new google.maps.Map(mapElement, {
+      center: { lat: 34.0522, lng: -118.2437 }, // Default to Los Angeles, or customize
+      zoom: 10,
+      mapTypeControl: false,
+      zoomControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP // Move zoom controls
+      },
+      fullscreenControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP // Move fullscreen control
+      },
+      streetViewControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP // Move street view control
+      },
+      mapTypeControlOptions: {
+        position: google.maps.ControlPosition.LEFT_TOP // Move map type control
+      }
+    });
+  }
 
   addOriginMarker() {
     const geocoder = new google.maps.Geocoder();
@@ -111,7 +155,7 @@ export class LocationSelectionComponent implements OnInit {
   }
 
   addMarkers() {
-    this.filteredLocations.forEach((location, index) => {
+    this.paginatedLocations.forEach((location, index) => {
       const geocoder = new google.maps.Geocoder();
       geocoder.geocode({ address: location.address }, (results: any, status: any) => {
         if (status === google.maps.GeocoderStatus.OK) {
@@ -120,7 +164,7 @@ export class LocationSelectionComponent implements OnInit {
             position: results[0].geometry.location,
             title: location.storeName,
             label: {
-              text: `${index + 1}`, // Label with the entry number corresponding to the card
+              text: `${(this.currentPage - 1) * this.pageSize + index + 1}`, // Label with the entry number corresponding to the card
               color: 'white',
               fontWeight: 'bold',
               fontSize: '16px' // Increase the font size for better readability
@@ -136,6 +180,7 @@ export class LocationSelectionComponent implements OnInit {
           marker.addListener('click', () => {
             this.ngZone.run(() => {
               infoWindow.open(this.map, marker);
+              this.onMarkerClick(location); // Only highlight the card
             });
           });
         } else {
@@ -145,75 +190,65 @@ export class LocationSelectionComponent implements OnInit {
     });
   }
 
+  highlightCard(location: any): void {
+    // Find the index of the location
+    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+
+    // Set the highlighted index to the selectedLocationIndex
+    this.selectedLocationIndex = (this.currentPage - 1) * this.pageSize + highlightedIndex;
+
+    // Scroll to the highlighted card
+    const cardElement = document.querySelector(`.location-card-${this.selectedLocationIndex}`);
+    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  onMarkerClick(location: any): void {
+    console.log('Marker clicked for location:', location);
+
+    // Highlight the card but don't select it
+    this.highlightCard(location);
+  }
+
   selectLocation(location: any): void {
     console.log('Selected location:', location);
 
-    // Find the marker corresponding to the selected location
+    // Find the index of the location
     const selectedMarkerIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
-    const selectedMarker = this.markers[selectedMarkerIndex];
 
-    if (this.selectedMarker) {
-      // Reset the previously selected marker to its default state
-      this.selectedMarker.setLabel({
-        text: `${selectedMarkerIndex + 1}`, // Reset to the original label
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: '16px'
-      });
-    }
+    // Highlight and select the location
+    this.highlightCard(location);
 
-    // Highlight the selected marker
-    this.selectedMarker = selectedMarker;
-    this.map.setCenter(selectedMarker.getPosition() as google.maps.LatLng);
-    this.map.setZoom(17);
+    // Mark the location as selected
+    this.selectedLocationIndices.add(selectedMarkerIndex);
 
     // Update the selected locations count
     this.selectedLocationsCount++;
   }
 
   clearAllSelections(): void {
-    if (this.selectedMarker) {
-      this.selectedMarker.setLabel({
-        text: `${this.markers.indexOf(this.selectedMarker) + 1}`,
-        color: 'white',
-        fontWeight: 'bold',
-        fontSize: '16px'
-      });
-    }
     this.selectedMarker = null;
     this.selectedLocationsCount = 0;
+    this.selectedLocationIndices.clear(); // Clear all selected indices
+    this.map.setZoom(10); // Zoom out the map
+    this.map.setCenter({ lat: 34.0522, lng: -118.2437 }); // Reset to the original center
     console.log('All selections cleared.');
+  }
+
+  clearAllMarkers(): void {
+    this.markers.forEach(marker => marker.setMap(null)); // Remove all markers from the map
+    this.markers = [];
   }
 
   submitSelections(): void {
     if (this.selectedLocationsCount > 0) {
       this.router.navigate(['/route-info'], {
         state: {
-          selectedLocations: this.filteredLocations.filter((loc, index) => this.markers[index] === this.selectedMarker),
+          selectedLocations: this.filteredLocations.filter((loc, index) => this.selectedLocationIndices.has(index)),
           origin: this.origin
         }
       });
     } else {
       alert('Please select at least one location before submitting.');
     }
-  }
-
-  filterLocations(): void {
-    this.loading = true; // Start loading animation
-    setTimeout(() => {
-      this.filteredLocations = this.locations.filter(location => {
-        return location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase());
-      });
-
-      // Reinitialize markers after filtering
-      this.clearAllMarkers();
-      this.addMarkers();
-      this.loading = false; // Stop loading animation
-    }, 500); // Simulate delay for loading effect
-  }
-
-  clearAllMarkers(): void {
-    this.markers.forEach(marker => marker.setMap(null)); // Remove all markers from the map
-    this.markers = [];
   }
 }

@@ -8,7 +8,7 @@
       <!-- Conditionally display the buttons when at least one location is selected -->
       <div *ngIf="selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
-        <button nz-button nzType="primary" (click)="submitSelections()">Submit</button>
+        <button nz-button nzType="primary" (click)="submitSelections()">Generate Route</button>
       </div>
     </div>
 
@@ -19,18 +19,32 @@
             (input)="filterLocations()" />
         </nz-input-group>
       </div>
-
-      <div *ngFor="let location of filteredLocations; let i = index" class="location-card">
-        <nz-card nzTitle="{{ i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
+    
+      <div *ngFor="let location of paginatedLocations; let i = index"
+        class="location-card location-card-{{ (currentPage - 1) * pageSize + i }}" [ngClass]="{'selected-card': selectedLocationIndices.has((currentPage - 1) * pageSize + i), 
+                       'highlighted-card': selectedLocationIndex === ((currentPage - 1) * pageSize + i)}">
+        <nz-card nzTitle="{{ (currentPage - 1) * pageSize + i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
           <p>{{ location.address }}</p>
           <p>{{ location.phoneNumber }}</p>
           <p>{{ location.distance }}</p>
           <p>{{ location.duration }}</p>
         </nz-card>
         <ng-template #extraTemplate>
-          <button nz-button nzType="primary" (click)="selectLocation(location)">Select</button>
+          <button nz-button nzType="primary" (click)="selectLocation(location)"
+            [disabled]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)">
+            Select
+          </button>
         </ng-template>
       </div>
     </div>
+
+      <nz-pagination [nzPageIndex]="currentPage" [nzTotal]="totalLocations" [nzPageSize]="pageSize"
+        [nzShowSizeChanger]="true" [nzPageSizeOptions]="[5, 10, 15, 25, 50]"
+        (nzPageIndexChange)="onPageIndexChange($event)" (nzPageSizeChange)="onPageSizeChange($event)"
+        [nzShowTotal]="rangeTemplate">
+      </nz-pagination>
+      <ng-template #rangeTemplate let-range="range" let-total="total">
+        {{ range[0] }}-{{ range[1] }} of {{ total }} items
+      </ng-template>
+    </div>
   </div>
-</div>
