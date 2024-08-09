@@ -110,7 +110,7 @@
   margin-right: auto;
   flex: 1 1 auto;
   /* Flexibility to take space */
-  text-align: center;
+  text-align: left;
 }
 
 .nz-pagination {
