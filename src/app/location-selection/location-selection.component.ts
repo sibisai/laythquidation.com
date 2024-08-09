@@ -138,11 +138,20 @@ addOriginMarker() {
           url: 'assets/images/current_location.png', // Path to your custom icon
           scaledSize: new google.maps.Size(40, 40), // Size of the icon
           origin: new google.maps.Point(0, 0), // The origin for the image
-          anchor: new google.maps.Point(20, 20) // Anchor the image
+          anchor: new google.maps.Point(20, 20) // Anchor the image at the center
         }
       });
 
-      this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
+      const center = this.originMarker?.getPosition() as google.maps.LatLng;
+
+      // Shift the map center to the left
+      const offsetLng = -0.3; // Adjust this value to shift the map to the left
+      const newCenter = {
+        lat: center.lat(),
+        lng: center.lng() - offsetLng
+      };
+
+      this.map.setCenter(newCenter);
 
       this.originMarker?.addListener('click', () => {
         this.ngZone.run(() => {
@@ -157,7 +166,6 @@ addOriginMarker() {
     }
   });
 }
-
   addMarkers() {
     this.paginatedLocations.forEach((location, index) => {
       const geocoder = new google.maps.Geocoder();
