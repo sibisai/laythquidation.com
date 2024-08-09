@@ -1,26 +1,55 @@
-.route-info-container {
-  padding: 2rem;
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.route-info-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  color: #333;
+.header-container {
+  text-align: left;
+  margin-left: 20px;
+  margin-bottom: 5px;
 }
 
-.location-info-card {
-  margin-bottom: 1rem;
+.trip-header {
+  margin: 0;
+  font-size: 24px;
+  padding-top: 20px;
 }
 
-.action-buttons {
-  margin-top: 2rem;
-  text-align: center;
+.trip-subheader {
+  margin: 0;
+  font-size: 20px;
+  padding-top: 10px;
 }
 
-.loading-spinner {
+.content-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  height: calc(100% - 60px);
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+}
+
+.map-container {
+  position: relative;
+  height: 50vh;
+  width: 100%;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+.button-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.qr-code-container {
+  margin-top: 20px;
 }

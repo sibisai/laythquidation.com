@@ -9,7 +9,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { OriginSelectionComponent } from './origin-selection/origin-selection.component';
 import { LocationSelectionComponent } from './location-selection/location-selection.component';
 import { RouteInfoComponent } from './route-info/route-info.component';
-
 import { NgZorroAntdModule } from './ng-zorro-antd.module'; // Assuming this is a custom module for all ng-zorro imports
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from './services/trip-planner.service';
@@ -32,7 +31,7 @@ import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    NgZorroAntdModule // Import the custom module here
+    NgZorroAntdModule,
   ],
   providers: [
     TripPlannerService,

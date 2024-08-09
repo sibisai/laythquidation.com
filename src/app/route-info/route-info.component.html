@@ -1,27 +1,18 @@
-<div class="route-info-container" *ngIf="!loading">
-  <h1 class="route-info-header">Route Information</h1>
-
-  <div *ngIf="tripInfo; else noDataTemplate">
-    <div *ngFor="let location of tripInfo.selectedLocations; let i = index" class="location-info-card">
-      <nz-card nzTitle="Stop {{ i + 1 }}: {{ location.storeName }}">
-        <p><strong>Address:</strong> {{ location.address }}</p>
-        <p><strong>Phone:</strong> {{ location.phoneNumber }}</p>
-        <p><strong>Distance:</strong> {{ location.distance }}</p>
-        <p><strong>Duration:</strong> {{ location.duration }}</p>
-      </nz-card>
-    </div>
-  </div>
-
-  <ng-template #noDataTemplate>
-    <p>No route information available.</p>
-  </ng-template>
-
-  <div class="action-buttons">
-    <button nz-button nzType="default" (click)="goBack()">Back to Locations</button>
-    <button nz-button nzType="primary" (click)="confirmTrip()">Confirm Trip</button>
-  </div>
+<div class="header-container">
+  <h1 class="trip-info-header">Total Duration: {{ tripInfo?.totalDuration }}, Distance: {{ tripInfo?.totalDistance }}
+  </h1>
 </div>
-
-<div *ngIf="loading" class="loading-spinner">
-  <nz-spin nzSimple></nz-spin>
+<div class="content-container">
+  <div class="map-container">
+    <div id="map"></div>
+  </div>
+  <div class="button-container">
+    <a [href]="tripInfo?.googleMapsUrl" target="_blank">
+      <button nz-button nzType="primary">View in Maps</button>
+    </a>
+    <button nz-button nzType="default" (click)="showQRCode = !showQRCode">
+      {{ showQRCode ? 'Hide' : 'Show' }} QR Code
+    </button>
+    <img *ngIf="showQRCode" [src]="generateQRCodeURL(tripInfo?.googleMapsUrl)" alt="QR Code" class="qr-code" />
+  </div>
 </div>

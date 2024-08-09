@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from '../services/trip-planner.service';
+import { LocationService } from '../services/location.service';
 import { LocationPermissionDialogComponent } from '../location-permission-dialog/location-permission-dialog.component';
 
 declare var google: any;
@@ -27,7 +28,8 @@ export class OriginSelectionComponent implements OnInit {
     private tripPlannerService: TripPlannerService,
     private ngZone: NgZone,
     private router: Router,
-    private modal: NzModalService
+    private modal: NzModalService,
+    private locationService: LocationService
   ) {}
 
   ngOnInit() {
@@ -91,6 +93,7 @@ export class OriginSelectionComponent implements OnInit {
         this.marker.setPosition(place.geometry.location);
         if (place.formatted_address) {
           this.originControl.setValue(place.formatted_address);
+          this.locationService.setOrigin(place.formatted_address); // Set origin in LocationService
           // Show the proceed button when an address is selected
           this.showProceedButton = true;
           this.locationSet = true; // Set the locationSet flag to true
@@ -128,11 +131,11 @@ export class OriginSelectionComponent implements OnInit {
   }
 
   useCurrentLocation() {
+    this.loading = true;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         position => {
           this.locationAccessGranted = true;
-          this.loading = true;
           this.setUserLocation(position.coords.latitude, position.coords.longitude);
         },
         () => {
@@ -152,6 +155,7 @@ export class OriginSelectionComponent implements OnInit {
         if (status === google.maps.GeocoderStatus.OK && results[0]) {
           const formattedAddress = results[0].formatted_address;
           this.originControl.setValue(formattedAddress);
+          this.locationService.setOrigin(formattedAddress); // Set origin in LocationService
           this.map.setCenter(latLng);
           this.map.setZoom(17);
           this.marker.setPosition(latLng);
@@ -175,6 +179,7 @@ export class OriginSelectionComponent implements OnInit {
     (document.getElementById('location-input') as HTMLInputElement).value = '';
     this.showProceedButton = false;
     this.locationSet = false;
+    this.locationService.clearOrigin(); // Clear origin in LocationService
     this.map.setCenter(new google.maps.LatLng(37.0902, -95.7129)); // Reset to default center
     this.map.setZoom(3.5); // Reset to default zoom level
     this.marker.setPosition(new google.maps.LatLng(37.0902, -95.7129));
