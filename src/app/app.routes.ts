@@ -4,9 +4,9 @@ import { LocationSelectionComponent } from './location-selection/location-select
 import { RouteInfoComponent } from './route-info/route-info.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/origin-selection', pathMatch: 'full' },
+  { path: '', redirectTo: '/select-origin', pathMatch: 'full' },
   { path: 'select-origin', component: OriginSelectionComponent },
   { path: 'select-locations', component: LocationSelectionComponent },
   { path: 'route-info', component: RouteInfoComponent },
-  { path: '**', redirectTo: '/origin-selection' }
+  { path: '**', redirectTo: '/select-origin' }
 ];

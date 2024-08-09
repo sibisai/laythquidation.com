@@ -1,9 +1,11 @@
+
 <div *ngFor="let location of locations" class="location-card">
   <nz-card nzTitle="{{ location.storeName }}" [nzExtra]="extraTemplate">
     <p>{{ location.address }}</p>
     <p>{{ location.phoneNumber }}</p>
-    <p>Distance: {{ location.distance }} miles</p>
-    <p>Duration: {{ location.estimatedDuration }}</p>
+    <p>Distance: {{ location.distance }}</p>
+    <p *ngIf="location.duration">Duration: {{ location.duration }}</p>
+    <p *ngIf="!location.duration">Duration: Not available</p>
   </nz-card>
   <ng-template #extraTemplate>
     <button nz-button nzType="primary" (click)="selectLocation(location)">Select</button>
