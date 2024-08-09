@@ -1,5 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 declare var google: any;
 
@@ -27,7 +28,7 @@ export class LocationSelectionComponent implements OnInit {
   selectedLocationIndex: number | null = null;
   pageSizeOptions = [10, 15, 25, 50];
 
-  constructor(private router: Router, private ngZone: NgZone) {
+  constructor(private router: Router, private ngZone: NgZone, private modal: NzModalService) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
@@ -266,17 +267,41 @@ highlightCard(location: any): void {
   this.markers.forEach(marker => marker.setMap(null));
   this.markers = [];
 }
-
 submitSelections(): void {
   if (this.selectedLocationsCount > 0) {
-    this.router.navigate(['/route-info'], {
-    state: {
-    selectedLocations: this.filteredLocations.filter((loc, index) => this.selectedLocationIndices.has(index)),
-    origin: this.origin
-  }
-  });
+    const selectedLocations = this.filteredLocations.filter((loc, index) => this.selectedLocationIndices.has(index));
+
+    let isLoading = false;
+
+    const modal = this.modal.confirm({
+      nzTitle: 'Confirm Selected Locations',
+      nzContent: `You have selected ${this.selectedLocationsCount} location(s). Do you want to generate the route?`,
+      nzOkText: 'Yes',
+      nzCancelText: 'No',
+      nzOnOk: () => {
+        isLoading = true; // Start loading
+
+        return new Promise<void>((resolve) => {
+          setTimeout(() => {
+            this.router.navigate(['/route-info'], {
+              state: {
+                selectedLocations: selectedLocations,
+                origin: this.origin
+              }
+            });
+
+            isLoading = false; // End loading
+            resolve(); // Close the modal
+          }, 1000); // Simulate a delay, adjust as needed
+        });
+      }
+    });
+
+    modal.updateConfig({
+      nzOkLoading: isLoading // Show loading spinner
+    });
   } else {
     alert('Please select at least one location before submitting.');
   }
-  }
+}
 }
