@@ -2,7 +2,7 @@ import { Component, OnInit, NgZone } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { TripPlannerService } from '../trip-planner.service';
+import { TripPlannerService } from '../services/trip-planner.service';
 import { LocationPermissionDialogComponent } from '../location-permission-dialog/location-permission-dialog.component';
 
 declare var google: any;

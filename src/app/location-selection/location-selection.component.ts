@@ -1,6 +1,8 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { TripPlannerService } from '../services/trip-planner.service';
+import { RouteDataService } from '../services/route-data.service';
 
 declare var google: any;
 
@@ -28,7 +30,7 @@ export class LocationSelectionComponent implements OnInit {
   selectedLocationIndex: number | null = null;
   pageSizeOptions = [10, 15, 25, 50];
 
-  constructor(private router: Router, private ngZone: NgZone, private modal: NzModalService) {
+  constructor(private router: Router, private ngZone: NgZone, private modal: NzModalService, private tripPlannerService: TripPlannerService, private routeDataService: RouteDataService) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
@@ -266,42 +268,47 @@ highlightCard(location: any): void {
   clearAllMarkers(): void {
   this.markers.forEach(marker => marker.setMap(null));
   this.markers = [];
-}
-submitSelections(): void {
-  if (this.selectedLocationsCount > 0) {
-    const selectedLocations = this.filteredLocations.filter((loc, index) => this.selectedLocationIndices.has(index));
-
-    let isLoading = false;
-
-    const modal = this.modal.confirm({
-      nzTitle: 'Confirm Selected Locations',
-      nzContent: `You have selected ${this.selectedLocationsCount} location(s). Do you want to generate the route?`,
-      nzOkText: 'Yes',
-      nzCancelText: 'No',
-      nzOnOk: () => {
-        isLoading = true; // Start loading
-
-        return new Promise<void>((resolve) => {
-          setTimeout(() => {
-            this.router.navigate(['/route-info'], {
-              state: {
-                selectedLocations: selectedLocations,
-                origin: this.origin
-              }
-            });
-
-            isLoading = false; // End loading
-            resolve(); // Close the modal
-          }, 1000); // Simulate a delay, adjust as needed
-        });
-      }
-    });
-
-    modal.updateConfig({
-      nzOkLoading: isLoading // Show loading spinner
-    });
-  } else {
-    alert('Please select at least one location before submitting.');
   }
-}
+
+submitSelections(): void {
+    if (this.selectedLocationsCount > 0) {
+      const selectedLocations = this.filteredLocations
+        .filter((loc, index) => this.selectedLocationIndices.has(index))
+        .map(loc => loc.address);
+
+      const requestBody = {
+        origin: this.origin,
+        locations: selectedLocations
+      };
+
+      this.modal.confirm({
+        nzTitle: 'Confirm Route Generation',
+        nzContent: `You have selected ${this.selectedLocationsCount} locations. Do you want to generate the route?`,
+        nzOkText: 'Yes',
+        nzCancelText: 'No',
+        nzOnOk: () => {
+          this.loading = true; // Start loading spinner
+
+          this.tripPlannerService.generateRouteAndMetrics(requestBody).subscribe(
+            (response: any) => {
+              this.loading = false; // Stop loading spinner
+              this.routeDataService.setRouteInfo(response);  // Store the data in RouteDataService
+              this.router.navigate(['/route-info']);
+            },
+            (error: any) => {
+              this.loading = false; // Stop loading spinner
+              console.error('Error generating route:', error);
+              alert('Failed to generate the route. Please try again.');
+            }
+          );
+        },
+        nzOnCancel: () => {
+          console.log('User canceled the route generation.');
+        }
+      });
+    } else {
+      alert('Please select at least one location before submitting.');
+    }
+  }
+  
 }

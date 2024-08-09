@@ -1,0 +1,26 @@
+.route-info-container {
+  padding: 2rem;
+}
+
+.route-info-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.location-info-card {
+  margin-bottom: 1rem;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}

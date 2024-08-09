@@ -12,7 +12,7 @@ import { RouteInfoComponent } from './route-info/route-info.component';
 
 import { NgZorroAntdModule } from './ng-zorro-antd.module'; // Assuming this is a custom module for all ng-zorro imports
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { TripPlannerService } from './trip-planner.service';
+import { TripPlannerService } from './services/trip-planner.service';
 import { LocationPermissionDialogComponent } from './location-permission-dialog/location-permission-dialog.component';
 import { NZ_I18N, en_US } from 'ng-zorro-antd/i18n';
 
