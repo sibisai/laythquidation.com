@@ -26,6 +26,10 @@ export class LocationSelectionComponent implements OnInit {
   totalLocations = 0; // Total number of locations
   selectedLocationIndex: number | null = null; // Index of the selected location
 
+  getMinValue(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
   constructor(private router: Router, private ngZone: NgZone) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {

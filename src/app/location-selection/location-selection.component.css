@@ -67,7 +67,7 @@
   overflow-y: auto;
   flex: 1;
   /* Allow the cards to take the remaining space and scroll */
-  padding: 1rem 1rem 1rem 1rem;
+  padding: 1rem;
   /* Add padding to move content away from scrollbar */
   box-sizing: border-box;
 }
@@ -84,6 +84,42 @@
   /* Shadow for floating effect */
   border-radius: 8px;
   /* Rounded corners for the cards */
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+}
+
+.nz-pagination {
+  margin: 0;
+  /* Reduce the size of the pagination controls */
+}
+
+.nz-pagination .ant-pagination-options {
+  font-size: 0.9rem;
+  /* Smaller font size for the options */
+}
+
+.nz-pagination .ant-pagination-item,
+.nz-pagination .ant-pagination-prev,
+.nz-pagination .ant-pagination-next {
+  min-width: 30px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 0.9rem;
+  /* Smaller pagination buttons */
+}
+
+/* Ensure the pagination options don't wrap to a new line */
+.nz-pagination .ant-pagination-options {
+  white-space: nowrap;
 }
 
 button[nz-button] {
