@@ -20,15 +20,17 @@
         </nz-input-group>
       </div>
 
-      <div *ngFor="let location of paginatedLocations; let i = index" class="location-card"
+      <div *ngFor="let location of paginatedLocations; let i = index"
+        class="location-card location-card-{{ (currentPage - 1) * pageSize + i }}"
         [ngClass]="{'selected-card': selectedLocationIndices.has((currentPage - 1) * pageSize + i)}">
-        <nz-card nzTitle="{{ (currentPage - 1) * pageSize + i + 1 }}. {{ location?.storeName }}"
-          [nzExtra]="extraTemplate">
-          <p>{{ location?.address }}</p>
-          <p>{{ location?.phoneNumber }}</p>
-          <p>{{ location?.distance }}</p>
-          <p>{{ location?.duration }}</p>
+      
+        <nz-card nzTitle="{{ (currentPage - 1) * pageSize + i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
+          <p>{{ location.address }}</p>
+          <p>{{ location.phoneNumber }}</p>
+          <p>{{ location.distance }}</p>
+          <p>{{ location.duration }}</p>
         </nz-card>
+      
         <ng-template #extraTemplate>
           <button nz-button nzType="primary" (click)="selectLocation(location)"
             [disabled]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)">
@@ -36,6 +38,7 @@
           </button>
         </ng-template>
       </div>
+      
     </div>
 
     <div class="pagination-container">

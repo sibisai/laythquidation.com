@@ -195,16 +195,19 @@ export class LocationSelectionComponent implements OnInit {
   }
 
   highlightCard(location: any): void {
-    // Find the index of the location
-    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+  // Find the index of the location
+  const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
 
-    // Set the highlighted index to the selectedLocationIndex
-    this.selectedLocationIndex = (this.currentPage - 1) * this.pageSize + highlightedIndex;
+  // Calculate the correct index based on the current page and page size
+  const cardIndex = (this.currentPage - 1) * this.pageSize + highlightedIndex;
 
-    // Scroll to the highlighted card
-    const cardElement = document.querySelector(`.location-card-${this.selectedLocationIndex}`);
-    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  // Set the highlighted index to the selectedLocationIndex
+  this.selectedLocationIndex = cardIndex;
+
+  // Scroll to the highlighted card
+  const cardElement = document.querySelector(`.location-card-${cardIndex}`);
+  cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
   onMarkerClick(location: any): void {
     console.log('Marker clicked for location:', location);

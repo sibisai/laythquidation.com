@@ -31,7 +31,7 @@
   /* Stronger blur effect */
   overflow-y: auto;
   padding: 1rem 0 1rem 0;
-  /* Padding on top and left, no padding on the right */
+  /* Padding on top and bottom, no padding on the right */
   box-shadow: -2px 0 15px rgba(0, 0, 0, 0.3);
   /* Shadow for floating effect */
   border-radius: 8px 0 0 8px;
@@ -66,9 +66,8 @@
 .location-cards-container {
   overflow-y: auto;
   flex: 1;
-  /* Allow the cards to take the remaining space and scroll */
-  padding: 1rem;
-  /* Add padding to move content away from scrollbar */
+  padding: 1rem 1rem 0 1rem;
+  /* Remove bottom padding */
   box-sizing: border-box;
 }
 
@@ -87,24 +86,24 @@
 }
 
 .pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 0.5rem 1rem;
+  text-align: center;
   margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  font-size: 0.9rem;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
 }
 
 .nz-pagination {
+  display: inline-block;
   margin: 0;
-  /* Reduce the size of the pagination controls */
 }
 
 .nz-pagination .ant-pagination-options {
   font-size: 0.9rem;
-  /* Smaller font size for the options */
+  margin-left: 10px;
+  white-space: nowrap;
 }
 
 .nz-pagination .ant-pagination-item,
@@ -114,14 +113,27 @@
   height: 30px;
   line-height: 30px;
   font-size: 0.9rem;
-  /* Smaller pagination buttons */
+  margin: 0 4px;
+  /* Reduced margin between pagination items */
 }
 
-/* Ensure the pagination options don't wrap to a new line */
-.nz-pagination .ant-pagination-options {
-  white-space: nowrap;
+.nz-pagination-item,
+.nz-pagination-options {
+  font-size: 12px;
+}
+
+.nz-pagination-options {
+  min-width: 70px;
+  /* Adjust dropdown width */
 }
 
 button[nz-button] {
   margin: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.selected-card {
+  border: 2px solid blue;
+  /* Example style */
+  background-color: rgba(0, 0, 255, 0.1);
+  /* Example style */
 }
