@@ -4,7 +4,7 @@
   </div>
   <div class="locations-overlay-container">
     <div class="header-container">
-      <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}/{{ locations.length }}</h1>
+      <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}</h1>
       <!-- Conditionally display the buttons when at least one location is selected -->
       <div *ngIf="selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>

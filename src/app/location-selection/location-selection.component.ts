@@ -57,14 +57,26 @@ export class LocationSelectionComponent implements OnInit {
   }
 
   initMap() {
-    const mapElement = document.getElementById('map') as HTMLElement;
+  const mapElement = document.getElementById('map') as HTMLElement;
 
-    this.map = new google.maps.Map(mapElement, {
-      center: { lat: 34.0522, lng: -118.2437 }, // Default to Los Angeles, or customize
-      zoom: 10,
-      mapTypeControl: false
-    });
-  }
+  this.map = new google.maps.Map(mapElement, {
+    center: { lat: 34.0522, lng: -118.2437 }, // Default to Los Angeles, or customize
+    zoom: 10,
+    mapTypeControl: false,
+    zoomControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP // Move zoom controls 
+    },
+    fullscreenControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP // Move fullscreen control 
+    },
+    streetViewControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP // Move street view control 
+    },
+    mapTypeControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP // Move map type control 
+    }
+  });
+}
 
   addOriginMarker() {
     const geocoder = new google.maps.Geocoder();
