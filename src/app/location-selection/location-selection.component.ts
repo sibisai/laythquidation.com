@@ -10,16 +10,21 @@ declare var google: any;
 })
 export class LocationSelectionComponent implements OnInit {
   locations: any[] = [];
+  filteredLocations: any[] = [];
   origin: string = '';
   map!: google.maps.Map;
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
+  selectedLocationsCount = 0; // Count of selected locations
+  searchTerm: string = ''; // For search input
+  loading = false; // Loading state for the nz-switch
 
   constructor(private router: Router, private ngZone: NgZone) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
+      this.filteredLocations = [...this.locations]; // Initialize filtered locations
       this.origin = navigation.extras.state['start'];
     }
   }
@@ -94,7 +99,7 @@ export class LocationSelectionComponent implements OnInit {
   }
 
   addMarkers() {
-    this.locations.forEach((location, index) => {
+    this.filteredLocations.forEach((location, index) => {
       const geocoder = new google.maps.Geocoder();
       geocoder.geocode({ address: location.address }, (results: any, status: any) => {
         if (status === google.maps.GeocoderStatus.OK) {
@@ -132,7 +137,7 @@ export class LocationSelectionComponent implements OnInit {
     console.log('Selected location:', location);
 
     // Find the marker corresponding to the selected location
-    const selectedMarkerIndex = this.locations.findIndex(loc => loc.address === location.address);
+    const selectedMarkerIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
     const selectedMarker = this.markers[selectedMarkerIndex];
 
     if (this.selectedMarker) {
@@ -148,5 +153,55 @@ export class LocationSelectionComponent implements OnInit {
     // Highlight the selected marker
     this.selectedMarker = selectedMarker;
     this.map.setCenter(selectedMarker.getPosition() as google.maps.LatLng);
+    this.map.setZoom(17);
+
+    // Update the selected locations count
+    this.selectedLocationsCount++;
+  }
+
+  clearAllSelections(): void {
+    if (this.selectedMarker) {
+      this.selectedMarker.setLabel({
+        text: `${this.markers.indexOf(this.selectedMarker) + 1}`,
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: '16px'
+      });
+    }
+    this.selectedMarker = null;
+    this.selectedLocationsCount = 0;
+    console.log('All selections cleared.');
+  }
+
+  submitSelections(): void {
+    if (this.selectedLocationsCount > 0) {
+      this.router.navigate(['/route-info'], {
+        state: {
+          selectedLocations: this.filteredLocations.filter((loc, index) => this.markers[index] === this.selectedMarker),
+          origin: this.origin
+        }
+      });
+    } else {
+      alert('Please select at least one location before submitting.');
+    }
+  }
+
+  filterLocations(): void {
+    this.loading = true; // Start loading animation
+    setTimeout(() => {
+      this.filteredLocations = this.locations.filter(location => {
+        return location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase());
+      });
+
+      // Reinitialize markers after filtering
+      this.clearAllMarkers();
+      this.addMarkers();
+      this.loading = false; // Stop loading animation
+    }, 500); // Simulate delay for loading effect
+  }
+
+  clearAllMarkers(): void {
+    this.markers.forEach(marker => marker.setMap(null)); // Remove all markers from the map
+    this.markers = [];
   }
 }

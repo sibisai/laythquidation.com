@@ -2,17 +2,35 @@
   <div class="map-container">
     <div id="map"></div>
   </div>
-  <div class="locations-container">
-    <div *ngFor="let location of locations; let i = index" class="location-card">
-      <nz-card nzTitle="{{ i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
-        <p>{{ location.address }}</p>
-        <p>{{ location.phoneNumber }}</p>
-        <p>Distance: {{ location.distance }}</p>
-        <p>Duration: {{ location.duration }}</p>
-      </nz-card>
-      <ng-template #extraTemplate>
-        <button nz-button nzType="primary" (click)="selectLocation(location)">Select</button>
-      </ng-template>
+  <div class="locations-overlay-container">
+    <div class="header-container">
+      <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}/{{ locations.length }}</h1>
+      <!-- Conditionally display the buttons when at least one location is selected -->
+      <div *ngIf="selectedLocationsCount > 0" class="header-buttons">
+        <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
+        <button nz-button nzType="primary" (click)="submitSelections()">Submit</button>
+      </div>
+    </div>
+
+    <div class="location-cards-container">
+      <div class="filter-container">
+        <nz-input-group>
+          <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
+            (input)="filterLocations()" />
+        </nz-input-group>
+      </div>
+
+      <div *ngFor="let location of filteredLocations; let i = index" class="location-card">
+        <nz-card nzTitle="{{ i + 1 }}. {{ location.storeName }}" [nzExtra]="extraTemplate">
+          <p>{{ location.address }}</p>
+          <p>{{ location.phoneNumber }}</p>
+          <p>{{ location.distance }}</p>
+          <p>{{ location.duration }}</p>
+        </nz-card>
+        <ng-template #extraTemplate>
+          <button nz-button nzType="primary" (click)="selectLocation(location)">Select</button>
+        </ng-template>
+      </div>
     </div>
   </div>
 </div>

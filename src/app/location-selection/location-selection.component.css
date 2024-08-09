@@ -1,15 +1,16 @@
 .location-selection-container {
-  display: flex;
-  flex-direction: row;
+  position: relative;
   height: 100vh;
   /* Full height of the viewport */
 }
 
 .map-container {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100vh;
-  /* Full height */
-  position: relative;
+  /* Map takes up the full screen */
 }
 
 #map {
@@ -17,17 +18,74 @@
   height: 100%;
 }
 
-.locations-container {
-  flex: 1;
+.locations-overlay-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 34%;
+  /* Increase the width slightly */
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.5);
+  /* Transparent background */
+  backdrop-filter: blur(8px);
+  /* Stronger blur effect */
   overflow-y: auto;
-  /* Enable vertical scrolling */
-  padding: 1rem;
-  height: 100vh;
-  /* Full height */
+  padding: 1rem 0 1rem 0;
+  /* Padding on top and left, no padding on the right */
+  box-shadow: -2px 0 15px rgba(0, 0, 0, 0.3);
+  /* Shadow for floating effect */
+  border-radius: 8px 0 0 8px;
+  /* Rounded corners only on the left side */
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  /* Include padding in the height calculation */
+}
+
+.header-container {
+  background-color: rgba(240, 240, 240, 0.6);
+  padding: 1rem;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  /* Stronger shadow for depth */
+  border-radius: 8px 0 0 0;
+  /* Match the border radius of the overlay container */
+  z-index: 1;
+  /* Ensure the header is above the scrolling content */
+  width: calc(100% + 1rem);
+  /* Extend the header width to cover the scrollbar */
+  margin-right: -1rem;
+  /* Adjust margin to align with the right edge */
+}
+
+.filter-container {
+  margin: 0.5rem 1rem 1rem 1rem;
+  /* Reduced top margin for less space between the header and search box */
+}
+
+.location-cards-container {
+  overflow-y: auto;
+  flex: 1;
+  /* Allow the cards to take the remaining space and scroll */
+  padding: 1rem 1rem 1rem 1rem;
+  /* Add padding to move content away from scrollbar */
+  box-sizing: border-box;
 }
 
 .location-card {
   margin-bottom: 1rem;
+  width: 90%;
+  /* Slightly wider cards */
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  /* Slightly more opaque background for the cards */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  /* Shadow for floating effect */
+  border-radius: 8px;
+  /* Rounded corners for the cards */
+}
+
+button[nz-button] {
+  margin: 0.5rem 0.5rem 0 0.5rem;
 }

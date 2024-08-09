@@ -9,6 +9,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
@@ -24,6 +25,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzTypographyModule,
     NzTableModule,
     NzSpinModule,
+    NzSwitchModule,
     NzPaginationModule,
     NzIconModule
   ]
