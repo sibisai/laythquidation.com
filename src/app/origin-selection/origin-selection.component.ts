@@ -68,7 +68,13 @@ export class OriginSelectionComponent implements OnInit {
     this.marker = new google.maps.Marker({
       map: this.map,
       position: this.userLocation,
-      title: 'Your Location'
+      title: 'Your Location',
+      icon: {
+        url: 'assets/images/current_location.png', // Path to your custom icon
+        scaledSize: new google.maps.Size(40, 40), // Size of the icon
+        origin: new google.maps.Point(0, 0), // The origin for the image
+        anchor: new google.maps.Point(20, 20) // Anchor the image
+      }
     });
 
     this.autocomplete.addListener('place_changed', () => {

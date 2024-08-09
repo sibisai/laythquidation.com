@@ -126,37 +126,37 @@ export class LocationSelectionComponent implements OnInit {
     });
   }
 
-  addOriginMarker() {
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: this.origin }, (results: any, status: any) => {
-      if (status === google.maps.GeocoderStatus.OK) {
-        this.originMarker = new google.maps.Marker({
-          map: this.map,
-          position: results[0].geometry.location,
-          title: 'Origin Location',
-          label: {
-            text: "O", // Label for the origin (e.g., "O" for Origin)
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px' // Increase the font size for better readability
-          }
-        });
+addOriginMarker() {
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: this.origin }, (results: any, status: any) => {
+    if (status === google.maps.GeocoderStatus.OK) {
+      this.originMarker = new google.maps.Marker({
+        map: this.map,
+        position: results[0].geometry.location,
+        title: 'Origin Location',
+        icon: {
+          url: 'assets/images/current_location.png', // Path to your custom icon
+          scaledSize: new google.maps.Size(40, 40), // Size of the icon
+          origin: new google.maps.Point(0, 0), // The origin for the image
+          anchor: new google.maps.Point(20, 20) // Anchor the image
+        }
+      });
 
-        this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
+      this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
 
-        this.originMarker?.addListener('click', () => {
-          this.ngZone.run(() => {
-            const infoWindow = new google.maps.InfoWindow({
-              content: `<h4>Origin Location</h4><p>${this.origin}</p>`
-            });
-            infoWindow.open(this.map, this.originMarker!);
+      this.originMarker?.addListener('click', () => {
+        this.ngZone.run(() => {
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<h4>Origin Location</h4><p>${this.origin}</p>`
           });
+          infoWindow.open(this.map, this.originMarker!);
         });
-      } else {
-        console.error('Geocode failed for origin: ' + status);
-      }
-    });
-  }
+      });
+    } else {
+      console.error('Geocode failed for origin: ' + status);
+    }
+  });
+}
 
   addMarkers() {
     this.paginatedLocations.forEach((location, index) => {
