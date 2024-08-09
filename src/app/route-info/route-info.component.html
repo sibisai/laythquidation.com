@@ -1,5 +1,5 @@
 <div class="header-container">
-  <h1 class="welcome-header">Total Duration: {{ tripInfo.totalDuration }}, Distance: {{ tripInfo.totalDistance }}</h1>
+  <h1 class="welcome-header">{{ tripInfo.totalDuration }} | {{ tripInfo.totalDistance }}</h1>
 </div>
 <div class="content-container">
   <div class="map-container">
@@ -7,7 +7,10 @@
   </div>
   <div class="button-container">
     <button nz-button nzType="primary" (click)="viewInGoogleMaps()">View in Maps</button>
-    <!-- <button nz-button nzType="default" (click)="toggleQRCode()">{{ showQRCode ? 'Hide' : 'Show' }} QR Code</button> -->
-    <img *ngIf="showQRCode" [src]="generateQRCodeURL(tripInfo.googleMapsUrl)" alt="QR Code">
+  </div>
+  <div class="qr-code-container">
+    <img [src]="qrCodeUrl" alt="QR Code" style="width: 300px; height: 300px; margin-top: 20px; margin-bottom: 20px;">
   </div>
 </div>
+
+

@@ -13,7 +13,8 @@ body {
 
 .welcome-header {
   margin: 0;
-  font-size: 24px;
+  font-size: 30px;
+  /* Expanded font size for clarity */
   padding-top: 20px;
 }
 
@@ -42,4 +43,9 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 10px;
+}
+
+.qr-code-container {
+  margin-bottom: 30px;
+  /* Ensures margin between QR code and bottom of the page */
 }
