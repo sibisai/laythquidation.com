@@ -132,6 +132,7 @@ export class OriginSelectionComponent implements OnInit {
       navigator.geolocation.getCurrentPosition(
         position => {
           this.locationAccessGranted = true;
+          this.loading = true;
           this.setUserLocation(position.coords.latitude, position.coords.longitude);
         },
         () => {
@@ -144,7 +145,6 @@ export class OriginSelectionComponent implements OnInit {
   }
 
   setUserLocation(lat: number, lng: number) {
-    this.loading = true;
     const latLng = new google.maps.LatLng(lat, lng);
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'location': latLng }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
