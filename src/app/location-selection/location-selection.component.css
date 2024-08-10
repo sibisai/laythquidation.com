@@ -1,13 +1,24 @@
-/* Highlight the selected accordion panel with a light blue background */
-.selected-accordion {
-  background-color: #e6f7ff;
-  /* Light blue hue */
-}
-
 /* Ensure button in selected state has a danger appearance with default button type */
 button[nz-button][nzDanger="true"] {
   border: 1px solid red;
   color: red;
+}
+
+/* Highlight the selected accordion panel with a modern sleek effect */
+.selected-accordion {
+  border: 1px solid #1890ff;
+  /* Subtle blue border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Light shadow for elevation */
+  transition: all 0.3s ease;
+  /* Smooth transition */
+}
+
+/* Increase the thickness and add a glow effect on hover */
+.selected-accordion:hover {
+  border-width: 2px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  /* Stronger shadow on hover */
 }
 
 /* Existing CSS without changes */
@@ -214,7 +225,4 @@ button[nz-button] {
     gap: 0.25rem;
   }
 
-  .location-card {
-    width: 95%;
-  }
 }

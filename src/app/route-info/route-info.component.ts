@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
+import { SelectionService } from '../services/selection.service';
 
 declare var google: any;
 
@@ -19,6 +20,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     private router: Router,
     private routeDataService: RouteDataService,
     private locationService: LocationService,
+    private selectionService: SelectionService,
   ) {}
 
   ngOnInit() {
@@ -206,21 +208,34 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   }
 
 editRoute() {
-    // Store the current locations, origin, selected location indices, and current page in RouteDataService
-    // this.routeDataService.setLocations(this.tripInfo.locations);  // Assuming tripInfo contains locations array
-    // this.routeDataService.setOrigin(this.tripInfo.origin);  // Assuming tripInfo contains the origin
-    // this.routeDataService.setSelectedLocationIndices(new Set(this.tripInfo.selectedLocationIndices));  // Store selected indices
-    // this.routeDataService.setCurrentPage(this.tripInfo.currentPage);  // Store current page
-    
-    // Navigate to the location selection page
-    this.router.navigate(['/select-locations']);
-}
+  // Store the current origin in the LocationService
+  this.locationService.setOrigin(this.tripInfo.origin);  // Assuming tripInfo contains the origin
   
-  newRoute() {
-    // Clear current route info and navigate to the origin selection page for a new route
-    // this.routeDataService.clearRouteInfo();
-    this.router.navigate(['/select-origin']);
-  }
+  // Store all locations and selected location indices in RouteDataService
+  this.routeDataService.setLocations(this.tripInfo.locations);  // Assuming tripInfo contains all locations
+  
+  // Automatically select the locations used in route generation
+  const selectedIndices = this.tripInfo.selectedLocationIndices || [];  // Assuming tripInfo contains selected indices
+  
+  // Convert the selected indices array to a Set for easier management
+  this.routeDataService.setSelectedLocationIndices(new Set(selectedIndices));
+  
+  // Navigate to the location selection page
+  this.router.navigate(['/select-locations']);
+}
+
+newRoute() {
+  // Clear the route-related data in RouteDataService and LocationService
+  this.routeDataService.clearRouteInfo();  // Clears all data related to the route
+  this.locationService.clearOrigin();  // Clear the origin
+
+  // Clear selections
+  this.selectionService.clearAllSelections();  // Clear all selected locations
+
+  // Navigate to the origin selection page
+  this.router.navigate(['/select-origin']);
+}
+
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
