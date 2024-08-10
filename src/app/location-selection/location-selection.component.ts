@@ -21,6 +21,7 @@ export class LocationSelectionComponent implements OnInit {
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
+  markerLocationMap: Map<google.maps.Marker, any> = new Map();
   searchTerm: string = '';
   loading = false;
   currentPage = 1;
@@ -102,26 +103,31 @@ ngOnInit(): void {
     return Math.min(a, b);
   }
 
-  paginateLocations() {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
-  }
+paginateLocations() {
+  const startIndex = (this.currentPage - 1) * this.pageSize;
+  const endIndex = startIndex + this.pageSize;
+  this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
+}
 
-  filterLocations(): void {
-    this.loading = true;
-    setTimeout(() => {
+filterLocations(): void {
+  this.loading = true;
+  setTimeout(() => {
+    // Restore the full list if the search term is empty
+    if (this.searchTerm.trim() === '') {
+      this.filteredLocations = [...this.locations];
+    } else {
       this.filteredLocations = this.locations.filter(location =>
         location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
-      this.totalLocations = this.filteredLocations.length;
-      this.currentPage = 1;
-      this.paginateLocations();
-      this.addMarkers(); // Re-create markers after filtering
-      this.loading = false;
-    }, 500);
-  }
-
+    }
+    this.totalLocations = this.filteredLocations.length;
+    this.currentPage = 1;
+    this.paginateLocations();
+    this.addMarkers(); // Re-create markers after filtering
+    this.loading = false;
+  }, 500);
+}
+  
   onPageIndexChange(page: number) {
     this.currentPage = page;
     this.paginateLocations();
@@ -213,68 +219,75 @@ ngOnInit(): void {
     });
   }
 
-  addMarkers() {
-    this.clearAllMarkers();
+addMarkers() {
+  this.clearAllMarkers();
+  this.markerLocationMap.clear(); // Clear the existing map before adding new markers
 
-    this.paginatedLocations.forEach((location, index) => {
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: location.address }, (results: any, status: any) => {
-        if (status === google.maps.GeocoderStatus.OK) {
-          const marker = new google.maps.Marker({
-            map: this.map,
-            position: results[0].geometry.location,
-            title: location.storeName,
-            label: {
-              text: `${(this.currentPage - 1) * this.pageSize + index + 1}`,
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '16px'
-            }
-          });
+  this.paginatedLocations.forEach((location, index) => {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: location.address }, (results: any, status: any) => {
+      if (status === google.maps.GeocoderStatus.OK) {
+        const marker = new google.maps.Marker({
+          map: this.map,
+          position: results[0].geometry.location,
+          title: location.storeName,
+          label: {
+            text: `${(this.currentPage - 1) * this.pageSize + index + 1}`,
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }
+        });
 
-          this.markers.push(marker);
+        this.markers.push(marker);
+        this.markerLocationMap.set(marker, location); // Associate the marker with the location
 
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
-          });
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
+        });
 
-          marker.addListener('click', () => {
-            this.ngZone.run(() => {
-              infoWindow.open(this.map, marker);
-              this.onMarkerClick(location);
+        marker.addListener('click', () => {
+          this.ngZone.run(() => {
+            infoWindow.open(this.map, marker);
+            this.onMarkerClick(marker); // Pass the marker to the click handler
 
-              // Add listener for when the info window is closed to zoom out
-              infoWindow.addListener('closeclick', () => {
-                this.map.setZoom(10); // Set the zoom level back to a wider view
-              });
+            // Add listener for when the info window is closed to zoom out
+            infoWindow.addListener('closeclick', () => {
+              this.map.setZoom(10); // Set the zoom level back to a wider view
             });
           });
-        } else {
-          console.error('Geocode failed: ' + status);
-        }
-      });
+        });
+      } else {
+        console.error('Geocode failed: ' + status);
+      }
     });
+  });
+}
+
+  onMarkerClick(marker: google.maps.Marker): void {
+  const location = this.markerLocationMap.get(marker); // Get the corresponding location from the map
+  if (location) {
+    this.highlightCard(location); // Highlight the accordion panel for this location
   }
+}
 
-  onMarkerClick(location: any): void {
-    console.log('Marker clicked for location:', location);
-    this.highlightCard(location);
+highlightCard(location: any): void {
+  // Find the index of the location in the filtered list
+  const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+
+  if (highlightedIndex !== -1) {
+    const cardIndex = highlightedIndex % this.pageSize;
+
+    this.selectedLocationIndex = cardIndex;
+
+    // Scroll the accordion panel into view and highlight it
+    const cardElement = document.querySelector(`.location-card-${cardIndex}`);
+    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } else {
+    console.error('Location not found in filteredLocations');
   }
+}
 
-  highlightCard(location: any): void {
-    const highlightedIndex = this.paginatedLocations.findIndex(loc => loc.address === location.address);
-
-    if (highlightedIndex !== -1) {
-      const cardIndex = highlightedIndex % this.pageSize;
-
-      this.selectedLocationIndex = cardIndex;
-
-      const cardElement = document.querySelector(`.location-card-${cardIndex}`);
-      cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-      console.error('Location not found in filteredLocations');
-    }
-  }
 
   toggleSelection(index: number): void {
   console.log('index of selection', index);
