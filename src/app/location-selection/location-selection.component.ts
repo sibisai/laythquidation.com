@@ -75,23 +75,35 @@ export class LocationSelectionComponent implements OnInit {
     this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
   }
 
-  filterLocations(): void {
-    this.loading = true;
-    setTimeout(() => {
-      this.filteredLocations = this.searchTerm.trim() === ''
-        ? [...this.locations]
-        : this.locations.filter(location =>
-            location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
-          );
-      this.totalLocations = this.filteredLocations.length;
-      this.currentPage = 1;
-      this.paginateLocations();
-      this.clearAllMarkers();
-      this.addMarkers();
-      this.loading = false;
-    }, 500);
-  }
+filterLocations(): void {
+  this.loading = true;
+  setTimeout(() => {
+    this.filteredLocations = this.searchTerm.trim() === ''
+      ? [...this.locations]
+      : this.locations.filter(location =>
+          location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+        );
+    this.totalLocations = this.filteredLocations.length;
+    this.currentPage = 1;
+    this.paginateLocations();
 
+    // After filtering, update the selected state for displayed items
+    this.filteredLocations.forEach(location => {
+      const isSelected = this.allSelectedLocations.some(
+        loc => loc.address === location.address
+      );
+      if (isSelected) {
+        this.selectedLocationIndices.add(this.filteredLocations.indexOf(location));
+      } else {
+        this.selectedLocationIndices.delete(this.filteredLocations.indexOf(location));
+      }
+    });
+
+    this.clearAllMarkers();
+    this.addMarkers();
+    this.loading = false;
+  }, 500);
+}
   onPageIndexChange(page: number) {
     this.currentPage = page;
     this.paginateLocations();
@@ -237,19 +249,19 @@ export class LocationSelectionComponent implements OnInit {
     }
   }
 
-  toggleSelection(location: any, index: number): void {
-    const globalIndex = (this.currentPage - 1) * this.pageSize + index;
+toggleSelection(location: any, index: number): void {
+  const globalIndex = (this.currentPage - 1) * this.pageSize + index;
 
-    if (this.selectedLocationIndices.has(globalIndex)) {
-      this.selectedLocationIndices.delete(globalIndex);
-      this.allSelectedLocations = this.allSelectedLocations.filter(
-        loc => loc.address !== location.address
-      );
-    } else {
-      this.selectedLocationIndices.add(globalIndex);
-      this.allSelectedLocations.push(location);
-    }
+  if (this.selectedLocationIndices.has(globalIndex)) {
+    this.selectedLocationIndices.delete(globalIndex);
+    this.allSelectedLocations = this.allSelectedLocations.filter(
+      loc => loc.address !== location.address
+    );
+  } else {
+    this.selectedLocationIndices.add(globalIndex);
+    this.allSelectedLocations.push(location);
   }
+}
 
   clearAllSelections(): void {
     this.selectedLocationIndices.clear();
