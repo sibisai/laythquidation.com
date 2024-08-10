@@ -13,7 +13,7 @@ declare var google: any;
 export class RouteInfoComponent implements OnInit, AfterViewInit {
   tripInfo: any;
   qrCodeUrl: string = '';
-  showQRCode: boolean = true;
+  showQRCode: boolean = false;
 
   constructor(
     private router: Router,
@@ -29,7 +29,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Generate the QR code URL using the QRCodeService
+    // Use the QR code URL from the tripInfo
     this.qrCodeUrl = this.tripInfo.qrCodeUrl;
   }
 
@@ -41,6 +41,24 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     });
   }
 
+   toggleQRCode() {
+    this.showQRCode = !this.showQRCode;
+    const mapContainer = document.querySelector('.map-container');
+    const qrCodeContainer = document.querySelector('.qr-code-container');
+
+    if (this.showQRCode) {
+      // Reveal the QR code with a smooth transition
+      mapContainer?.classList.add('map-shrink');
+      qrCodeContainer?.classList.add('show');
+    } else {
+      // Hide the QR code first, then expand the map
+      qrCodeContainer?.classList.remove('show');
+      setTimeout(() => {
+        mapContainer?.classList.remove('map-shrink');
+      }, 500); // Match the transition duration to avoid jumping
+    }
+  }
+
   loadMap() {
     const mapElement = document.getElementById('map');
     if (!mapElement) {
@@ -50,7 +68,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
 
     const map = new google.maps.Map(mapElement, {
       center: { lat: 34.0522, lng: -118.2437 },
-      zoom: 10,
+      zoom: 12,
       mapTypeControl: false
     });
 
@@ -187,6 +205,23 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
 
+editRoute() {
+    // Store the current locations, origin, selected location indices, and current page in RouteDataService
+    // this.routeDataService.setLocations(this.tripInfo.locations);  // Assuming tripInfo contains locations array
+    // this.routeDataService.setOrigin(this.tripInfo.origin);  // Assuming tripInfo contains the origin
+    // this.routeDataService.setSelectedLocationIndices(new Set(this.tripInfo.selectedLocationIndices));  // Store selected indices
+    // this.routeDataService.setCurrentPage(this.tripInfo.currentPage);  // Store current page
+    
+    // Navigate to the location selection page
+    this.router.navigate(['/select-locations']);
+}
+  
+  newRoute() {
+    // Clear current route info and navigate to the origin selection page for a new route
+    // this.routeDataService.clearRouteInfo();
+    this.router.navigate(['/select-origin']);
+  }
+
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (typeof google !== 'undefined') {
@@ -195,7 +230,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg&libraries=geometry,places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=geometry,places`;
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();
@@ -204,4 +239,3 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     });
   }
 }
-
