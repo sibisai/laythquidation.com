@@ -1,6 +1,9 @@
 .location-selection-container {
   position: relative;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .map-container {
@@ -25,7 +28,8 @@
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(8px);
   overflow-y: auto;
-  padding: 1rem 0 1rem 0;
+  padding: 0 0 1rem 0;
+  /* Remove padding from top to make room for the header */
   box-shadow: -2px 0 15px rgba(0, 0, 0, 0.3);
   border-radius: 8px 0 0 8px;
   display: flex;
@@ -35,14 +39,20 @@
 
 .header-container {
   background-color: rgba(240, 240, 240, 0.6);
-  padding: 0.5rem 1rem;
+  padding: 1rem;
+  /* Add padding for a more prominent header */
   font-weight: bold;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 8px 0 0 0;
-  z-index: 1;
+  border-radius: 0 0 0 0;
+  /* Remove border-radius */
+  z-index: 2;
   width: 100%;
   box-sizing: border-box;
-  margin-right: 0;
+  margin: 0;
+  position: sticky;
+  /* Make header stick to the top */
+  top: 0;
+  /* Ensure it stays at the top */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,7 +72,6 @@
   justify-content: center;
   width: 100%;
   flex-wrap: wrap;
-  /* Allows buttons to wrap on smaller screens */
 }
 
 .filter-container {
@@ -102,21 +111,18 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  /* Ensures pagination and info wrap on small screens */
 }
 
 .pagination-info {
   font-size: 0.9rem;
   margin-right: auto;
   flex: 1 1 auto;
-  /* Flexibility to take space */
   text-align: left;
 }
 
 .nz-pagination {
   margin-left: auto;
   flex: 1 1 auto;
-  /* Flexibility to take space */
   text-align: center;
 }
 
@@ -148,7 +154,6 @@
 button[nz-button] {
   margin: 0.5rem 0.5rem 0 0.5rem;
   min-width: 100px;
-  /* Ensure buttons don't get too small on narrow screens */
 }
 
 .selected-card {
@@ -160,7 +165,6 @@ button[nz-button] {
 @media (max-width: 768px) {
   .locations-overlay-container {
     width: 50%;
-    /* Increase width on smaller screens */
   }
 
   .header-container h1 {
@@ -179,7 +183,6 @@ button[nz-button] {
   .pagination-info,
   .nz-pagination {
     flex: 1 1 100%;
-    /* Ensure full width on small screens */
     text-align: center;
     margin: 0;
   }
@@ -188,9 +191,7 @@ button[nz-button] {
 @media (max-width: 480px) {
   .locations-overlay-container {
     width: 100%;
-    /* Full width on very small screens */
     border-radius: 0;
-    /* Remove border-radius for full screen width */
   }
 
   .header-container h1 {
@@ -199,7 +200,6 @@ button[nz-button] {
 
   .header-buttons {
     flex-direction: column;
-    /* Stack buttons vertically */
     gap: 0.25rem;
   }
 
