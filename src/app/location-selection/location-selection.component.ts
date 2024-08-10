@@ -4,6 +4,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from '../services/trip-planner.service';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
+import { SelectionService } from '../services/selection.service';
 
 declare var google: any;
 
@@ -20,8 +21,6 @@ export class LocationSelectionComponent implements OnInit {
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
-  selectedLocationsCount = 0;
-  selectedLocationIndices: Set<number> = new Set<number>();
   searchTerm: string = '';
   loading = false;
   currentPage = 1;
@@ -36,7 +35,8 @@ export class LocationSelectionComponent implements OnInit {
     private modal: NzModalService,
     private tripPlannerService: TripPlannerService,
     private routeDataService: RouteDataService,
-    private locationService: LocationService
+    private locationService: LocationService,
+    private selectionService: SelectionService
   ) {
     // Retrieve locations from the service if available
     this.locations = this.routeDataService.getLocations() || [];
@@ -60,13 +60,22 @@ export class LocationSelectionComponent implements OnInit {
   ngOnInit(): void {
     this.loadGoogleMapsScript().then(() => {
       this.initMap();
-      const origin = this.locationService.getOrigin();  // Get origin from LocationService
+      const origin = this.locationService.getOrigin(); // Get origin from LocationService
       if (origin) {
         this.addOriginMarker(origin);
       }
       this.addMarkers();
     });
   }
+
+  get selectedLocationsCount(): number {
+    return this.selectionService.getSelectedLocationsCount();
+  }
+
+  get selectedLocationIndices(): Set<number> {
+    return this.selectionService.getSelectedLocations();
+  }
+
 
   getMinValue(a: number, b: number): number {
     return Math.min(a, b);
@@ -246,30 +255,24 @@ export class LocationSelectionComponent implements OnInit {
     }
   }
 
-  toggleSelection(location: any, index: number): void {
-    const selectedMarkerIndex = (this.currentPage - 1) * this.pageSize + index;
-
-    if (this.selectedLocationIndices.has(selectedMarkerIndex)) {
-      this.selectedLocationIndices.delete(selectedMarkerIndex);
-      this.selectedLocationsCount--;
-    } else {
-      this.selectedLocationIndices.add(selectedMarkerIndex);
-      this.selectedLocationsCount++;
-    }
+  toggleSelection(index: number): void {
+  console.log('index of selection', index);
+    this.selectionService.toggleSelection(index);
   }
+  
+getExtraTemplate(location: any, index: number): string {
+  const selectedMarkerIndex = (this.currentPage - 1) * this.pageSize + index;
+
+  return `
+    <button nz-button nzType="primary" (click)="toggleSelection(${selectedMarkerIndex})">
+      ${this.selectedLocationIndices.has(selectedMarkerIndex) ? 'Unselect' : 'Select'}
+    </button>
+  `;
+}
+
 
   clearAllSelections(): void {
-    this.selectedMarker = null;
-    this.selectedLocationsCount = 0;
-    this.selectedLocationIndices.clear();
-    if (this.originMarker) {
-      const center = this.originMarker.getPosition() as google.maps.LatLng;
-      this.map.setZoom(10);
-      this.map.setCenter(center);
-    } else {
-      this.map.setZoom(10);
-      this.map.setCenter({ lat: 34.0522, lng: -118.2437 });
-    }
+    this.selectionService.clearAllSelections();
   }
 
   clearAllMarkers(): void {
