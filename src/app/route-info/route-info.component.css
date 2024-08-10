@@ -6,16 +6,21 @@ body {
 }
 
 .header-container {
-  text-align: left;
-  margin-left: 20px;
-  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: transparent;
 }
 
-.welcome-header {
-  margin: 0;
-  font-size: 30px;
-  /* Expanded font size for clarity */
-  padding-top: 20px;
+.statistics-container {
+  display: flex;
+  gap: 20px;
+}
+
+.header-button-container {
+  display: flex;
+  gap: 10px;
 }
 
 .content-container {
@@ -24,12 +29,18 @@ body {
   height: calc(100% - 60px);
   justify-content: flex-start;
   align-items: center;
+  overflow: hidden;
 }
 
 .map-container {
   position: relative;
-  height: 50vh;
+  height: 65vh;
   width: 100%;
+  transition: height 0.5s ease;
+}
+
+.map-container.map-shrink {
+  height: 40vh;
 }
 
 #map {
@@ -37,15 +48,25 @@ body {
   width: 100%;
 }
 
-.button-container {
-  margin-top: 20px;
+.qr-code-container {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+  /* Disable pointer events when hidden */
+  transition: opacity 0.2s ease, height 0.3s ease, margin-top 0.3s ease;
 }
 
-.qr-code-container {
-  margin-bottom: 30px;
-  /* Ensures margin between QR code and bottom of the page */
+.qr-code-container.show {
+  opacity: 1;
+  height: auto;
+  margin-top: 10px;
+  pointer-events: auto;
+  /* Enable pointer events when shown */
+}
+
+button[nz-button][nzType="link"] {
+  margin-top: 5px;
 }
