@@ -25,6 +25,7 @@ export class LocationSelectionComponent implements OnInit {
   markerLocationMap: Map<google.maps.Marker, any> = new Map();
   searchTerm: string = '';
   loading = false;
+  progress = 0;
   currentPage = 1;
   pageSize = 10;
   totalLocations = 0;
@@ -300,14 +301,29 @@ submitSelections(): void {
         nzOkLoading: this.loading,
         nzOnOk: () => {
           this.loading = true;
+          this.progress = 0;
+
+          // Simulate progress over 5-6 seconds
+          const intervalTime = 4800 / 100; // Total time divided by 100 percent
+          const increment = 2;
+          const interval = setInterval(() => {
+            if (this.progress < 100) {
+              this.progress += increment;
+            } else {
+              clearInterval(interval);
+            }
+          }, intervalTime);
           this.tripPlannerService.generateRouteAndMetrics(requestBody).subscribe(
             (response: any) => {
               this.routeDataService.setRouteInfo(response);
               this.loading = false;
+              this.progress = 100;
+              clearInterval(interval);
               this.router.navigate(['/route-info']);
             },
             (error: any) => {
               this.loading = false;
+              this.progress = 0;
               console.error('Error generating route:', error);
               alert('Failed to generate the route. Please try again.');
             }

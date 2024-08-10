@@ -6,11 +6,15 @@
   <div class="locations-overlay-container">
     <div class="header-container">
       <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}</h1>
-      <nz-space *ngIf="selectedLocationsCount > 0" class="header-buttons">
+
+      <nz-space *ngIf="!loading && selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
         <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate Route</button>
       </nz-space>
-    </div>
+      
+      <!-- Progress bar shown during route generation -->
+      <nz-progress *ngIf="loading" [nzPercent]="progress" nzStatus="active"></nz-progress>
+      </div>
 
     <div class="location-cards-container">
       <div class="filter-container">
