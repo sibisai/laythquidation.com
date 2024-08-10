@@ -17,6 +17,7 @@ export class LocationSelectionComponent implements OnInit {
   locations: any[] = [];
   filteredLocations: any[] = [];
   paginatedLocations: any[] = [];
+  allSelectedLocations: any[] = [];
   map!: google.maps.Map;
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
@@ -39,106 +40,71 @@ export class LocationSelectionComponent implements OnInit {
     private locationService: LocationService,
     private selectionService: SelectionService
   ) {
-    // Retrieve locations from the service if available
-    this.locations = this.routeDataService.getLocations() || [];
-    if (this.locations.length > 0) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.locations = navigation.extras.state['stores'];
       this.filteredLocations = [...this.locations];
       this.totalLocations = this.filteredLocations.length;
       this.paginateLocations();
-    } else {
-      const navigation = this.router.getCurrentNavigation();
-      if (navigation?.extras.state) {
-        this.locations = navigation.extras.state['stores'];
-        this.filteredLocations = [...this.locations];
-        this.totalLocations = this.filteredLocations.length;
-        this.paginateLocations();
-        const origin = navigation.extras.state['start'];
-        this.locationService.setOrigin(origin);  // Set origin in LocationService
+      this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
+    }
+  }
+
+  ngOnInit(): void {
+    this.loadGoogleMapsScript().then(() => {
+      this.initMap();
+      const origin = this.locationService.getOrigin();
+      if (origin) {
+        this.addOriginMarker(origin);
       }
-    }
+      this.addMarkers();
+    });
   }
-
-ngOnInit(): void {
-  this.loadGoogleMapsScript().then(() => {
-    this.initMap();
-    const origin = this.locationService.getOrigin(); // Get origin from LocationService
-    if (origin) {
-      this.addOriginMarker(origin);
-    }
-    this.addMarkers();
-  });
-
-  // Ensure locations are loaded before restoring the selection
-  this.locations = this.routeDataService.getLocations() || [];
-  if (this.locations.length > 0) {
-    this.filteredLocations = [...this.locations];
-    this.totalLocations = this.filteredLocations.length;
-    this.paginateLocations();
-
-    // Restore the selected locations using the SelectionService
-    const selectedIndices = this.selectionService.getSelectedLocations();
-    if (selectedIndices.size > 0) {
-      // Iterate over each location and mark as selected if its index is in the selectedIndices set
-      this.paginatedLocations.forEach((location, index) => {
-        const globalIndex = (this.currentPage - 1) * this.pageSize + index;
-        if (selectedIndices.has(globalIndex)) {
-          // Mark this location as selected in your UI logic
-          this.toggleSelection(globalIndex);  // Ensure selected indices are marked
-        }
-      });
-    }
-  }
-}
 
   get selectedLocationsCount(): number {
-    return this.selectionService.getSelectedLocationsCount();
+    return this.allSelectedLocations.length;
   }
 
   get selectedLocationIndices(): Set<number> {
     return this.selectionService.getSelectedLocations();
   }
 
-
-  getMinValue(a: number, b: number): number {
-    return Math.min(a, b);
+  paginateLocations() {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
   }
 
-paginateLocations() {
-  const startIndex = (this.currentPage - 1) * this.pageSize;
-  const endIndex = startIndex + this.pageSize;
-  this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
-}
+  filterLocations(): void {
+    this.loading = true;
+    setTimeout(() => {
+      this.filteredLocations = this.searchTerm.trim() === ''
+        ? [...this.locations]
+        : this.locations.filter(location =>
+            location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+          );
+      this.totalLocations = this.filteredLocations.length;
+      this.currentPage = 1;
+      this.paginateLocations();
+      this.clearAllMarkers();
+      this.addMarkers();
+      this.loading = false;
+    }, 500);
+  }
 
-filterLocations(): void {
-  this.loading = true;
-  setTimeout(() => {
-    // Restore the full list if the search term is empty
-    if (this.searchTerm.trim() === '') {
-      this.filteredLocations = [...this.locations];
-    } else {
-      this.filteredLocations = this.locations.filter(location =>
-        location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    }
-    this.totalLocations = this.filteredLocations.length;
-    this.currentPage = 1;
-    this.paginateLocations();
-    this.addMarkers(); // Re-create markers after filtering
-    this.loading = false;
-  }, 500);
-}
-  
   onPageIndexChange(page: number) {
     this.currentPage = page;
     this.paginateLocations();
-    this.addMarkers(); // Re-create markers after page change
+    this.clearAllMarkers();
+    this.addMarkers();
   }
 
   onPageSizeChange(size: number) {
     this.pageSize = size;
     this.currentPage = 1;
     this.paginateLocations();
-    this.addMarkers(); // Re-create markers after page size change
+    this.clearAllMarkers();
+    this.addMarkers();
   }
 
   loadGoogleMapsScript(): Promise<void> {
@@ -196,14 +162,7 @@ filterLocations(): void {
           }
         });
 
-        const center = this.originMarker?.getPosition() as google.maps.LatLng;
-        const offsetLng = -0.3;
-        const newCenter = {
-          lat: center.lat(),
-          lng: center.lng() - offsetLng
-        };
-
-        this.map.setCenter(newCenter);
+        this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
 
         this.originMarker?.addListener('click', () => {
           this.ngZone.run(() => {
@@ -219,136 +178,119 @@ filterLocations(): void {
     });
   }
 
-addMarkers() {
-  this.clearAllMarkers();
-  this.markerLocationMap.clear(); // Clear the existing map before adding new markers
+  addMarkers() {
+    this.paginatedLocations.forEach((location, index) => {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: location.address }, (results: any, status: any) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+          const marker = new google.maps.Marker({
+            map: this.map,
+            position: results[0].geometry.location,
+            title: location.storeName,
+            label: {
+              text: `${(this.currentPage - 1) * this.pageSize + index + 1}`,
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '16px'
+            }
+          });
 
-  this.paginatedLocations.forEach((location, index) => {
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: location.address }, (results: any, status: any) => {
-      if (status === google.maps.GeocoderStatus.OK) {
-        const marker = new google.maps.Marker({
-          map: this.map,
-          position: results[0].geometry.location,
-          title: location.storeName,
-          label: {
-            text: `${(this.currentPage - 1) * this.pageSize + index + 1}`,
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px'
-          }
-        });
+          this.markers.push(marker);
+          this.markerLocationMap.set(marker, location);
 
-        this.markers.push(marker);
-        this.markerLocationMap.set(marker, location); // Associate the marker with the location
+          const infoWindow = new google.maps.InfoWindow({
+            content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
+          });
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
-        });
-
-        marker.addListener('click', () => {
-          this.ngZone.run(() => {
-            infoWindow.open(this.map, marker);
-            this.onMarkerClick(marker); // Pass the marker to the click handler
-
-            // Add listener for when the info window is closed to zoom out
-            infoWindow.addListener('closeclick', () => {
-              this.map.setZoom(10); // Set the zoom level back to a wider view
+          marker.addListener('click', () => {
+            this.ngZone.run(() => {
+              infoWindow.open(this.map, marker);
+              this.onMarkerClick(marker);
             });
           });
-        });
-      } else {
-        console.error('Geocode failed: ' + status);
-      }
+        } else {
+          console.error('Geocode failed: ' + status);
+        }
+      });
     });
-  });
-}
+  }
 
   onMarkerClick(marker: google.maps.Marker): void {
-  const location = this.markerLocationMap.get(marker); // Get the corresponding location from the map
-  if (location) {
-    this.highlightCard(location); // Highlight the accordion panel for this location
+    const location = this.markerLocationMap.get(marker);
+    if (location) {
+      this.highlightCard(location);
+    }
   }
-}
 
-highlightCard(location: any): void {
-  // Find the index of the location in the filtered list
-  const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+  highlightCard(location: any): void {
+    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
 
-  if (highlightedIndex !== -1) {
-    const cardIndex = highlightedIndex % this.pageSize;
+    if (highlightedIndex !== -1) {
+      const cardIndex = highlightedIndex % this.pageSize;
 
-    this.selectedLocationIndex = cardIndex;
+      this.selectedLocationIndex = cardIndex;
 
-    // Scroll the accordion panel into view and highlight it
-    const cardElement = document.querySelector(`.location-card-${cardIndex}`);
-    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  } else {
-    console.error('Location not found in filteredLocations');
+      const cardElement = document.querySelector(`.location-card-${cardIndex}`);
+      cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      console.error('Location not found in filteredLocations');
+    }
   }
-}
 
+  toggleSelection(location: any, index: number): void {
+    const globalIndex = (this.currentPage - 1) * this.pageSize + index;
 
-  toggleSelection(index: number): void {
-  console.log('index of selection', index);
-    this.selectionService.toggleSelection(index);
+    if (this.selectedLocationIndices.has(globalIndex)) {
+      this.selectedLocationIndices.delete(globalIndex);
+      this.allSelectedLocations = this.allSelectedLocations.filter(
+        loc => loc.address !== location.address
+      );
+    } else {
+      this.selectedLocationIndices.add(globalIndex);
+      this.allSelectedLocations.push(location);
+    }
   }
-  
-getExtraTemplate(location: any, index: number): string {
-  const selectedMarkerIndex = (this.currentPage - 1) * this.pageSize + index;
-
-  return `
-    <button nz-button nzType="primary" (click)="toggleSelection(${selectedMarkerIndex})">
-      ${this.selectedLocationIndices.has(selectedMarkerIndex) ? 'Unselect' : 'Select'}
-    </button>
-  `;
-}
-
 
   clearAllSelections(): void {
-    this.selectionService.clearAllSelections();
+    this.selectedLocationIndices.clear();
+    this.allSelectedLocations = [];
   }
 
-  clearAllMarkers(): void {
-    this.markers.forEach(marker => marker.setMap(null));
-    this.markers = [];
-  }
+  getMinValue(a: number, b: number): number {
+  return Math.min(a, b);
+}
 
-  submitSelections(): void {
-    if (this.selectedLocationsCount > 0) {
-      const selectedLocations = this.filteredLocations
-        .filter((loc, index) => this.selectedLocationIndices.has((this.currentPage - 1) * this.pageSize + index))
-        .map(loc => loc.address);
+submitSelections(): void {
+    if (this.allSelectedLocations.length > 0) {
+      const selectedAddresses = this.allSelectedLocations.map(loc => loc.address);
       const origin = this.locationService.getOrigin() || '';
       const requestBody = {
         origin: origin,
-        locations: selectedLocations
+        locations: selectedAddresses
       };
-      // Create a reference to the modal instance
-      const modal = this.modal.confirm({
+
+      this.modal.confirm({
         nzTitle: 'Confirm Route Generation',
-        nzContent: `You have selected ${this.selectedLocationsCount} locations. Do you want to generate the route?`,
+        nzContent: `You have selected ${this.allSelectedLocations.length} locations. Do you want to generate the route?`,
         nzOkText: 'Yes',
         nzCancelText: 'No',
-        nzOkLoading: this.loading, // Bind modal OK button loading state
+        nzOkLoading: this.loading,
         nzOnOk: () => {
-          this.loading = true; // Start loading spinner
-
+          this.loading = true;
           this.tripPlannerService.generateRouteAndMetrics(requestBody).subscribe(
             (response: any) => {
-              this.routeDataService.setRouteInfo(response);  // Store the data in RouteDataService
-              this.loading = false; // Stop loading spinner
-              modal.destroy(); // Destroy the modal
-              this.router.navigate(['/route-info']); // Navigate to the route info page
+              this.routeDataService.setRouteInfo(response);
+              this.loading = false;
+              this.router.navigate(['/route-info']);
             },
             (error: any) => {
-              this.loading = false; // Stop loading spinner
+              this.loading = false;
               console.error('Error generating route:', error);
               alert('Failed to generate the route. Please try again.');
             }
           );
 
-          return new Promise((resolve) => setTimeout(resolve, 0)); // Return a promise to handle async operation
+          return new Promise((resolve) => setTimeout(resolve, 0));
         },
         nzOnCancel: () => {
           console.log('User canceled the route generation.');
@@ -357,5 +299,10 @@ getExtraTemplate(location: any, index: number): string {
     } else {
       alert('Please select at least one location before submitting.');
     }
+  }
+
+  clearAllMarkers(): void {
+    this.markers.forEach(marker => marker.setMap(null));
+    this.markers = [];
   }
 }

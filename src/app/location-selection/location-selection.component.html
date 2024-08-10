@@ -6,10 +6,10 @@
   <div class="locations-overlay-container">
     <div class="header-container">
       <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}</h1>
-      <div *ngIf="selectedLocationsCount > 0" class="header-buttons">
+      <nz-space *ngIf="selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
         <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate Route</button>
-      </div>
+      </nz-space>
     </div>
 
     <div class="location-cards-container">
@@ -31,7 +31,7 @@
           <ng-template #extraTemplate>
             <button nz-button nzType="primary"
               [nzDanger]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)"
-              (click)="toggleSelection((currentPage - 1) * pageSize + i)">
+              (click)="toggleSelection(location, i)">
               {{ selectedLocationIndices.has((currentPage - 1) * pageSize + i) ? 'Unselect' : 'Select' }}
             </button>
           </ng-template>
