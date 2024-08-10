@@ -198,6 +198,7 @@ export class OriginSelectionComponent implements OnInit {
         // If the dialog closed with result true, it means user chose to proceed
         this.setUserLocation(34.0522, -118.2437); // Los Angeles coordinates
       }
+      this.loading = false;
     });
   }
 
