@@ -16,7 +16,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   tripInfo: any;
   qrCodeUrl: string = '';
   showQRCode: boolean = false;
-  map!: google.maps.Map;
+  map: google.maps.Map | null = null;
 
   constructor(
     private router: Router,
@@ -217,9 +217,9 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
 
-editRoute() {
-  this.location.back();
-}
+// editRoute() {
+//   this.location.back();
+// }
   
 
 
@@ -249,6 +249,7 @@ newRoute() {
       script.defer = true;
       script.onload = () => resolve();
       script.onerror = (error) => reject(error);
+      script.setAttribute('loading', 'async')
       document.head.appendChild(script);
     });
   }
