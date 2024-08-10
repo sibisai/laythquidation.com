@@ -14,10 +14,13 @@
 
     <div class="location-cards-container">
       <div class="filter-container">
-        <nz-input-group>
+        <nz-input-group [nzSuffix]="inputClearTpl">
           <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
             (input)="filterLocations()" />
         </nz-input-group>
+        <ng-template #inputClearTpl>
+          <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
+        </ng-template>
       </div>
 
       <!-- Accordion with ghost mode -->

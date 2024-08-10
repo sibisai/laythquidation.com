@@ -234,6 +234,11 @@ filterLocations(): void {
     }
   }
 
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterLocations();
+  }
+
   highlightCard(location: any): void {
     const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
 
