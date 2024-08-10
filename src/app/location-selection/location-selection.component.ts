@@ -273,13 +273,19 @@ toggleSelection(location: any, index: number): void {
 }
 
 submitSelections(): void {
+  const origin = this.locationService.getOrigin();
+  if (!origin) {
+    alert('Origin is not set. Please provide a starting location.');
+    return;
+  }
+
     if (this.allSelectedLocations.length > 0) {
       const selectedAddresses = this.allSelectedLocations.map(loc => loc.address);
-      const origin = this.locationService.getOrigin() || '';
       const requestBody = {
         origin: origin,
         locations: selectedAddresses
       };
+      console.log('requestbody', requestBody);
 
       this.modal.confirm({
         nzTitle: 'Confirm Route Generation',
@@ -317,4 +323,5 @@ submitSelections(): void {
     this.markers.forEach(marker => marker.setMap(null));
     this.markers = [];
   }
+
 }

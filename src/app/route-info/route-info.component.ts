@@ -16,6 +16,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   tripInfo: any;
   qrCodeUrl: string = '';
   showQRCode: boolean = false;
+  map!: google.maps.Map;
 
   constructor(
     private router: Router,
@@ -44,7 +45,14 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       console.error('Error loading Google Maps script:', error);
     });
   }
-
+  ngOnDestroy() {
+  // Clean up Google Maps listeners or any other resource
+  if (this.map) {
+    google.maps.event.clearInstanceListeners(this.map);
+    this.map = null;
+  }
+  }
+  
    toggleQRCode() {
     this.showQRCode = !this.showQRCode;
     const mapContainer = document.querySelector('.map-container');
@@ -212,6 +220,8 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
 editRoute() {
   this.location.back();
 }
+  
+
 
 newRoute() {
   // Clear the route-related data in RouteDataService and LocationService
@@ -234,7 +244,7 @@ newRoute() {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=geometry,places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeglibraries=geometry,places`;
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();
