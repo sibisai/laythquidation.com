@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
 import { SelectionService } from '../services/selection.service';
+import { Location } from '@angular/common';
 
 declare var google: any;
 
@@ -21,6 +22,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     private routeDataService: RouteDataService,
     private locationService: LocationService,
     private selectionService: SelectionService,
+    private location: Location
   ) {}
 
   ngOnInit() {
@@ -208,20 +210,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   }
 
 editRoute() {
-  // Store the current origin in the LocationService
-  this.locationService.setOrigin(this.tripInfo.origin);  // Assuming tripInfo contains the origin
-  
-  // Store all locations and selected location indices in RouteDataService
-  this.routeDataService.setLocations(this.tripInfo.locations);  // Assuming tripInfo contains all locations
-  
-  // Automatically select the locations used in route generation
-  const selectedIndices = this.tripInfo.selectedLocationIndices || [];  // Assuming tripInfo contains selected indices
-  
-  // Convert the selected indices array to a Set for easier management
-  this.routeDataService.setSelectedLocationIndices(new Set(selectedIndices));
-  
-  // Navigate to the location selection page
-  this.router.navigate(['/select-locations']);
+  this.location.back();
 }
 
 newRoute() {
