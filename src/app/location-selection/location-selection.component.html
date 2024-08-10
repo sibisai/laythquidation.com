@@ -2,61 +2,52 @@
   <div class="map-container">
     <div id="map"></div>
   </div>
-  
+
   <div class="locations-overlay-container">
     <div class="header-container">
       <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}</h1>
-      <!-- Conditionally display the buttons when at least one location is selected -->
       <div *ngIf="selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
         <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate Route</button>
       </div>
     </div>
-    
+
     <div class="location-cards-container">
       <div class="filter-container">
         <nz-input-group>
           <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
-          (input)="filterLocations()" />
+            (input)="filterLocations()" />
         </nz-input-group>
       </div>
-      
-      <div *ngFor="let location of paginatedLocations; let i = index"
-      class="location-card location-card-{{ (currentPage - 1) * pageSize + i }}"
-      [ngClass]="{'selected-card': selectedLocationIndices.has((currentPage - 1) * pageSize + i)}">
-      
-      <nz-card nzTitle="{{ (currentPage - 1) * pageSize + i + 1 }}. {{ location.storeName }}"
-      [nzExtra]="extraTemplate">
-      <p>{{ location.address }}</p>
-      <p>{{ location.phoneNumber }}</p>
-      <p>{{ location.distance }}</p>
-      <p>{{ location.duration }}</p>
-    </nz-card>
-    
-    <ng-template #extraTemplate>
-      <button nz-button nzType="primary" (click)="selectLocation(location)"
-      [disabled]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)">
-      Select
-    </button>
-  </ng-template>
-</div>
 
-</div>
+      <!-- Accordion with ghost mode -->
+      <nz-collapse nzAccordion nzGhost>
+        <nz-collapse-panel *ngFor="let location of paginatedLocations; let i = index"
+          [nzHeader]="(currentPage - 1) * pageSize + i + 1 + '. ' + location.storeName" [nzActive]="false"
+          [nzExtra]="extraTemplate">
+          <p>{{ location.address }}</p>
+          <p>{{ location.phoneNumber }}</p>
+          <p>{{ location.distance }}</p>
+          <p>{{ location.duration }}</p>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </div>
 
-<div class="pagination-container">
-  <div class="pagination-info">
-    {{ (currentPage - 1) * pageSize + 1 }}-{{ getMinValue(currentPage * pageSize, totalLocations) }} of {{ totalLocations }} items
+    <div class="pagination-container">
+      <div class="pagination-info">
+        {{ (currentPage - 1) * pageSize + 1 }}-{{ getMinValue(currentPage * pageSize, totalLocations) }} of {{
+        totalLocations }} items
+      </div>
+      <nz-pagination [(nzPageIndex)]="currentPage" [nzTotal]="totalLocations" [nzPageSize]="pageSize"
+        [nzShowSizeChanger]="true" [nzPageSizeOptions]="pageSizeOptions" [nzSize]="'small'"
+        (nzPageIndexChange)="onPageIndexChange($event)" (nzPageSizeChange)="onPageSizeChange($event)">
+      </nz-pagination>
+    </div>
   </div>
-  <nz-pagination
-  [(nzPageIndex)]="currentPage"
-  [nzTotal]="totalLocations"
-  [nzPageSize]="pageSize"
-  [nzShowSizeChanger]="true"
-  [nzPageSizeOptions]="pageSizeOptions"
-  [nzSize]="'small'"
-  (nzPageIndexChange)="onPageIndexChange($event)"
-  (nzPageSizeChange)="onPageSizeChange($event)">
-</nz-pagination>
 </div>
-</div>
-</div>
+
+<ng-template #extraTemplate let-location="location" let-index="index">
+  <button nz-button nzType="primary" (click)="toggleSelection(location, index)">
+    {{ selectedLocationIndices.has((currentPage - 1) * pageSize + index) ? 'Unselect' : 'Select' }}
+  </button>
+</ng-template>

@@ -8,6 +8,7 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
@@ -22,6 +23,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzCardModule,
     NzButtonModule,
     NzCheckboxModule,
+    NzCollapseModule,
     NzListModule,
     NzSpaceModule,
     NzTypographyModule,

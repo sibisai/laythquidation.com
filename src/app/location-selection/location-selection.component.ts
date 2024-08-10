@@ -246,15 +246,15 @@ export class LocationSelectionComponent implements OnInit {
     }
   }
 
-  selectLocation(location: any): void {
-    const selectedMarkerIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+  toggleSelection(location: any, index: number): void {
+    const selectedMarkerIndex = (this.currentPage - 1) * this.pageSize + index;
 
-    if (selectedMarkerIndex !== -1) {
-      this.highlightCard(location);
+    if (this.selectedLocationIndices.has(selectedMarkerIndex)) {
+      this.selectedLocationIndices.delete(selectedMarkerIndex);
+      this.selectedLocationsCount--;
+    } else {
       this.selectedLocationIndices.add(selectedMarkerIndex);
       this.selectedLocationsCount++;
-    } else {
-      console.error('Location not found in filteredLocations');
     }
   }
 
@@ -271,54 +271,54 @@ export class LocationSelectionComponent implements OnInit {
       this.map.setCenter({ lat: 34.0522, lng: -118.2437 });
     }
   }
+
   clearAllMarkers(): void {
     this.markers.forEach(marker => marker.setMap(null));
     this.markers = [];
   }
 
- submitSelections(): void {
-  if (this.selectedLocationsCount > 0) {
-    const selectedLocations = this.filteredLocations
-      .filter((loc, index) => this.selectedLocationIndices.has(index))
-      .map(loc => loc.address);
-    const origin = this.locationService.getOrigin() || '';
-    const requestBody = {
-      origin: origin,
-      locations: selectedLocations
-    };
+  submitSelections(): void {
+    if (this.selectedLocationsCount > 0) {
+      const selectedLocations = this.filteredLocations
+        .filter((loc, index) => this.selectedLocationIndices.has((this.currentPage - 1) * this.pageSize + index))
+        .map(loc => loc.address);
+      const origin = this.locationService.getOrigin() || '';
+      const requestBody = {
+        origin: origin,
+        locations: selectedLocations
+      };
+      // Create a reference to the modal instance
+      const modal = this.modal.confirm({
+        nzTitle: 'Confirm Route Generation',
+        nzContent: `You have selected ${this.selectedLocationsCount} locations. Do you want to generate the route?`,
+        nzOkText: 'Yes',
+        nzCancelText: 'No',
+        nzOkLoading: this.loading, // Bind modal OK button loading state
+        nzOnOk: () => {
+          this.loading = true; // Start loading spinner
 
-    // Create a reference to the modal instance
-    const modal = this.modal.confirm({
-      nzTitle: 'Confirm Route Generation',
-      nzContent: `You have selected ${this.selectedLocationsCount} locations. Do you want to generate the route?`,
-      nzOkText: 'Yes',
-      nzCancelText: 'No',
-      nzOkLoading: this.loading, // Bind modal OK button loading state
-      nzOnOk: () => {
-        this.loading = true; // Start loading spinner
+          this.tripPlannerService.generateRouteAndMetrics(requestBody).subscribe(
+            (response: any) => {
+              this.routeDataService.setRouteInfo(response);  // Store the data in RouteDataService
+              this.loading = false; // Stop loading spinner
+              modal.destroy(); // Destroy the modal
+              this.router.navigate(['/route-info']); // Navigate to the route info page
+            },
+            (error: any) => {
+              this.loading = false; // Stop loading spinner
+              console.error('Error generating route:', error);
+              alert('Failed to generate the route. Please try again.');
+            }
+          );
 
-        this.tripPlannerService.generateRouteAndMetrics(requestBody).subscribe(
-          (response: any) => {
-            this.routeDataService.setRouteInfo(response);  // Store the data in RouteDataService
-            this.loading = false; // Stop loading spinner
-            modal.destroy(); // Destroy the modal
-            this.router.navigate(['/route-info']); // Navigate to the route info page
-          },
-          (error: any) => {
-            this.loading = false; // Stop loading spinner
-            console.error('Error generating route:', error);
-            alert('Failed to generate the route. Please try again.');
-          }
-        );
-
-        return new Promise((resolve) => setTimeout(resolve, 0)); // Return a promise to handle async operation
-      },
-      nzOnCancel: () => {
-        console.log('User canceled the route generation.');
-      }
-    });
-  } else {
-    alert('Please select at least one location before submitting.');
+          return new Promise((resolve) => setTimeout(resolve, 0)); // Return a promise to handle async operation
+        },
+        nzOnCancel: () => {
+          console.log('User canceled the route generation.');
+        }
+      });
+    } else {
+      alert('Please select at least one location before submitting.');
+    }
   }
-}
 }
