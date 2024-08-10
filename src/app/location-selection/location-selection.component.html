@@ -24,13 +24,13 @@
       <nz-collapse nzAccordion nzGhost>
         <nz-collapse-panel *ngFor="let location of paginatedLocations; let i = index"
           [nzHeader]="(currentPage - 1) * pageSize + i + 1 + '. ' + location.storeName" [nzActive]="false"
-          [ngClass]="{ 'selected-accordion': selectedLocationIndices.has((currentPage - 1) * pageSize + i) }"
+          [ngClass]="{'selected-accordion': selectedLocationIndices.has((currentPage - 1) * pageSize + i)}"
           [nzExtra]="extraTemplate">
 
           <!-- Button template inside the panel -->
           <ng-template #extraTemplate>
-            <button nz-button
-              [nzType]="selectedLocationIndices.has((currentPage - 1) * pageSize + i) ? 'default' : 'primary'"
+            <button nz-button nzType="primary"
+              [nzDanger]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)"
               (click)="toggleSelection((currentPage - 1) * pageSize + i)">
               {{ selectedLocationIndices.has((currentPage - 1) * pageSize + i) ? 'Unselect' : 'Select' }}
             </button>

@@ -1,3 +1,16 @@
+/* Highlight the selected accordion panel with a light blue background */
+.selected-accordion {
+  background-color: #e6f7ff;
+  /* Light blue hue */
+}
+
+/* Ensure button in selected state has a danger appearance with default button type */
+button[nz-button][nzDanger="true"] {
+  border: 1px solid red;
+  color: red;
+}
+
+/* Existing CSS without changes */
 .location-selection-container {
   position: relative;
   height: 100vh;
@@ -157,17 +170,6 @@ button[nz-button] {
   min-width: 100px;
   margin: 0;
   /* Remove margin to align properly */
-}
-
-/* Highlight the selected accordion panel */
-.selected-accordion {
-  border: 1px solid blue;
-}
-
-/* Ensure button in unselected state has a default appearance */
-button[nz-button][nzType="default"] {
-  border: 1px solid blue;
-  color: blue;
 }
 
 /* Media Query for Smaller Screens */
