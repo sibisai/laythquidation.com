@@ -57,16 +57,37 @@ export class LocationSelectionComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-    this.loadGoogleMapsScript().then(() => {
-      this.initMap();
-      const origin = this.locationService.getOrigin(); // Get origin from LocationService
-      if (origin) {
-        this.addOriginMarker(origin);
-      }
-      this.addMarkers();
-    });
+ngOnInit(): void {
+  this.loadGoogleMapsScript().then(() => {
+    this.initMap();
+    const origin = this.locationService.getOrigin(); // Get origin from LocationService
+    if (origin) {
+      this.addOriginMarker(origin);
+    }
+    this.addMarkers();
+  });
+
+  // Ensure locations are loaded before restoring the selection
+  this.locations = this.routeDataService.getLocations() || [];
+  if (this.locations.length > 0) {
+    this.filteredLocations = [...this.locations];
+    this.totalLocations = this.filteredLocations.length;
+    this.paginateLocations();
+
+    // Restore the selected locations using the SelectionService
+    const selectedIndices = this.selectionService.getSelectedLocations();
+    if (selectedIndices.size > 0) {
+      // Iterate over each location and mark as selected if its index is in the selectedIndices set
+      this.paginatedLocations.forEach((location, index) => {
+        const globalIndex = (this.currentPage - 1) * this.pageSize + index;
+        if (selectedIndices.has(globalIndex)) {
+          // Mark this location as selected in your UI logic
+          this.toggleSelection(globalIndex);  // Ensure selected indices are marked
+        }
+      });
+    }
   }
+}
 
   get selectedLocationsCount(): number {
     return this.selectionService.getSelectedLocationsCount();

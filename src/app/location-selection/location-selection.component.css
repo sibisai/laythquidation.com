@@ -159,9 +159,15 @@ button[nz-button] {
   /* Remove margin to align properly */
 }
 
-.selected-card {
-  border: 2px solid blue;
-  background-color: rgba(0, 0, 255, 0.1);
+/* Highlight the selected accordion panel */
+.selected-accordion {
+  border: 1px solid blue;
+}
+
+/* Ensure button in unselected state has a default appearance */
+button[nz-button][nzType="default"] {
+  border: 1px solid blue;
+  color: blue;
 }
 
 /* Media Query for Smaller Screens */
