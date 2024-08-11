@@ -25,6 +25,7 @@ export class LocationSelectionComponent implements OnInit {
   markerLocationMap: Map<google.maps.Marker, any> = new Map();
   searchTerm: string = '';
   loading = false;
+  progressInterval: any;
   progress = 0;
   currentPage = 1;
   pageSize = 10;
@@ -76,8 +77,9 @@ export class LocationSelectionComponent implements OnInit {
     this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
   }
 
+
 filterLocations(): void {
-  this.loading = true;
+
   setTimeout(() => {
     this.filteredLocations = this.searchTerm.trim() === ''
       ? [...this.locations]
@@ -105,6 +107,29 @@ filterLocations(): void {
     this.loading = false;
   }, 500);
 }
+  
+
+resetProgress(): void {
+  clearInterval(this.progressInterval);
+  this.progress = 100; // Ensure progress is set to 100
+
+  // Apply the fade-out effect
+  const progressBar = document.querySelector('.nz-progress');
+  if (progressBar) {
+    progressBar.classList.add('hide');
+  }
+
+  // Keep the progress bar showing "Done" for a short duration
+  setTimeout(() => {
+    this.loading = false; // Hide the progress bar by setting loading to false
+  }, 800); // Adjust the delay as needed
+}
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.filterLocations();
+  }
+  
   onPageIndexChange(page: number) {
     this.currentPage = page;
     this.paginateLocations();
@@ -235,10 +260,6 @@ filterLocations(): void {
     }
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.filterLocations();
-  }
 
   highlightCard(location: any): void {
     const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
