@@ -255,6 +255,7 @@ resetProgress(): void {
 
   onMarkerClick(marker: google.maps.Marker): void {
     const location = this.markerLocationMap.get(marker);
+    console.log('location of marker click', location);
     if (location) {
       this.highlightCard(location);
     }

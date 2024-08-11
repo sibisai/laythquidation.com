@@ -62,11 +62,13 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       // Reveal the QR code with a smooth transition
       mapContainer?.classList.add('map-shrink');
       qrCodeContainer?.classList.add('show');
+      this.map?.setZoom(10);
     } else {
       // Hide the QR code first, then expand the map
       qrCodeContainer?.classList.remove('show');
       setTimeout(() => {
         mapContainer?.classList.remove('map-shrink');
+        this.map?.setZoom(10);
       }, 500); // Match the transition duration to avoid jumping
     }
   }
