@@ -5,7 +5,7 @@
 
   <div class="locations-overlay-container">
     <div class="header-container">
-      <h1 class="location-header">Selected Locations: {{ selectedLocationsCount }}</h1>
+      <h1 class="location-header">Locations Selected: {{ selectedLocationsCount }}</h1>
 
       <nz-space *ngIf="!loading && selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
@@ -27,7 +27,7 @@
           <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
         </ng-template>
       </div>
-
+      </div>
       <!-- Accordion with ghost mode -->
       <nz-collapse nzAccordion nzGhost>
         <nz-collapse-panel *ngFor="let location of paginatedLocations; let i = index"
@@ -52,7 +52,6 @@
       </nz-collapse>
     </div>
 
-  </div>
   <div class="pagination-container">
     <div class="pagination-info">
       {{ (currentPage - 1) * pageSize + 1 }}-{{ getMinValue(currentPage * pageSize, totalLocations) }} of {{

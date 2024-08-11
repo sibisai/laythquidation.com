@@ -57,6 +57,12 @@
 
 .filter-container {
   margin: 0.5rem 1rem 1rem 1rem;
+  /* width: 50vh; */
+    width: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* Align items to the start (left) */
 }
 
 .location-cards-container {
@@ -67,6 +73,12 @@
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  min-width: 100%;
+}
+
+.nz-collapse {
+  width: 100%;
+  /* Ensure the collapse panels take up the full width */
 }
 
 .pagination-container {
