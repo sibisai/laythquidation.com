@@ -276,7 +276,9 @@ toggleSelection(location: any, index: number): void {
 
   getMinValue(a: number, b: number): number {
   return Math.min(a, b);
-}
+  }
+  
+  formatDone = (): string => 'Done';
 
 submitSelections(): void {
   const origin = this.locationService.getOrigin();

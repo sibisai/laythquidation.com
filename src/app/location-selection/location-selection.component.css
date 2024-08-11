@@ -74,7 +74,7 @@
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(8px);
   white-space: nowrap;
-  position: sticky;
+  position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -83,6 +83,7 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
+  margin-top: auto;
 }
 
 .pagination-info {

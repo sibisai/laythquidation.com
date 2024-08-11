@@ -13,8 +13,9 @@
       </nz-space>
       
       <!-- Progress bar shown during route generation -->
-      <nz-progress *ngIf="loading" [nzPercent]="progress" nzStatus="active"></nz-progress>
-      </div>
+      <nz-progress *ngIf="loading" nzSize="small" [nzPercent]="progress" [nzStatus]="progress === 100 ? 'success' : 'active'"
+        [nzFormat]="progress === 100 ? formatDone : undefined" style="width: 100%; display: block; padding-right: 12px;">
+      </nz-progress>
 
     <div class="location-cards-container">
       <div class="filter-container">
