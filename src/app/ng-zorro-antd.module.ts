@@ -8,6 +8,7 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTypographyModule } from 'ng-zorro-antd/typography';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
@@ -35,6 +36,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzSwitchModule,
     NzPaginationModule,
     NzProgressModule,
+    NzDividerModule,
     NzIconModule
   ]
 })

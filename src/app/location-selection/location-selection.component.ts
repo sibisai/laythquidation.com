@@ -328,7 +328,7 @@ submitSelections(): void {
           this.progress = 0;
 
           // Simulate progress over 5-6 seconds
-          const intervalTime = 4800 / 100; // Total time divided by 100 percent
+          const intervalTime = 5000 / 100; // Total time divided by 100 percent
           const increment = 2;
           const interval = setInterval(() => {
             if (this.progress < 100) {

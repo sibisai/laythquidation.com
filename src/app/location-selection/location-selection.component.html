@@ -16,7 +16,7 @@
       <nz-progress *ngIf="loading" nzSize="small" [nzPercent]="progress" [nzStatus]="progress === 100 ? 'success' : 'active'"
         [nzFormat]="progress === 100 ? formatDone : undefined" style="width: 100%; display: block; padding-right: 12px;">
       </nz-progress>
-
+      <nz-divider class="custom-divider"></nz-divider>
     <div class="location-cards-container">
       <div class="filter-container">
         <nz-input-group [nzSuffix]="inputClearTpl">

@@ -152,3 +152,7 @@ button[nz-button] {
 .nz-progress.hide {
   opacity: 0;
 }
+
+.custom-divider {
+  margin-bottom: 0px;
+}
