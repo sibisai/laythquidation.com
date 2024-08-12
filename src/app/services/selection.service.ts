@@ -4,9 +4,9 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class SelectionService {
-  private selectedLocationIndices: Set<number> = new Set<number>();
+  private selectedLocationIndices: Set<string> = new Set<string>(); // Use Set<string> for string-based identifiers
 
-  toggleSelection(index: number): void {
+  toggleSelection(index: string): void {
     if (this.selectedLocationIndices.has(index)) {
       this.selectedLocationIndices.delete(index);
     } else {
@@ -14,7 +14,7 @@ export class SelectionService {
     }
   }
 
-  getSelectedLocations(): Set<number> {
+  getSelectedLocations(): Set<string> {
     return this.selectedLocationIndices;
   }
 

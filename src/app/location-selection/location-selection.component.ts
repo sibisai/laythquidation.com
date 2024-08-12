@@ -5,8 +5,16 @@ import { TripPlannerService } from '../services/trip-planner.service';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
 import { SelectionService } from '../services/selection.service';
-
+import { debounce } from 'lodash';
 declare var google: any;
+
+interface Location {
+  address: string;
+  storeName: string;
+  phoneNumber?: string;
+  distance?: number;
+  duration?: string;
+}
 
 @Component({
   selector: 'app-location-selection',
@@ -27,11 +35,10 @@ export class LocationSelectionComponent implements OnInit {
   loading = false;
   progressInterval: any;
   progress = 0;
-  currentPage = 1;
-  pageSize = 10;
   totalLocations = 0;
+  maxRadius: number = 50;
+  selectedRadius: number = this.maxRadius;
   selectedLocationIndex: number | null = null;
-  pageSizeOptions = [10, 15, 25, 50];
 
   constructor(
     private router: Router,
@@ -41,71 +48,118 @@ export class LocationSelectionComponent implements OnInit {
     private routeDataService: RouteDataService,
     private locationService: LocationService,
     private selectionService: SelectionService
-  ) {
+) {
+    this.filterLocations = debounce(this.filterLocations.bind(this), 300);
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
       this.filteredLocations = [...this.locations];
+      console.log('Filtered Locations:', this.filteredLocations);
       this.totalLocations = this.filteredLocations.length;
-      this.paginateLocations();
       this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
+      console.log('locations initialized:', this.locations);
     }
   }
 
-  ngOnInit(): void {
-    this.loadGoogleMapsScript().then(() => {
-      this.initMap();
-      const origin = this.locationService.getOrigin();
-      if (origin) {
-        this.addOriginMarker(origin);
-      }
-      this.addMarkers();
-    });
-  }
+ngOnInit(): void {
+  console.log('ngOnInit triggered');
+  this.loadGoogleMapsScript().then(() => {
+    this.initMap();
+    const origin = this.locationService.getOrigin();
+    if (origin) {
+      this.addOriginMarker(origin);
+    }
+    this.addMarkers();
+  });
+  console.log('Initial filteredLocations:', this.filteredLocations);
+}
 
   get selectedLocationsCount(): number {
     return this.allSelectedLocations.length;
   }
 
-  get selectedLocationIndices(): Set<number> {
+  get selectedLocationIndices(): Set<string> {
     return this.selectionService.getSelectedLocations();
   }
 
-  paginateLocations() {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.paginatedLocations = this.filteredLocations.slice(startIndex, endIndex);
-  }
-
-
 filterLocations(): void {
+    setTimeout(() => {
+        // **Log the current selections before filtering**
+        console.log('Before filtering, selected locations:', this.allSelectedLocations);
 
-  setTimeout(() => {
-    this.filteredLocations = this.searchTerm.trim() === ''
-      ? [...this.locations]
-      : this.locations.filter(location =>
-          location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+        // Filter by search term first
+        const filteredBySearch = this.searchTerm.trim() === ''
+            ? [...this.locations]
+            : this.locations.filter(location =>
+                location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+            );
+
+        // Then filter by radius using the selectedRadius value
+        this.filteredLocations = filteredBySearch.filter(location =>
+            parseFloat(location.distance) <= this.selectedRadius
         );
-    this.totalLocations = this.filteredLocations.length;
-    this.currentPage = 1;
-    this.paginateLocations();
 
-    // After filtering, update the selected state for displayed items
-    this.filteredLocations.forEach(location => {
-      const isSelected = this.allSelectedLocations.some(
-        loc => loc.address === location.address
-      );
-      if (isSelected) {
-        this.selectedLocationIndices.add(this.filteredLocations.indexOf(location));
-      } else {
-        this.selectedLocationIndices.delete(this.filteredLocations.indexOf(location));
-      }
+        // **Update total locations count**
+        this.totalLocations = this.filteredLocations.length;
+        console.log('Filtered Locations:', this.filteredLocations.length); // Debugging: Check the number of filtered locations
+
+        // **Sync selection state after filtering**
+        this.syncSelectionState(); // Ensure selection state is consistent
+
+        this.clearAllMarkers();
+        this.addMarkers();
+        this.loading = false;
+
+        // **Log the selections after filtering to check if they were cleared**
+        console.log('After filtering, selected locations:', this.allSelectedLocations);
+    }, 500);
+}
+  
+syncSelectionState(): void {
+    // Ensure the selectedLocationIndices reflects the selection state across all locations
+    const newSelectedIndices = new Set<string>(); // Assuming address is a string
+
+    this.filteredLocations.forEach((location) => {
+        if (this.selectedLocationIndices.has(location.address)) {
+            newSelectedIndices.add(location.address);
+        }
     });
 
-    this.clearAllMarkers();
-    this.addMarkers();
-    this.loading = false;
-  }, 500);
+    // **Log the current selection state before clearing and updating**
+    console.log('Before sync, selectedLocationIndices:', this.selectedLocationIndices);
+    console.log('Before sync, newSelectedIndices:', newSelectedIndices);
+
+    // **Update the selection indices**
+    this.selectedLocationIndices.clear();
+    newSelectedIndices.forEach(id => this.selectedLocationIndices.add(id));
+
+    // **Log the updated selection state to verify it remains consistent**
+    console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
+
+    // Update the visual selection state
+    this.updateSelectedLocations();
+}
+updateSelectedLocations(): void {
+    // **Log before updating selected locations**
+    console.log('Before updating, allSelectedLocations:', this.allSelectedLocations);
+
+    // Update the allSelectedLocations array to ensure it matches the selectedLocationIndices set
+    this.allSelectedLocations = this.locations.filter(location => this.selectedLocationIndices.has(location.address));
+
+    // **Log after updating to ensure selections are maintained**
+    console.log('After updating, allSelectedLocations:', this.allSelectedLocations);
+}
+
+// Method to clear the search and reset the filtered locations
+clearSearch(): void {
+    this.searchTerm = '';
+    this.filterLocations(); 
+    this.updateSelectedLocations(); // Ensure the visual state is consistent with the actual selected locations
+}
+
+// Method to handle location radius change and re-filter locations
+filterLocationsByRadius(): void {
+    this.filterLocations(); // Use the existing filter logic with the updated radius
 }
   
 
@@ -125,25 +179,6 @@ resetProgress(): void {
   }, 800); // Adjust the delay as needed
 }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.filterLocations();
-  }
-  
-  onPageIndexChange(page: number) {
-    this.currentPage = page;
-    this.paginateLocations();
-    this.clearAllMarkers();
-    this.addMarkers();
-  }
-
-  onPageSizeChange(size: number) {
-    this.pageSize = size;
-    this.currentPage = 1;
-    this.paginateLocations();
-    this.clearAllMarkers();
-    this.addMarkers();
-  }
 
   loadGoogleMapsScript(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -217,41 +252,42 @@ resetProgress(): void {
   }
 
   addMarkers() {
-    this.paginatedLocations.forEach((location, index) => {
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: location.address }, (results: any, status: any) => {
-        if (status === google.maps.GeocoderStatus.OK) {
-          const marker = new google.maps.Marker({
-            map: this.map,
-            position: results[0].geometry.location,
-            title: location.storeName,
-            label: {
-              text: `${(this.currentPage - 1) * this.pageSize + index + 1}`,
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: '16px'
-            }
-          });
+  this.filteredLocations.forEach((location: any, index: number) => {
+    const geocoder = new google.maps.Geocoder();
+    geocoder.geocode({ address: location.address }, (results: any, status: any) => {
+      if (status === google.maps.GeocoderStatus.OK) {
+        const marker = new google.maps.Marker({
+          map: this.map,
+          position: results[0].geometry.location,
+          title: location.storeName,
+          label: {
+            text: `${index + 1}`,
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }
+        });
 
-          this.markers.push(marker);
-          this.markerLocationMap.set(marker, location);
+        this.markers.push(marker);
+        this.markerLocationMap.set(marker, location);
 
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
-          });
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
+        });
 
-          marker.addListener('click', () => {
-            this.ngZone.run(() => {
-              infoWindow.open(this.map, marker);
-              this.onMarkerClick(marker);
-            });
+        marker.addListener('click', () => {
+          this.ngZone.run(() => {
+            infoWindow.open(this.map, marker);
+            this.onMarkerClick(marker);
           });
-        } else {
-          console.error('Geocode failed: ' + status);
-        }
-      });
+        });
+      } else {
+        console.error('Geocode failed: ' + status);
+      }
     });
-  }
+  });
+}
+
 
   onMarkerClick(marker: google.maps.Marker): void {
     const location = this.markerLocationMap.get(marker);
@@ -262,33 +298,39 @@ resetProgress(): void {
   }
 
 
-  highlightCard(location: any): void {
-    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+ highlightCard(location: any): void {
+  const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
 
-    if (highlightedIndex !== -1) {
-      const cardIndex = highlightedIndex % this.pageSize;
+  if (highlightedIndex !== -1) {
+    this.selectedLocationIndex = highlightedIndex;
 
-      this.selectedLocationIndex = cardIndex;
-
-      const cardElement = document.querySelector(`.location-card-${cardIndex}`);
-      cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-      console.error('Location not found in filteredLocations');
-    }
-  }
-
-toggleSelection(location: any, index: number): void {
-  const globalIndex = (this.currentPage - 1) * this.pageSize + index;
-
-  if (this.selectedLocationIndices.has(globalIndex)) {
-    this.selectedLocationIndices.delete(globalIndex);
-    this.allSelectedLocations = this.allSelectedLocations.filter(
-      loc => loc.address !== location.address
-    );
+    const cardElement = document.querySelector(`.location-card-${highlightedIndex}`);
+    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } else {
-    this.selectedLocationIndices.add(globalIndex);
-    this.allSelectedLocations.push(location);
+    console.error('Location not found in filteredLocations');
   }
+}
+
+toggleSelection(location: any): void {
+    const locationId = location.address; // Use a unique identifier
+
+    if (this.selectedLocationIndices.has(locationId)) {
+        // If the location is already selected, remove it from both selectedLocationIndices and allSelectedLocations
+        this.selectedLocationIndices.delete(locationId);
+        this.allSelectedLocations = this.allSelectedLocations.filter(
+            loc => loc.address !== location.address
+        );
+    } else {
+        // If the location is not selected, add it to both selectedLocationIndices and allSelectedLocations
+        this.selectedLocationIndices.add(locationId);
+        this.allSelectedLocations.push(location);
+    }
+
+    // **Log the state after toggling a selection**
+    console.log('After toggling selection, selectedLocationIndices:', this.selectedLocationIndices);
+    console.log('After toggling selection, allSelectedLocations:', this.allSelectedLocations);
+
+    this.updateSelectedLocations(); // Ensure that the allSelectedLocations is consistent with the selectedLocationIndices
 }
 
   clearAllSelections(): void {

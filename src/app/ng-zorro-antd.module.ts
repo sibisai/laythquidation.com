@@ -15,6 +15,7 @@ import { NzQRCodeModule } from 'ng-zorro-antd/qr-code';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzSliderModule } from 'ng-zorro-antd/slider'
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
@@ -37,7 +38,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzPaginationModule,
     NzProgressModule,
     NzDividerModule,
-    NzIconModule
+    NzIconModule,
+    NzSliderModule
   ]
 })
 export class NgZorroAntdModule { }

@@ -9,14 +9,18 @@
 
       <nz-space *ngIf="!loading && selectedLocationsCount > 0" class="header-buttons">
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
-        <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate Route</button>
+        <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate</button>
       </nz-space>
+      
       
       <!-- Progress bar shown during route generation -->
       <nz-progress *ngIf="loading" nzSize="small" [nzPercent]="progress" [nzStatus]="progress === 100 ? 'success' : 'active'"
         [nzFormat]="progress === 100 ? formatDone : undefined" style="width: 100%; display: block; padding-right: 12px;">
       </nz-progress>
-      <nz-divider class="custom-divider"></nz-divider>
+
+      <nz-divider nzPlain nzText="Showing {{ filteredLocations.length }} of 23 locations"
+        class="custom-divider"></nz-divider>
+
     <div class="location-cards-container">
       <div class="filter-container">
         <nz-input-group [nzSuffix]="inputClearTpl">
@@ -26,21 +30,26 @@
         <ng-template #inputClearTpl>
           <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
         </ng-template>
+
+        <div class="slider-container">
+          <nz-slider [(ngModel)]="selectedRadius" [nzMax]="maxRadius" (ngModelChange)="filterLocationsByRadius()"></nz-slider>
+          <p>Within: {{ selectedRadius }} miles</p>
+        </div>
+
       </div>
       </div>
+
       <!-- Accordion with ghost mode -->
       <nz-collapse nzAccordion nzGhost>
-        <nz-collapse-panel *ngFor="let location of paginatedLocations; let i = index"
-          [nzHeader]="(currentPage - 1) * pageSize + i + 1 + '. ' + location.storeName" [nzActive]="false"
-          [ngClass]="{'selected-accordion': selectedLocationIndices.has((currentPage - 1) * pageSize + i)}"
-          [nzExtra]="extraTemplate">
+        <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
+          [nzHeader]="(i + 1) + '. ' + location.storeName" [nzActive]="false"
+          [ngClass]="{'selected-accordion': selectedLocationIndices.has(location.address)}" [nzExtra]="extraTemplate">
 
           <!-- Button template inside the panel -->
           <ng-template #extraTemplate>
-            <button nz-button nzType="primary"
-              [nzDanger]="selectedLocationIndices.has((currentPage - 1) * pageSize + i)"
-              (click)="toggleSelection(location, i)">
-              {{ selectedLocationIndices.has((currentPage - 1) * pageSize + i) ? 'Unselect' : 'Select' }}
+            <button nz-button nzType="primary" [nzDanger]="selectedLocationIndices.has(location.address)"
+              (click)="toggleSelection(location)">
+              {{ selectedLocationIndices.has(location.address) ? 'Unselect' : 'Select' }}
             </button>
           </ng-template>
 
@@ -51,15 +60,4 @@
         </nz-collapse-panel>
       </nz-collapse>
     </div>
-
-  <div class="pagination-container">
-    <div class="pagination-info">
-      {{ (currentPage - 1) * pageSize + 1 }}-{{ getMinValue(currentPage * pageSize, totalLocations) }} of {{
-      totalLocations }} items
-    </div>
-    <nz-pagination [(nzPageIndex)]="currentPage" [nzTotal]="totalLocations" [nzPageSize]="pageSize"
-      [nzShowSizeChanger]="true" [nzPageSizeOptions]="pageSizeOptions" [nzSize]="'small'"
-      (nzPageIndexChange)="onPageIndexChange($event)" (nzPageSizeChange)="onPageSizeChange($event)">
-    </nz-pagination>
   </div>
-</div>
