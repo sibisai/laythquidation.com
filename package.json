@@ -2,14 +2,14 @@
   "name": "trip-planner",
   "version": "0.0.0",
   "scripts": {
-  "ng": "ng",
-  "start": "ng serve",
-  "build": "ng build --configuration production",
-  "heroku-prebuild": "npm install --legacy-peer-deps",
-  "heroku-postbuild": "npm run build",
-  "watch": "ng build --watch --configuration development",
-  "test": "ng test"
-},
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build --configuration production",
+    "heroku-prebuild": "npm install --legacy-peer-deps",
+    "heroku-postbuild": "npm run build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^18.1.4",
@@ -27,6 +27,7 @@
     "@techiediaries/ngx-qrcode": "^9.1.0",
     "@types/googlemaps": "^3.43.3",
     "angularx-qrcode": "^18.0.1",
+    "dotenv": "^16.4.5",
     "ng-zorro-antd": "^18.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -48,7 +49,7 @@
     "typescript": "~5.5.2"
   },
   "engines": {
-  "node": "18.x",
-  "npm": "8.x"
-}
+    "node": "18.x",
+    "npm": "8.x"
+  }
 }
