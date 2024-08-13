@@ -4,7 +4,7 @@
   "scripts": {
   "ng": "ng",
   "start": "ng serve",
-  "build": "ng build --prod",
+  "build": "ng build --configuration production",
   "heroku-prebuild": "npm install --legacy-peer-deps",
   "heroku-postbuild": "npm run build",
   "watch": "ng build --watch --configuration development",
