@@ -1,9 +1,10 @@
 {
   "name": "trip-planner",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "server/index.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server/index.js",
     "build": "ng build --configuration production",
     "heroku-prebuild": "npm install --legacy-peer-deps",
     "heroku-postbuild": "npm run build",
@@ -31,7 +32,17 @@
     "ng-zorro-antd": "^18.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.14.3"
+    "zone.js": "~0.14.3",
+    "@mapbox/polyline": "^1.2.1",
+    "axios": "^1.7.3",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "node-cache": "^5.1.2",
+    "openai": "^4.54.0",
+    "pg": "^8.12.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^18.1.4",
