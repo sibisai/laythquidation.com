@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5001;
 const dotenv = require('dotenv')
 app.use(cors());
 app.use(express.json());
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
 app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
 
 app.get('/*', function(req, res) {
@@ -21,7 +21,7 @@ app.get('/*', function(req, res) {
 
 // Now you can use the environment variables
 
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
 console.log('maps api key', process.env.GOOGLE_MAPS_API_KEY);
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
@@ -29,7 +29,7 @@ const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // C
 const pool = new Pool({
   user: process.env.PG_USER,
   host: process.env.PG_HOST,
-  database: 'maclocations',
+  database: process.env.PG_DATABASE,
   password: process.env.PG_PASSWORD,
   port: process.env.PG_PORT,
 });
