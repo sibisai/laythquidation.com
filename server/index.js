@@ -9,7 +9,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const dotenv = require('dotenv')
+
 app.use(cors());
 app.use(express.json());
 
@@ -26,13 +26,15 @@ console.log('maps api key', process.env.GOOGLE_MAPS_API_KEY);
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 
+const { Pool } = require('pg');
+
 const pool = new Pool({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
+
 console.log('database', process.env.PG_DATABASE);
 const geocodeAddress = async (address) => {
   try {
