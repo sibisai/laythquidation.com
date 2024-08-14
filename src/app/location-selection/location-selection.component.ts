@@ -92,22 +92,25 @@ filterLocations(): void {
             ? [...this.locations]
             : this.locations.filter(location =>
                 location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
-            );
-
+              );
+              console.log('After filtering by search:', filteredBySearch);
         // Then filter by radius using the selectedRadius value
         this.filteredLocations = filteredBySearch.filter(location =>
             parseFloat(location.distance) <= this.selectedRadius
         );
-
+        console.log('After filtering by radius:', this.filteredLocations);
         // **Update total locations count**
         this.totalLocations = this.filteredLocations.length;
         console.log('Filtered Locations:', this.filteredLocations.length); // Debugging: Check the number of filtered locations
-
+        console.log('Before syncSelectionState, selectedLocationIndices:', this.selectedLocationIndices);
+        console.log('Filtered locations before sync:', this.filteredLocations);
         // **Sync selection state after filtering**
         this.syncSelectionState(); // Ensure selection state is consistent
-
+        console.log('After syncSelectionState, selectedLocationIndices:', this.selectedLocationIndices);
+        console.log('Before adding markers, markerLocationMap:', this.markerLocationMap);
         this.clearAllMarkers();
         this.addMarkers();
+        console.log('After adding markers, markerLocationMap:', this.markerLocationMap);
         this.loading = false;
 
         // **Log the selections after filtering to check if they were cleared**
@@ -115,30 +118,58 @@ filterLocations(): void {
     }, 500);
 }
   
-syncSelectionState(): void {
-    // Ensure the selectedLocationIndices reflects the selection state across all locations
-    const newSelectedIndices = new Set<string>(); // Assuming address is a string
+// syncSelectionState(): void {
+//     // Ensure the selectedLocationIndices reflects the selection state across all locations
+//     const newSelectedIndices = new Set<string>(); // Assuming address is a string
 
-    this.filteredLocations.forEach((location) => {
+//     this.filteredLocations.forEach((location) => {
+//         if (this.selectedLocationIndices.has(location.address)) {
+//             newSelectedIndices.add(location.address);
+//         }
+//     });
+
+//     // **Log the current selection state before clearing and updating**
+//     console.log('Before sync, selectedLocationIndices:', this.selectedLocationIndices);
+//     console.log('Before sync, newSelectedIndices:', newSelectedIndices);
+
+//     // **Update the selection indices**
+//     this.selectedLocationIndices.clear();
+//     newSelectedIndices.forEach(id => this.selectedLocationIndices.add(id));
+
+//     // **Log the updated selection state to verify it remains consistent**
+//     console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
+
+//     console.log('Before updating selected locations, allSelectedLocations:', this.allSelectedLocations);
+//     // update visual state
+//     this.updateSelectedLocations();
+//     console.log('After updating selected locations, allSelectedLocations:', this.allSelectedLocations);
+// }
+  syncSelectionState(): void {
+    // New set to keep track of selected locations that still exist in the full list
+    const retainedSelections = new Set<string>();
+
+    // Loop through all locations, not just filtered ones, to retain selection state
+    this.locations.forEach(location => {
         if (this.selectedLocationIndices.has(location.address)) {
-            newSelectedIndices.add(location.address);
+            retainedSelections.add(location.address);
         }
     });
 
-    // **Log the current selection state before clearing and updating**
+    // Log the selection state before and after sync for debugging
     console.log('Before sync, selectedLocationIndices:', this.selectedLocationIndices);
-    console.log('Before sync, newSelectedIndices:', newSelectedIndices);
+    console.log('Retained selections based on full location list:', retainedSelections);
 
-    // **Update the selection indices**
+    // Update the selected indices with the retained selections
     this.selectedLocationIndices.clear();
-    newSelectedIndices.forEach(id => this.selectedLocationIndices.add(id));
+    retainedSelections.forEach(id => this.selectedLocationIndices.add(id));
 
-    // **Log the updated selection state to verify it remains consistent**
-    console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
-
-    // Update the visual selection state
+    // Now update the allSelectedLocations to match the current retained selections
     this.updateSelectedLocations();
+
+    // Final log after syncing
+    console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
 }
+
 updateSelectedLocations(): void {
     // **Log before updating selected locations**
     console.log('Before updating, allSelectedLocations:', this.allSelectedLocations);

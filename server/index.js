@@ -21,19 +21,18 @@ app.get('/*', function(req, res) {
 
 // Now you can use the environment variables
 
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-console.log('maps api key', process.env.GOOGLE_MAPS_API_KEY);
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
+console.log('maps api key', googleMapsApiKey);
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-console.log('database', process.env.DATABASE_URL);
+console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
+
 const geocodeAddress = async (address) => {
   try {
     const cachedLocation = geocodeCache.get(address);
