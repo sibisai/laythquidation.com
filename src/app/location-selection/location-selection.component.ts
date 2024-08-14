@@ -54,15 +54,12 @@ export class LocationSelectionComponent implements OnInit {
     if (navigation?.extras.state) {
       this.locations = navigation.extras.state['stores'];
       this.filteredLocations = [...this.locations];
-      console.log('Filtered Locations:', this.filteredLocations);
       this.totalLocations = this.filteredLocations.length;
       this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
-      console.log('locations initialized:', this.locations);
     }
   }
 
 ngOnInit(): void {
-  console.log('ngOnInit triggered');
   this.loadGoogleMapsScript().then(() => {
     this.initMap();
     const origin = this.locationService.getOrigin();
@@ -71,7 +68,6 @@ ngOnInit(): void {
     }
     this.addMarkers();
   });
-  console.log('Initial filteredLocations:', this.filteredLocations);
 }
 
   get selectedLocationsCount(): number {
@@ -84,66 +80,27 @@ ngOnInit(): void {
 
 filterLocations(): void {
     setTimeout(() => {
-        // **Log the current selections before filtering**
-        console.log('Before filtering, selected locations:', this.allSelectedLocations);
-
         // Filter by search term first
         const filteredBySearch = this.searchTerm.trim() === ''
             ? [...this.locations]
             : this.locations.filter(location =>
                 location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
               );
-              console.log('After filtering by search:', filteredBySearch);
         // Then filter by radius using the selectedRadius value
         this.filteredLocations = filteredBySearch.filter(location =>
             parseFloat(location.distance) <= this.selectedRadius
         );
-        console.log('After filtering by radius:', this.filteredLocations);
+
         // **Update total locations count**
         this.totalLocations = this.filteredLocations.length;
-        console.log('Filtered Locations:', this.filteredLocations.length); // Debugging: Check the number of filtered locations
-        console.log('Before syncSelectionState, selectedLocationIndices:', this.selectedLocationIndices);
-        console.log('Filtered locations before sync:', this.filteredLocations);
         // **Sync selection state after filtering**
         this.syncSelectionState(); // Ensure selection state is consistent
-        console.log('After syncSelectionState, selectedLocationIndices:', this.selectedLocationIndices);
-        console.log('Before adding markers, markerLocationMap:', this.markerLocationMap);
         this.clearAllMarkers();
         this.addMarkers();
-        console.log('After adding markers, markerLocationMap:', this.markerLocationMap);
         this.loading = false;
-
-        // **Log the selections after filtering to check if they were cleared**
-        console.log('After filtering, selected locations:', this.allSelectedLocations);
     }, 500);
 }
   
-// syncSelectionState(): void {
-//     // Ensure the selectedLocationIndices reflects the selection state across all locations
-//     const newSelectedIndices = new Set<string>(); // Assuming address is a string
-
-//     this.filteredLocations.forEach((location) => {
-//         if (this.selectedLocationIndices.has(location.address)) {
-//             newSelectedIndices.add(location.address);
-//         }
-//     });
-
-//     // **Log the current selection state before clearing and updating**
-//     console.log('Before sync, selectedLocationIndices:', this.selectedLocationIndices);
-//     console.log('Before sync, newSelectedIndices:', newSelectedIndices);
-
-//     // **Update the selection indices**
-//     this.selectedLocationIndices.clear();
-//     newSelectedIndices.forEach(id => this.selectedLocationIndices.add(id));
-
-//     // **Log the updated selection state to verify it remains consistent**
-//     console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
-
-//     console.log('Before updating selected locations, allSelectedLocations:', this.allSelectedLocations);
-//     // update visual state
-//     this.updateSelectedLocations();
-//     console.log('After updating selected locations, allSelectedLocations:', this.allSelectedLocations);
-// }
   syncSelectionState(): void {
     // New set to keep track of selected locations that still exist in the full list
     const retainedSelections = new Set<string>();
@@ -155,10 +112,6 @@ filterLocations(): void {
         }
     });
 
-    // Log the selection state before and after sync for debugging
-    console.log('Before sync, selectedLocationIndices:', this.selectedLocationIndices);
-    console.log('Retained selections based on full location list:', retainedSelections);
-
     // Update the selected indices with the retained selections
     this.selectedLocationIndices.clear();
     retainedSelections.forEach(id => this.selectedLocationIndices.add(id));
@@ -166,19 +119,11 @@ filterLocations(): void {
     // Now update the allSelectedLocations to match the current retained selections
     this.updateSelectedLocations();
 
-    // Final log after syncing
-    console.log('After sync, selectedLocationIndices:', this.selectedLocationIndices);
 }
 
 updateSelectedLocations(): void {
-    // **Log before updating selected locations**
-    console.log('Before updating, allSelectedLocations:', this.allSelectedLocations);
-
     // Update the allSelectedLocations array to ensure it matches the selectedLocationIndices set
     this.allSelectedLocations = this.locations.filter(location => this.selectedLocationIndices.has(location.address));
-
-    // **Log after updating to ensure selections are maintained**
-    console.log('After updating, allSelectedLocations:', this.allSelectedLocations);
 }
 
 // Method to clear the search and reset the filtered locations
@@ -357,10 +302,6 @@ toggleSelection(location: any): void {
         this.allSelectedLocations.push(location);
     }
 
-    // **Log the state after toggling a selection**
-    console.log('After toggling selection, selectedLocationIndices:', this.selectedLocationIndices);
-    console.log('After toggling selection, allSelectedLocations:', this.allSelectedLocations);
-
     this.updateSelectedLocations(); // Ensure that the allSelectedLocations is consistent with the selectedLocationIndices
 }
 
@@ -388,7 +329,6 @@ submitSelections(): void {
         origin: origin,
         locations: selectedAddresses
       };
-      console.log('requestbody', requestBody);
 
       this.modal.confirm({
         nzTitle: 'Confirm Route Generation',
