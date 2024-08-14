@@ -68,7 +68,7 @@ app.post('/calculate-distance', async (req, res) => {
 
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM location');
+    const result = await client.query('SELECT * FROM stores');
 
     const rowsToUpdate = [];
 
