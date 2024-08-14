@@ -26,8 +26,6 @@ console.log('maps api key', process.env.GOOGLE_MAPS_API_KEY);
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 
-const { Pool } = require('pg');
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
