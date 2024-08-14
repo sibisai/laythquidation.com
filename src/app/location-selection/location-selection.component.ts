@@ -36,8 +36,8 @@ export class LocationSelectionComponent implements OnInit {
   progressInterval: any;
   progress = 0;
   totalLocations = 0;
-  maxRadius: number = 3000;
-  selectedRadius: number = 100;
+  maxRadius: number = 250;
+  selectedRadius: number = 25;
   selectedLocationIndex: number | null = null;
 
   constructor(
