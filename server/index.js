@@ -33,7 +33,7 @@ const pool = new Pool({
   }
 });
 
-console.log('database', process.env.PG_DATABASE);
+console.log('database', process.env.DATABASE_URL);
 const geocodeAddress = async (address) => {
   try {
     const cachedLocation = geocodeCache.get(address);
