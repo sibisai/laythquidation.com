@@ -214,7 +214,7 @@ export class OriginSelectionComponent implements OnInit {
           this.loading = true;
           this.tripPlannerService.calculateDistance({ origin: start }).subscribe(
             response => {
-              this.router.navigate(['/select-locations'], { state: { stores: response.top25Closest, start } });
+              this.router.navigate(['/select-locations'], { state: { stores: response.topNClosest, start } });
               this.loading = false;
             },
             error => {

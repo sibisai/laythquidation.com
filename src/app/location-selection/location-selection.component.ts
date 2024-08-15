@@ -36,28 +36,31 @@ export class LocationSelectionComponent implements OnInit {
   progressInterval: any;
   progress = 0;
   totalLocations = 0;
-  maxRadius: number = 250;
+  maxRadius: number = 3000;
   selectedRadius: number = 25;
   selectedLocationIndex: number | null = null;
 
-  constructor(
-    private router: Router,
-    private ngZone: NgZone,
-    private modal: NzModalService,
-    private tripPlannerService: TripPlannerService,
-    private routeDataService: RouteDataService,
-    private locationService: LocationService,
-    private selectionService: SelectionService
+constructor(
+  private router: Router,
+  private ngZone: NgZone,
+  private modal: NzModalService,
+  private tripPlannerService: TripPlannerService,
+  private routeDataService: RouteDataService,
+  private locationService: LocationService,
+  private selectionService: SelectionService
 ) {
-    this.filterLocations = debounce(this.filterLocations.bind(this), 300);
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.extras.state) {
-      this.locations = navigation.extras.state['stores'];
-      this.filteredLocations = [...this.locations];
-      this.totalLocations = this.filteredLocations.length;
-      this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
-    }
+  this.filterLocations = debounce(this.filterLocations.bind(this), 300);
+
+  const navigation = this.router.getCurrentNavigation();
+  if (navigation?.extras.state && Array.isArray(navigation.extras.state['stores'])) {
+    this.locations = navigation.extras.state['stores'];
   }
+
+  // Initialize filteredLocations and other related properties
+  this.filteredLocations = [...this.locations];
+  this.totalLocations = this.filteredLocations.length;
+  this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
+}
 
 ngOnInit(): void {
   this.loadGoogleMapsScript().then(() => {
@@ -66,6 +69,7 @@ ngOnInit(): void {
     if (origin) {
       this.addOriginMarker(origin);
     }
+
     this.addMarkers();
   });
 }
@@ -227,40 +231,60 @@ resetProgress(): void {
     });
   }
 
-  addMarkers() {
-  this.filteredLocations.forEach((location: any, index: number) => {
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: location.address }, (results: any, status: any) => {
-      if (status === google.maps.GeocoderStatus.OK) {
-        const marker = new google.maps.Marker({
-          map: this.map,
-          position: results[0].geometry.location,
-          title: location.storeName,
-          label: {
-            text: `${index + 1}`,
-            color: 'white',
-            fontWeight: 'bold',
-            fontSize: '16px'
-          }
-        });
+addMarkers(): void {
+  const batchSize = 100; // Number of markers to add per batch
+  const delay = 100; // Milliseconds between each batch
 
-        this.markers.push(marker);
-        this.markerLocationMap.set(marker, location);
+  let batchStart = 0;
 
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
-        });
+  const addBatch = () => {
+    const batchEnd = Math.min(batchStart + batchSize, this.filteredLocations.length);
+    for (let i = batchStart; i < batchEnd; i++) {
+      const location = this.filteredLocations[i];
+      this.addSingleMarker(location, i);
+    }
+    batchStart = batchEnd;
 
-        marker.addListener('click', () => {
-          this.ngZone.run(() => {
-            infoWindow.open(this.map, marker);
-            this.onMarkerClick(marker);
-          });
+    if (batchStart < this.filteredLocations.length) {
+      setTimeout(addBatch, delay); // Schedule the next batch
+    }
+  };
+
+  addBatch(); // Start the batching process
+}
+
+addSingleMarker(location: any, index: number): void {
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({ address: location.address }, (results: any, status: any) => {
+    if (status === google.maps.GeocoderStatus.OK) {
+      const marker = new google.maps.Marker({
+        map: this.map,
+        position: results[0].geometry.location,
+        title: location.storeName,
+        label: {
+          text: `${index + 1}`,
+          color: 'white',
+          // fontWeight: 'bold',
+          fontSize: '15px'
+        }
+      });
+
+      this.markers.push(marker);
+      this.markerLocationMap.set(marker, location);
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
+      });
+
+      marker.addListener('click', () => {
+        this.ngZone.run(() => {
+          infoWindow.open(this.map, marker);
+          this.onMarkerClick(marker);
         });
-      } else {
-        console.error('Geocode failed: ' + status);
-      }
-    });
+      });
+    } else {
+      console.error('Geocode failed: ' + status);
+    }
   });
 }
 
