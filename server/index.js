@@ -80,7 +80,7 @@ app.post('/calculate-distance', async (req, res) => {
 
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM newtable');
+    const result = await client.query('SELECT * FROM stores');
 
     const rowsToUpdate = [];
 
@@ -103,7 +103,7 @@ app.post('/calculate-distance', async (req, res) => {
     // Update rows with missing latitude and longitude
     for (const row of rowsToUpdate) {
       const location = await geocodeAddress(row.location);
-      await client.query('UPDATE newtable SET latitude = $1, longitude = $2 WHERE id = $3', [location.lat, location.lng, row.id]);
+      await client.query('UPDATE stores SET latitude = $1, longitude = $2 WHERE id = $3', [location.lat, location.lng, row.id]);
       destinations.push(row.location);
       storeInfo.push({
         name: row.store_name,
