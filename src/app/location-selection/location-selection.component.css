@@ -66,8 +66,9 @@
 }
 
 .slider-container {
-  padding: 1rem;
-  margin-top: 1rem;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   text-align: center;
 }
 
@@ -181,7 +182,7 @@ button[nz-button] {
 }
 
 .custom-divider {
-  margin-bottom: 0px;
+  margin-bottom: 0.5rem;
 }
 
 @media only screen and (max-width: 750px) {
@@ -215,15 +216,13 @@ button[nz-button] {
     text-align: center;
   }
 
-  .filter-container {
-      width: 100%;
-      /* Make the filter container full width on mobile */
-      margin: 8px 0;
-      /* Reduce margin on mobile for better fit */
-      overflow: hidden;
-      /* Prevent scrollbars */
-    }
-
+.filter-container {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
   .location-cards-container {
     padding: 8px;
     font-size: 12px;
