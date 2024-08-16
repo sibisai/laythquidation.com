@@ -72,6 +72,7 @@ ngOnInit(): void {
     }
 
     this.addMarkers();
+    this.filterLocationsByRadius();
   });
 }
 
