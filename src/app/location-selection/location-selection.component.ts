@@ -30,6 +30,7 @@ export class LocationSelectionComponent implements OnInit {
   markers: google.maps.Marker[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
+  radiusCircle: google.maps.Circle | null = null;
   markerLocationMap: Map<google.maps.Marker, any> = new Map();
   searchTerm: string = '';
   loading = false;
@@ -180,6 +181,18 @@ resetProgress(): void {
   initMap() {
     const mapElement = document.getElementById('map') as HTMLElement;
 
+        // Initialize the radius circle
+      this.radiusCircle = new google.maps.Circle({
+        map: this.map,
+        radius: this.selectedRadius * 1609.34, // Convert miles to meters
+        fillColor: '#AA0000',
+        fillOpacity: 0.2,
+        strokeColor: '#AA0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        clickable: false
+      });
+
     this.map = new google.maps.Map(mapElement, {
       center: { lat: 34.0522, lng: -118.2437 },
       zoom: 10,
@@ -215,6 +228,8 @@ resetProgress(): void {
           }
         });
 
+        this.radiusCircle?.setCenter(this.originMarker?.getPosition() as google.maps.LatLng); // <-- Add this line
+
         this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
 
         this.originMarker?.addListener('click', () => {
@@ -229,6 +244,13 @@ resetProgress(): void {
         console.error('Geocode failed for origin: ' + status);
       }
     });
+  }
+
+    // Method to update the radius circle
+  updateRadiusCircle(): void {
+    if (this.radiusCircle) {
+      this.radiusCircle.setRadius(this.selectedRadius * 1609.34); // Convert miles to meters
+    }
   }
 
 addMarkers(): void {
