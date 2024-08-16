@@ -95,7 +95,7 @@ filterLocations(): void {
         this.filteredLocations = filteredBySearch.filter(location =>
             parseFloat(location.distance) <= this.selectedRadius
         );
-
+        console.log('Filtered locations:', this.filteredLocations);
         // **Update total locations count**
         this.totalLocations = this.filteredLocations.length;
         // **Sync selection state after filtering**
@@ -140,7 +140,10 @@ clearSearch(): void {
 
 // Method to handle location radius change and re-filter locations
 filterLocationsByRadius(): void {
-    this.filterLocations(); // Use the existing filter logic with the updated radius
+  this.filterLocations();
+  this.updateRadiusCircle();
+  console.log('Radius updated to:', this.selectedRadius); // <-- Log the selected radius
+  console.log('Circle radius set to:', this.radiusCircle?.getRadius()); // <-- Log the circle's radius
 }
   
 
@@ -181,18 +184,6 @@ resetProgress(): void {
   initMap() {
     const mapElement = document.getElementById('map') as HTMLElement;
 
-        // Initialize the radius circle
-      this.radiusCircle = new google.maps.Circle({
-        map: this.map,
-        radius: this.selectedRadius * 1609.34, // Convert miles to meters
-        fillColor: '#AA0000',
-        fillOpacity: 0.2,
-        strokeColor: '#AA0000',
-        strokeOpacity: 0.8,
-        strokeWeight: 2,
-        clickable: false
-      });
-
     this.map = new google.maps.Map(mapElement, {
       center: { lat: 34.0522, lng: -118.2437 },
       zoom: 10,
@@ -210,6 +201,19 @@ resetProgress(): void {
         position: google.maps.ControlPosition.LEFT_TOP
       }
     });
+      // Initialize the radius circle
+    this.radiusCircle = new google.maps.Circle({
+      map: this.map,
+      radius: this.selectedRadius * 1609.34, // Convert miles to meters
+      fillColor: '#AA0000',
+      fillOpacity: 0.2,
+      strokeColor: '#AA0000',
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      clickable: false
+    });
+
+    console.log('Radius circle initialized:', this.radiusCircle);
   }
 
   addOriginMarker(origin: string) {
@@ -227,9 +231,9 @@ resetProgress(): void {
             anchor: new google.maps.Point(20, 20)
           }
         });
-
+        console.log('Origin marker added:', this.originMarker); 
         this.radiusCircle?.setCenter(this.originMarker?.getPosition() as google.maps.LatLng); // <-- Add this line
-
+        `console.log('Radius circle centered at:', this.radiusCircle?.getCenter());`
         this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
 
         this.originMarker?.addListener('click', () => {
