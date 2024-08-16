@@ -67,11 +67,13 @@
 
 .slider-container {
   padding: 1rem;
+  margin-top: 1rem;
+  text-align: center;
 }
 
 .filter-container {
-  margin: 0.5rem 1rem 1rem 1rem;
-  width: calc(100% - 2rem);
+  margin: 1rem;
+  /* width: calc(100% - 2rem); */
   display: flex;
   align-items: center;
   justify-content: flex-start;

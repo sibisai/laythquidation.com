@@ -21,22 +21,23 @@
       <nz-divider nzPlain nzText="Showing {{ filteredLocations.length }} of 297 locations"
         class="custom-divider"></nz-divider>
 
-    <div class="location-cards-container">
-      <div class="filter-container">
-        <nz-input-group [nzSuffix]="inputClearTpl">
-          <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
-            (input)="filterLocations()" />
-        </nz-input-group>
-        <ng-template #inputClearTpl>
-          <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
-        </ng-template>
 
-        <div class="slider-container">
-          <nz-slider [(ngModel)]="selectedRadius" [nzMax]="maxRadius" (ngModelChange)="filterLocationsByRadius()"></nz-slider>
-          <p>Within: {{ selectedRadius }} miles</p>
-        </div>
-
+      <div class="slider-container">
+        <nz-slider [(ngModel)]="selectedRadius" [nzMax]="maxRadius" (ngModelChange)="filterLocationsByRadius()"></nz-slider>
+        <p>Within: {{ selectedRadius }} miles</p>
       </div>
+
+      <div class="location-cards-container">
+        <div class="filter-container">
+          <nz-input-group [nzSuffix]="inputClearTpl">
+            <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
+              (input)="filterLocations()" />
+          </nz-input-group>
+          <ng-template #inputClearTpl>
+            <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
+          </ng-template>
+
+       </div>
       </div>
 
       <!-- Accordion with ghost mode -->
