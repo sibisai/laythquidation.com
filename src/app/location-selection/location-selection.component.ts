@@ -235,7 +235,8 @@ resetProgress(): void {
             scaledSize: new google.maps.Size(40, 40),
             origin: new google.maps.Point(0, 0),
             anchor: new google.maps.Point(20, 20)
-          }
+          },
+          zIndex: 9999
         });
         this.radiusCircle?.setCenter(this.originMarker?.getPosition() as google.maps.LatLng); // <-- Add this line
         this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
