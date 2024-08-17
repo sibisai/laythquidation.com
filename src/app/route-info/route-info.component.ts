@@ -134,9 +134,16 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
         }
       });
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `<h4>Waypoint ${index + 1}</h4><p>Duration: ${this.tripInfo.waypointsDurations[index]}</p>`
-      });
+    const infoWindow = new google.maps.InfoWindow({
+      content: `
+        <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
+          <h4 style="margin: 0; font-size: 16px; color: #007BFF;">Waypoint ${index + 1}</h4>
+          <div style="margin-top: 5px;">
+            <strong>Duration:</strong> ${this.tripInfo.waypointsDurations[index]}
+          </div>
+        </div>
+      `
+    });
 
       marker.addListener('click', () => {
         infoWindow.open(map, marker);
@@ -146,6 +153,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       bounds.extend(position);
     });
   }
+    
 
     // Add a marker for the current location from LocationService
     const currentLocation = this.locationService.getOrigin();
@@ -196,6 +204,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
           anchor: new google.maps.Point(20, 20)
         }
       });
+
 
       const currentLocationInfoWindow = new google.maps.InfoWindow({
         content: `<h4>Your Current Location</h4><p>Latitude: ${(currentLocation as any).lat}</p><p>Longitude: ${(currentLocation as any).lng}</p>`
