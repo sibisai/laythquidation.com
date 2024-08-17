@@ -117,30 +117,35 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       segmentPath.forEach((point: any) => bounds.extend(point));
     });
 
-    // Add markers for waypoints
-    if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
-      this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
-        const [lat, lng] = waypoint.split(',').map(Number);
-        const position = new google.maps.LatLng(lat, lng);
+  // Add markers for waypoints
+  if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
+    this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
+      const [lat, lng] = waypoint.split(',').map(Number);
+      const position = new google.maps.LatLng(lat, lng);
 
-        const marker = new google.maps.Marker({
-          position,
-          map,
-          title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-          content: `<h4>Waypoint ${index + 1}</h4><p>Duration: ${this.tripInfo.waypointsDurations[index]}</p>`
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(map, marker);
-        });
-
-        // Extend the bounds to include this waypoint
-        bounds.extend(position);
+      const marker = new google.maps.Marker({
+        position,
+        map,
+        title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`,
+        label: {
+          text: `${index + 1}`,  // Display the waypoint number
+          color: 'white',
+          fontSize: '15px'
+        }
       });
-    }
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<h4>Waypoint ${index + 1}</h4><p>Duration: ${this.tripInfo.waypointsDurations[index]}</p>`
+      });
+
+      marker.addListener('click', () => {
+        infoWindow.open(map, marker);
+      });
+
+      // Extend the bounds to include this waypoint
+      bounds.extend(position);
+    });
+  }
 
     // Add a marker for the current location from LocationService
     const currentLocation = this.locationService.getOrigin();
@@ -226,14 +231,9 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
 
 
 newRoute() {
-  // Clear the route-related data in RouteDataService and LocationService
-  this.routeDataService.clearRouteInfo();  // Clears all data related to the route
-  this.locationService.clearOrigin();  // Clear the origin
-
-  // Clear selections
-  this.selectionService.clearAllSelections();  // Clear all selected locations
-
-  // Navigate to the origin selection page
+  this.routeDataService.clearRouteInfo();
+  this.locationService.clearOrigin();
+  this.selectionService.clearAllSelections();
   this.router.navigate(['/select-origin']);
 }
 
