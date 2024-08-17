@@ -11,33 +11,34 @@
         <button nz-button nzType="default" (click)="clearAllSelections()">Clear All</button>
         <button nz-button nzType="primary" (click)="submitSelections()" [nzLoading]="loading">Generate</button>
       </nz-space>
-      
-      
+
       <!-- Progress bar shown during route generation -->
-      <nz-progress *ngIf="loading" nzSize="small" [nzPercent]="progress" [nzStatus]="progress === 100 ? 'success' : 'active'"
-        [nzFormat]="progress === 100 ? formatDone : undefined" style="width: 100%; display: block; padding-right: 12px;">
+      <nz-progress *ngIf="loading" nzSize="small" [nzPercent]="progress"
+        [nzStatus]="progress === 100 ? 'success' : 'active'" [nzFormat]="progress === 100 ? formatDone : undefined"
+        style="width: 100%; display: block; padding-right: 12px;">
       </nz-progress>
 
       <nz-divider nzPlain nzText="Showing {{ filteredLocations.length }} of 297 locations"
         class="custom-divider"></nz-divider>
 
-
-      <div class="slider-container">
-        <nz-slider [(ngModel)]="selectedRadius" [nzMax]="maxRadius" (ngModelChange)="filterLocationsByRadius()"></nz-slider>
-        <p>Within: {{ selectedRadius }} miles</p>
-      </div>
-
       <div class="location-cards-container">
-        <div class="filter-container">
-          <nz-input-group [nzSuffix]="inputClearTpl">
-            <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
-              (input)="filterLocations()" />
-          </nz-input-group>
-          <ng-template #inputClearTpl>
-            <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
-          </ng-template>
+        <nz-space nzDirection="vertical" [nzSize]="8">
+          <div class="slider-container">
+            <nz-slider [(ngModel)]="selectedRadius" [nzMax]="maxRadius"
+              (ngModelChange)="filterLocationsByRadius()"></nz-slider>
+            <p>Within: {{ selectedRadius }} miles</p>
+          </div>
 
-       </div>
+          <div class="filter-container">
+            <nz-input-group [nzSuffix]="inputClearTpl">
+              <input type="text" nz-input nzBorderless placeholder="Search locations" [(ngModel)]="searchTerm"
+                (input)="filterLocations()" />
+            </nz-input-group>
+            <ng-template #inputClearTpl>
+              <span *ngIf="searchTerm" nz-icon nzType="close-circle" nzTheme="fill" (click)="clearSearch()"></span>
+            </ng-template>
+          </div>
+        </nz-space>
       </div>
 
       <!-- Accordion with ghost mode -->
@@ -62,3 +63,4 @@
       </nz-collapse>
     </div>
   </div>
+</div>

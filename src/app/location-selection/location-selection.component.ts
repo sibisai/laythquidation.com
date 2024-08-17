@@ -238,6 +238,7 @@ resetProgress(): void {
           },
           zIndex: 9999
         });
+        
         this.radiusCircle?.setCenter(this.originMarker?.getPosition() as google.maps.LatLng); // <-- Add this line
         this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
 
