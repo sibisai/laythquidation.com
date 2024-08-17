@@ -17,6 +17,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzSliderModule } from 'ng-zorro-antd/slider'
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
+import { NzSkeletonModule } from 'ng-zorro-antd/skeleton';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @NgModule({
@@ -39,7 +40,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzProgressModule,
     NzDividerModule,
     NzIconModule,
-    NzSliderModule
+    NzSliderModule,
+    NzSkeletonModule
   ]
 })
 export class NgZorroAntdModule { }

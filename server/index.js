@@ -33,20 +33,20 @@ const pool = new Pool({
   
   
   */
-// Prod config
-if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
-  throw new Error('Critical environment variables are missing!');
-}
-
-const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-console.log('Google Maps API Key Loaded:', googleMapsApiKey ? 'Yes' : 'No');
-
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
-  ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
-});
-
+  // Prod config
+  if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
+    throw new Error('Critical environment variables are missing!');
+  }
+  
+  const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+  console.log('Google Maps API Key Loaded:', googleMapsApiKey ? 'Yes' : 'No');
+  
+  
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
+    ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
+  });
+  
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {

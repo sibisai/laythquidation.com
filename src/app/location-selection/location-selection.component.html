@@ -40,6 +40,15 @@
           </div>
         </nz-space>
       </div>
+      <!-- Show skeletons while loading -->
+      <div *ngIf="searchLoading" class="spin-container">
+        <nz-spin nzSize="large"></nz-spin>
+      </div>
+      
+      <!-- Show "No locations found" if the filtered array is empty and not loading -->
+      <div *ngIf="!searchLoading && filteredLocations.length === 0" class="no-locations-found">
+        No locations found.
+      </div>
 
       <!-- Accordion with ghost mode -->
       <nz-collapse nzAccordion nzGhost>

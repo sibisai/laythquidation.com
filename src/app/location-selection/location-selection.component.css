@@ -98,6 +98,13 @@
   width: 100%;
 }
 
+.no-locations-found {
+  text-align: center;
+  font-size: 16px;
+  color: #999;
+  padding: 20px;
+}
+
 .pagination-container {
   padding: 8px 12px;
   text-align: center;
@@ -125,6 +132,17 @@
   flex: 1 1 auto;
   text-align: left;
   flex-shrink: 0;
+}
+
+.spin-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  /* Adjust height as needed */
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .nz-pagination {

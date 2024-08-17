@@ -34,12 +34,15 @@ export class LocationSelectionComponent implements OnInit {
   markerLocationMap: Map<google.maps.Marker, any> = new Map();
   searchTerm: string = '';
   loading = false;
+  searchLoading = false;
   progressInterval: any;
   progress = 0;
   totalLocations = 0;
   maxRadius: number = 3000;
   selectedRadius: number = 25;
   selectedLocationIndex: number | null = null;
+  skeletonCount = 5;
+  skeletonArray: number[] = [];
 
 constructor(
   private router: Router,
@@ -61,6 +64,10 @@ constructor(
   this.filteredLocations = [...this.locations];
   this.totalLocations = this.filteredLocations.length;
   this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
+
+  this.skeletonArray = Array(this.skeletonCount).fill(null);
+  console.log(this.skeletonArray);
+  console.log('Skeleton array initialized:', this.skeletonArray);
 }
 
 ngOnInit(): void {
@@ -84,7 +91,9 @@ ngOnInit(): void {
     return this.selectionService.getSelectedLocations();
   }
 
-filterLocations(): void {
+  filterLocations(): void {
+    this.searchLoading = true;
+    console.log('Search loading started:', this.searchLoading);
     setTimeout(() => {
         // Filter by search term first
         const filteredBySearch = this.searchTerm.trim() === ''
@@ -102,7 +111,8 @@ filterLocations(): void {
         this.syncSelectionState(); // Ensure selection state is consistent
         this.clearAllMarkers();
         this.addMarkers();
-        this.loading = false;
+      this.searchLoading = false;
+      console.log('Search loading ended:', this.searchLoading);
     }, 500);
 }
   
