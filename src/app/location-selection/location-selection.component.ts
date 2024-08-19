@@ -6,6 +6,7 @@ import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
 import { SelectionService } from '../services/selection.service';
 import { debounce } from 'lodash';
+
 declare var google: any;
 
 interface Location {
@@ -24,14 +25,13 @@ interface Location {
 export class LocationSelectionComponent implements OnInit {
   locations: any[] = [];
   filteredLocations: any[] = [];
-  paginatedLocations: any[] = [];
   allSelectedLocations: any[] = [];
   map!: google.maps.Map;
-  markers: google.maps.Marker[] = [];
+  markers: any[] = [];
   selectedMarker: google.maps.Marker | null = null;
   originMarker: google.maps.Marker | null = null;
   radiusCircle: google.maps.Circle | null = null;
-  markerLocationMap: Map<google.maps.Marker, any> = new Map();
+  markerLocationMap: Map<any, any> = new Map(); 
   searchTerm: string = '';
   loading = false;
   searchLoading = false;
@@ -41,8 +41,8 @@ export class LocationSelectionComponent implements OnInit {
   maxRadius: number = 3000;
   selectedRadius: number = 25;
   selectedLocationIndex: number | null = null;
-  skeletonCount = 5;
-  skeletonArray: number[] = [];
+  AdvancedMarkerElement: any;
+  PinElement: any; 
 
 constructor(
   private router: Router,
@@ -64,25 +64,22 @@ constructor(
   this.filteredLocations = [...this.locations];
   this.totalLocations = this.filteredLocations.length;
   this.allSelectedLocations = Array.from(this.selectionService.getSelectedLocations());
-
-  this.skeletonArray = Array(this.skeletonCount).fill(null);
-  console.log(this.skeletonArray);
-  console.log('Skeleton array initialized:', this.skeletonArray);
 }
 
-ngOnInit(): void {
-  this.loadGoogleMapsScript().then(() => {
-    this.initMap();
-    const origin = this.locationService.getOrigin();
-    if (origin) {
-      this.addOriginMarker(origin);
-    }
-
-    this.addMarkers();
-    this.filterLocationsByRadius();
-  });
+async ngOnInit(): Promise<void> {
+  await this.loadGoogleMapsScript();
+  const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+  this.AdvancedMarkerElement = AdvancedMarkerElement;
+  this.PinElement = PinElement;
+  this.initMap();
+  const origin = this.locationService.getOrigin();
+  if (origin) {
+    this.addOriginMarker(origin);
+  }
+  this.addMarkers(); 
+  this.filterLocations(); 
+  this.filterLocationsByRadius(); 
 }
-
   get selectedLocationsCount(): number {
     return this.allSelectedLocations.length;
   }
@@ -91,29 +88,23 @@ ngOnInit(): void {
     return this.selectionService.getSelectedLocations();
   }
 
-  filterLocations(): void {
-    this.searchLoading = true;
-    console.log('Search loading started:', this.searchLoading);
-    setTimeout(() => {
-        // Filter by search term first
-        const filteredBySearch = this.searchTerm.trim() === ''
-            ? [...this.locations]
-            : this.locations.filter(location =>
-                location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
-              );
-        // Then filter by radius using the selectedRadius value
-        this.filteredLocations = filteredBySearch.filter(location =>
-            parseFloat(location.distance) <= this.selectedRadius
-        );
-        // **Update total locations count**
-        this.totalLocations = this.filteredLocations.length;
-        // **Sync selection state after filtering**
-        this.syncSelectionState(); // Ensure selection state is consistent
-        this.clearAllMarkers();
-        this.addMarkers();
-      this.searchLoading = false;
-      console.log('Search loading ended:', this.searchLoading);
-    }, 500);
+filterLocations(): void {
+  this.searchLoading = true;
+  setTimeout(() => {
+    const filteredBySearch = this.searchTerm.trim() === ''
+        ? [...this.locations]
+        : this.locations.filter(location =>
+            location.storeName.toLowerCase().includes(this.searchTerm.toLowerCase())
+          );
+    this.filteredLocations = filteredBySearch.filter(location =>
+        parseFloat(location.distance) <= this.selectedRadius
+    );
+    this.totalLocations = this.filteredLocations.length;
+    this.syncSelectionState();
+    this.clearAllMarkers();
+    this.addMarkers();
+    this.searchLoading = false;
+  }, 500);
 }
   
   syncSelectionState(): void {
@@ -148,7 +139,6 @@ clearSearch(): void {
     this.updateSelectedLocations();
 }
 
-// Method to handle location radius change and re-filter locations
 filterLocationsByRadius(): void {
   this.filterLocations();
   this.updateRadiusCircle();
@@ -198,40 +188,41 @@ resetProgress(): void {
     });
   }
 
-  initMap() {
-    const mapElement = document.getElementById('map') as HTMLElement;
 
-    this.map = new google.maps.Map(mapElement, {
-      center: { lat: 34.0522, lng: -118.2437 },
-      zoom: 10,
-      mapTypeControl: false,
-      zoomControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      },
-      fullscreenControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      },
-      streetViewControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      },
-      mapTypeControlOptions: {
-        position: google.maps.ControlPosition.LEFT_TOP
-      }
-    });
-      // Initialize the radius circle
-    this.radiusCircle = new google.maps.Circle({
-      map: this.map,
-      radius: this.selectedRadius * 1609.34, // Convert miles to meters
-      fillColor: '#0000FF',
-      fillOpacity: 0.2,
-      strokeColor: '#0000FF',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      clickable: false
-    });
+initMap() {
+  const mapElement = document.getElementById('map') as HTMLElement;
 
-  }
+  this.map = new google.maps.Map(mapElement, {
+    center: { lat: 34.0522, lng: -118.2437 },
+    zoom: 10,
+    mapTypeControl: false,
+    mapId: 'DEMO_MAP_ID',
+    zoomControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP
+    },
+    fullscreenControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP
+    },
+    streetViewControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP
+    },
+    mapTypeControlOptions: {
+      position: google.maps.ControlPosition.LEFT_TOP
+    }
+  });
 
+  // Initialize the radius circle
+  this.radiusCircle = new google.maps.Circle({
+    map: this.map,
+    radius: this.selectedRadius * 1609.34, // Convert miles to meters
+    fillColor: '#0000FF',
+    fillOpacity: 0.2,
+    strokeColor: '#0000FF',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    clickable: false
+  });
+}
   addOriginMarker(origin: string) {
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ address: origin }, (results: any, status: any) => {
@@ -294,21 +285,22 @@ addMarkers(): void {
 
   addBatch(); // Start the batching process
 }
-
 addSingleMarker(location: any, index: number): void {
+  const { AdvancedMarkerElement, PinElement } = this; 
   const geocoder = new google.maps.Geocoder();
   geocoder.geocode({ address: location.address }, (results: any, status: any) => {
     if (status === google.maps.GeocoderStatus.OK) {
-      const marker = new google.maps.Marker({
+      const pin = new PinElement({
+        background: this.selectedLocationIndices.has(location.address) ? '#0000FF' : '#FF0000', // Blue if selected, red if not
+        glyph: `${index + 1}`,
+        glyphColor: 'white'
+      });
+
+      const marker = new AdvancedMarkerElement({
         map: this.map,
         position: results[0].geometry.location,
         title: location.storeName,
-        label: {
-          text: `${index + 1}`,
-          color: 'white',
-          // fontWeight: 'bold',
-          fontSize: '15px'
-        }
+        content: pin.element
       });
 
       this.markers.push(marker);
@@ -318,7 +310,7 @@ addSingleMarker(location: any, index: number): void {
         content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
       });
 
-      marker.addListener('click', () => {
+      marker.addListener('gmp-click', () => {
         this.ngZone.run(() => {
           infoWindow.open(this.map, marker);
           this.onMarkerClick(marker);
@@ -329,48 +321,58 @@ addSingleMarker(location: any, index: number): void {
     }
   });
 }
-
-
-  onMarkerClick(marker: google.maps.Marker): void {
-    const location = this.markerLocationMap.get(marker);
-    console.log('location of marker click', location);
-    if (location) {
-      this.highlightCard(location);
+onMarkerClick(marker: any): void {
+  const location = this.markerLocationMap.get(marker);
+  console.log('location of marker click', location);
+  if (location) {
+    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+    if (highlightedIndex !== -1) {
+      this.selectedLocationIndex = highlightedIndex;
+      const cardElement = document.querySelector(`.location-card-${highlightedIndex}`);
+      cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      console.error('Location not found in filteredLocations');
     }
   }
+}
 
+// Example updateMarkerIcon method
+updateMarkerIcon(marker: any, isSelected: boolean): void {
+  if (marker.content) {
+    const pin = new this.PinElement({
+      background: isSelected ? '#0000FF' : '#FF0000', // Blue if selected, red if not
+      glyphColor: 'white',
+      glyph: (marker.content as Element).querySelector('svg text')?.textContent || '' // Preserving the glyph (number)
+    });
 
- highlightCard(location: any): void {
-  const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
-
-  if (highlightedIndex !== -1) {
-    this.selectedLocationIndex = highlightedIndex;
-
-    const cardElement = document.querySelector(`.location-card-${highlightedIndex}`);
-    cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    marker.content = pin.element; // Update the marker's content
   } else {
-    console.error('Location not found in filteredLocations');
+    console.error('Marker content is null or undefined');
   }
 }
 
 toggleSelection(location: any): void {
-    const locationId = location.address; // Use a unique identifier
+  const locationId = location.address;
 
-    if (this.selectedLocationIndices.has(locationId)) {
-        // If the location is already selected, remove it from both selectedLocationIndices and allSelectedLocations
-        this.selectedLocationIndices.delete(locationId);
-        this.allSelectedLocations = this.allSelectedLocations.filter(
-            loc => loc.address !== location.address
-        );
-    } else {
-        // If the location is not selected, add it to both selectedLocationIndices and allSelectedLocations
-        this.selectedLocationIndices.add(locationId);
-        this.allSelectedLocations.push(location);
+  const marker = this.markers.find(m => this.markerLocationMap.get(m)?.address === locationId);
+
+  if (this.selectedLocationIndices.has(locationId)) {
+    this.selectedLocationIndices.delete(locationId);
+    this.allSelectedLocations = this.allSelectedLocations.filter(loc => loc.address !== location.address);
+    if (marker) {
+      this.updateMarkerIcon(marker, false);
     }
+  } else {
+    this.selectedLocationIndices.add(locationId);
+    this.allSelectedLocations.push(location);
+    if (marker) {
+      this.updateMarkerIcon(marker, true);
+    }
+  }
 
-    this.updateSelectedLocations(); // Ensure that the allSelectedLocations is consistent with the selectedLocationIndices
+  this.updateSelectedLocations();
 }
-
+  
   clearAllSelections(): void {
     this.selectedLocationIndices.clear();
     this.allSelectedLocations = [];
@@ -442,10 +444,12 @@ submitSelections(): void {
       alert('Please select at least one location before submitting.');
     }
   }
-
   clearAllMarkers(): void {
-    this.markers.forEach(marker => marker.setMap(null));
+    this.markers.forEach(marker => {
+      marker.map = null; // Remove marker from the map
+    });
     this.markers = [];
   }
+
 
 }
