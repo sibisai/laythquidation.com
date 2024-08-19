@@ -54,7 +54,10 @@
       <nz-collapse nzAccordion nzGhost>
         <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
           [nzHeader]="(i + 1) + '. ' + location.storeName" [nzActive]="false"
-          [ngClass]="{'selected-accordion': selectedLocationIndices.has(location.address)}" [nzExtra]="extraTemplate">
+          [ngClass]="{
+      'selected-accordion': selectedLocationIndices.has(location.address), 
+      'location-accordion-panel': true
+    }" [nzExtra]="extraTemplate">
 
           <!-- Button template inside the panel -->
           <ng-template #extraTemplate>

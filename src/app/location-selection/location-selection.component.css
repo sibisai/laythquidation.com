@@ -110,33 +110,12 @@
   padding: 20px;
 }
 
-.pagination-container {
-  padding: 8px 12px;
-  text-align: center;
-  box-sizing: border-box;
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-  white-space: nowrap;
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 2;
+.header-buttons {
   display: flex;
+  gap: 16px;
+  /* Add spacing between buttons */
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-top: auto;
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-.pagination-info {
-  font-size: 0.9rem;
-  margin-right: auto;
-  flex: 1 1 auto;
-  text-align: left;
-  flex-shrink: 0;
 }
 
 .spin-container {
@@ -148,46 +127,6 @@
   width: 100%;
   padding: 20px;
   box-sizing: border-box;
-}
-
-.nz-pagination {
-  margin-left: auto;
-  flex: 1 1 auto;
-  text-align: center;
-}
-
-.nz-pagination .ant-pagination-options {
-  font-size: 0.9rem;
-  margin-left: 10px;
-  white-space: nowrap;
-}
-
-.nz-pagination .ant-pagination-item,
-.nz-pagination .ant-pagination-prev,
-.nz-pagination .ant-pagination-next {
-  min-width: 30px;
-  height: 30px;
-  line-height: 30px;
-  font-size: 0.9rem;
-  margin: 0 4px;
-}
-
-.nz-pagination-item,
-.nz-pagination-options {
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.nz-pagination-options {
-  min-width: 70px;
-}
-
-.header-buttons {
-  display: flex;
-  gap: 16px;
-  /* Add spacing between buttons */
-  justify-content: center;
-  align-items: center;
 }
 
 button[nz-button] {
@@ -238,43 +177,11 @@ button[nz-button] {
     text-align: center;
   }
 
-.filter-container {
-  margin-top: 0.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  box-sizing: border-box;
-}
-
-  .location-cards-container {
-    padding: 8px;
-    font-size: 12px;
-    text-align: left;
-  }
-
-  .pagination-container {
-    padding: 4px 8px 8px 8px;
-    flex-direction: column;
-  }
-
-  .pagination-info,
-  .nz-pagination {
-    width: 100%;
-    text-align: left;
-    margin: 4px 0;
-    flex-shrink: 1;
-  }
-
-  .nz-pagination .ant-pagination-item,
-  .nz-pagination .ant-pagination-prev,
-  .nz-pagination .ant-pagination-next {
-    font-size: 0.8rem;
-    margin: 0 2px;
-  }
-
-  .nz-pagination-options {
-    font-size: 0.8rem;
-    min-width: 50px;
-    /* Adjust width for better fit on mobile */
+  .filter-container {
+    margin-top: 0.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
   }
 }

@@ -293,7 +293,8 @@ addSingleMarker(location: any, index: number): void {
       const pin = new PinElement({
         background: this.selectedLocationIndices.has(location.address) ? '#0000FF' : '#FF0000', // Blue if selected, red if not
         glyph: `${index + 1}`,
-        glyphColor: 'white'
+        glyphColor: 'white',
+        borderColor: 'white'
       });
 
       const marker = new AdvancedMarkerElement({
@@ -313,37 +314,12 @@ addSingleMarker(location: any, index: number): void {
       marker.addListener('gmp-click', () => {
         this.ngZone.run(() => {
           infoWindow.open(this.map, marker);
-          this.onMarkerClick(marker);
         });
       });
     } else {
       console.error('Geocode failed: ' + status);
     }
   });
-}
-  
-onMarkerClick(marker: any): void {
-  const location = this.markerLocationMap.get(marker);
-  if (location) {
-    const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
-    if (highlightedIndex !== -1) {
-      this.selectedLocationIndex = highlightedIndex;
-
-      // Automatically open the corresponding accordion panel
-      const accordionPanel = document.querySelector(`.location-accordion-panel-${highlightedIndex}`) as HTMLElement;
-      if (accordionPanel) {
-        const panelElement = accordionPanel.querySelector('.ant-collapse-header') as HTMLElement;
-        if (panelElement && !accordionPanel.classList.contains('ant-collapse-item-active')) {
-          panelElement.click(); // Trigger the click to open the accordion
-        }
-      }
-
-      const cardElement = document.querySelector(`.location-card-${highlightedIndex}`);
-      cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } else {
-      console.error('Location not found in filteredLocations');
-    }
-  }
 }
 
 updateMarkerIcon(marker: any, isSelected: boolean): void {
