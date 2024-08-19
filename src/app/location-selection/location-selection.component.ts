@@ -381,6 +381,7 @@ clearAllSelections(): void {
   
   formatDone = (): string => 'Done';
 
+
   submitSelections(): void {
     const origin = this.locationService.getOrigin();
     if (!origin) {
@@ -395,7 +396,8 @@ clearAllSelections(): void {
         locations: selectedAddresses
       };
 
-      // Remove unselected locations from filteredLocations and map
+      // Temporarily filter the locations to only show selected ones
+      const originalFilteredLocations = [...this.filteredLocations];
       this.filteredLocations = this.filteredLocations.filter(location =>
         this.selectedLocationIndices.has(location.address)
       );
@@ -443,6 +445,10 @@ clearAllSelections(): void {
           return new Promise((resolve) => setTimeout(resolve, 0));
         },
         nzOnCancel: () => {
+          // Restore the original locations and markers if the user cancels
+          this.filteredLocations = originalFilteredLocations;
+          this.clearAllMarkers();  // Clear existing markers
+          this.addMarkers();  // Re-add markers for all locations
           console.log('User canceled the route generation.');
         }
       });
@@ -450,6 +456,7 @@ clearAllSelections(): void {
       alert('Please select at least one location before submitting.');
     }
   }
+
   
   clearAllMarkers(): void {
     this.markers.forEach(marker => {
