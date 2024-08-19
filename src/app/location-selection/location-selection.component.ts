@@ -321,13 +321,23 @@ addSingleMarker(location: any, index: number): void {
     }
   });
 }
+  
 onMarkerClick(marker: any): void {
   const location = this.markerLocationMap.get(marker);
-  console.log('location of marker click', location);
   if (location) {
     const highlightedIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
     if (highlightedIndex !== -1) {
       this.selectedLocationIndex = highlightedIndex;
+
+      // Automatically open the corresponding accordion panel
+      const accordionPanel = document.querySelector(`.location-accordion-panel-${highlightedIndex}`) as HTMLElement;
+      if (accordionPanel) {
+        const panelElement = accordionPanel.querySelector('.ant-collapse-header') as HTMLElement;
+        if (panelElement && !accordionPanel.classList.contains('ant-collapse-item-active')) {
+          panelElement.click(); // Trigger the click to open the accordion
+        }
+      }
+
       const cardElement = document.querySelector(`.location-card-${highlightedIndex}`);
       cardElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
@@ -336,21 +346,27 @@ onMarkerClick(marker: any): void {
   }
 }
 
-// Example updateMarkerIcon method
 updateMarkerIcon(marker: any, isSelected: boolean): void {
   if (marker.content) {
+    // Get the original location's index or number (glyph)
+    const location = this.markerLocationMap.get(marker);
+    const glyph = this.filteredLocations.findIndex(loc => loc.address === location.address) + 1;
+
+    // Create a new PinElement with the correct glyph
     const pin = new this.PinElement({
       background: isSelected ? '#0000FF' : '#FF0000', // Blue if selected, red if not
       glyphColor: 'white',
-      glyph: (marker.content as Element).querySelector('svg text')?.textContent || '' // Preserving the glyph (number)
+      borderColor: 'white',
+      glyph: glyph.toString() // Set the correct number on the marker
     });
 
-    marker.content = pin.element; // Update the marker's content
+    // Update the marker's content with the new PinElement
+    marker.content = pin.element;
   } else {
     console.error('Marker content is null or undefined');
   }
 }
-
+  
 toggleSelection(location: any): void {
   const locationId = location.address;
 
@@ -373,10 +389,15 @@ toggleSelection(location: any): void {
   this.updateSelectedLocations();
 }
   
-  clearAllSelections(): void {
-    this.selectedLocationIndices.clear();
-    this.allSelectedLocations = [];
-  }
+clearAllSelections(): void {
+  this.selectedLocationIndices.clear();
+  this.allSelectedLocations = [];
+
+  // Reset all markers to unselected state
+  this.markers.forEach(marker => {
+    this.updateMarkerIcon(marker, false); // Pass false to indicate unselected state
+  });
+}
 
   getMinValue(a: number, b: number): number {
   return Math.min(a, b);
