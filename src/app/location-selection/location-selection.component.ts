@@ -381,12 +381,12 @@ clearAllSelections(): void {
   
   formatDone = (): string => 'Done';
 
-submitSelections(): void {
-  const origin = this.locationService.getOrigin();
-  if (!origin) {
-    alert('Origin is not set. Please provide a starting location.');
-    return;
-  }
+  submitSelections(): void {
+    const origin = this.locationService.getOrigin();
+    if (!origin) {
+      alert('Origin is not set. Please provide a starting location.');
+      return;
+    }
 
     if (this.allSelectedLocations.length > 0) {
       const selectedAddresses = this.allSelectedLocations.map(loc => loc.address);
@@ -394,6 +394,15 @@ submitSelections(): void {
         origin: origin,
         locations: selectedAddresses
       };
+
+      // Remove unselected locations from filteredLocations and map
+      this.filteredLocations = this.filteredLocations.filter(location =>
+        this.selectedLocationIndices.has(location.address)
+      );
+
+      // Update markers to only show selected locations
+      this.clearAllMarkers();  // Clear existing markers
+      this.addMarkers();  // Re-add markers for filteredLocations
 
       this.modal.confirm({
         nzTitle: 'Confirm Route Generation',
@@ -441,6 +450,7 @@ submitSelections(): void {
       alert('Please select at least one location before submitting.');
     }
   }
+  
   clearAllMarkers(): void {
     this.markers.forEach(marker => {
       marker.map = null; // Remove marker from the map
