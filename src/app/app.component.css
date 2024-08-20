@@ -1,0 +1,86 @@
+/* Layout styles */
+nz-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header styles */
+nz-header {
+  background: #001529;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  height: 64px;
+  position: relative;
+}
+
+/* Centering logo and title in the header */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+/* Logo styles */
+.logo {
+  position: absolute;
+  left: 20px;
+  height: 40px;
+  text-decoration: none;
+}
+
+.logo img {
+  height: 100%;
+  /* Ensures the image scales with the logo container */
+}
+
+/* Title styles */
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+}
+
+/* Footer styles */
+nz-footer {
+  text-align: center;
+  background-color: #f0f0f0;
+  padding: 10px 0;
+}
+
+.footer-content p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
+}
+
+/* Hover effect for clickable elements */
+.title:hover,
+.logo:hover {
+  opacity: 0.8;
+  /* Adds a slight hover effect */
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+  .header-container {
+    justify-content: space-between;
+    /* Aligns logo and title on smaller screens */
+  }
+
+  .title {
+    font-size: 20px;
+    text-align: center;
+    /* Centers the title on smaller screens */
+  }
+
+  .logo {
+    left: 10px;
+    /* Adjusts the logo position on smaller screens */
+  }
+}

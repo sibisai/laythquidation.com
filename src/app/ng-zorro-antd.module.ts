@@ -18,6 +18,8 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzSliderModule } from 'ng-zorro-antd/slider'
 import { NzPaginationModule } from 'ng-zorro-antd/pagination';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzLayoutModule } from 'ng-zorro-antd/layout';
+
 
 @NgModule({
   exports: [
@@ -40,6 +42,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
     NzDividerModule,
     NzIconModule,
     NzSliderModule,
+    NzLayoutModule
   ]
 })
 export class NgZorroAntdModule { }

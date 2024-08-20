@@ -1,2 +1,22 @@
-<!-- app.component.html -->
-<router-outlet></router-outlet>
+<nz-layout>
+  <nz-header>
+    <div class="header-container">
+      <!-- <a routerLink="/" class="logo"> -->
+        <!-- <img src="assets/images/zondahomepage.png" alt="Logo" /> -->
+      <!-- </a> -->
+      <a routerLink="/" class="title">
+        Laythquidation
+      </a>
+    </div>
+  </nz-header>
+
+  <nz-content>
+    <router-outlet></router-outlet> <!-- This is where the routed components will be displayed -->
+  </nz-content>
+
+  <nz-footer>
+    <div class="footer-content">
+      <p>© 2024 Laythquidation. All Rights Reserved.</p>
+    </div>
+  </nz-footer>
+</nz-layout>
