@@ -46,17 +46,18 @@ body {
 }
 
 .map-below-image {
-  width: 100%;
-  /* Makes the image responsive */
+  width: 50%;
+  /* Adjust this value as needed to control the image size */
   height: auto;
-  margin-top: 10px;
-  /* Adds some space between the map and the image */
+  display: block;
+  margin: 20px auto 0;
+  /* Center the image and add space above it */
 }
 
 .image-container {
   text-align: center;
-  /* Centers the image horizontally */
   padding: 10px 0;
+  /* Adds padding around the image container */
 }
 
 nz-input-group {
