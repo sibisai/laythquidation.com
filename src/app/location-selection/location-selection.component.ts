@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { TripPlannerService } from '../services/trip-planner.service';
@@ -23,6 +23,7 @@ interface Location {
   styleUrls: ['./location-selection.component.css']
 })
 export class LocationSelectionComponent implements OnInit {
+@ViewChild('locationContainer', { static: true }) locationContainer!: ElementRef;
   locations: any[] = [];
   filteredLocations: any[] = [];
   allSelectedLocations: any[] = [];
@@ -42,7 +43,7 @@ export class LocationSelectionComponent implements OnInit {
   selectedRadius: number = 25;
   selectedLocationIndex: number | null = null;
   AdvancedMarkerElement: any;
-  PinElement: any; 
+  PinElement: any;
 
 constructor(
   private router: Router,
@@ -79,6 +80,8 @@ async ngOnInit(): Promise<void> {
   this.addMarkers(); 
   this.filterLocations(); 
   this.filterLocationsByRadius(); 
+
+  this.locationContainer.nativeElement.addEventListener('scroll', this.toggleTopButton.bind(this));
 }
   get selectedLocationsCount(): number {
     return this.allSelectedLocations.length;
@@ -86,6 +89,23 @@ async ngOnInit(): Promise<void> {
 
   get selectedLocationIndices(): Set<string> {
     return this.selectionService.getSelectedLocations();
+  }
+
+scrollToTop(): void {
+    this.locationContainer.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  toggleTopButton(): void {
+    const button = document.getElementById('back-to-up');
+    if (this.locationContainer.nativeElement.scrollTop > 20) { // Show button after scrolling down 20px
+      if (button) {
+        button.classList.remove('d-none');
+      }
+    } else {
+      if (button) {
+        button.classList.add('d-none');
+      }
+    }
   }
 
 filterLocations(): void {

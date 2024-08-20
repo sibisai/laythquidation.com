@@ -3,7 +3,7 @@
     <div id="map"></div>
   </div>
 
-  <div class="locations-overlay-container">
+  <div class="locations-overlay-container" #locationContainer>
     <div class="header-container">
       <h1 class="location-header">Locations Selected: {{ selectedLocationsCount }}</h1>
 
@@ -49,7 +49,10 @@
       <div *ngIf="!searchLoading && filteredLocations.length === 0" class="no-locations-found">
         No locations found.
       </div>
-
+        <button class="btn btn-sm btn-primary rounded-circle position-fixed bottom-0 end-0 translate-middle d-none"
+          (click)="scrollToTop()" id="back-to-up">
+          <i class="fa fa-arrow-up" aria-hidden="true"></i>
+        </button>
       <!-- Accordion with ghost mode -->
       <nz-collapse nzAccordion nzGhost>
         <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
