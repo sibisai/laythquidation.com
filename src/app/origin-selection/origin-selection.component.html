@@ -13,9 +13,7 @@
     </div>
     <div id="map"></div>
   </div>
-  <div class="image-container">
-    <img src="assets/images/zondahomepage.png" alt="Pagani Zonda" class="map-below-image" />
-  </div>
+ 
   <div class="button-container">
     <button *ngIf="!showProceedButton" nz-button nzType="default" (click)="useCurrentLocation()" [nzLoading]="loading">
       Use Current Location
@@ -26,6 +24,8 @@
     <button *ngIf="showProceedButton" nz-button nzType="primary" (click)="proceedToStores()" [nzLoading]="loading">
       Proceed to store selections
     </button>
-
+  </div>
+  <div class="image-container">
+    <img src="assets/images/zondahomepage.png" alt="Pagani Zonda" class="map-below-image" />
   </div>
 </div>
