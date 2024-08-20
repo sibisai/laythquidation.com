@@ -145,14 +145,34 @@ button[nz-button] {
   opacity: 0;
 }
 
-#back-to-up {
-  z-index: 1000;
-  /* Ensure it appears above other elements */
+.fixed-bottom-btn {
+  position: fixed;
+  bottom: 20px;
+  /* right: 20px; */
+  z-index: 10;
+  background-color: #ffffff;
+  border: 1px solid #d3d3d3;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%;
 }
 
-#back-to-up i {
-  font-size: 16px;
-  /* Adjust the icon size if needed */
+.fixed-bottom-btn i {
+  font-size: 20px;
+  color: #000;
+}
+
+.fixed-bottom-btn.show {
+  display: block;
+  /* Show the button when needed */
+}
+
+.fixed-bottom-btn.d-none {
+  display: none;
+  /* Hide the button initially */
 }
 
 @media only screen and (max-width: 750px) {

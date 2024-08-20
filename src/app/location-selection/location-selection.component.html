@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <div class="location-selection-container">
   <div class="map-container">
     <div id="map"></div>
@@ -20,6 +21,7 @@
 
       <nz-divider nzPlain nzText="Showing {{ filteredLocations.length }} of 297 locations"
         class="custom-divider"></nz-divider>
+
 
       <div class="location-cards-container">
         <nz-space nzDirection="vertical" [nzSize]="8">
@@ -49,10 +51,7 @@
       <div *ngIf="!searchLoading && filteredLocations.length === 0" class="no-locations-found">
         No locations found.
       </div>
-        <button class="btn btn-sm btn-primary rounded-circle position-fixed bottom-0 end-0 translate-middle d-none"
-          (click)="scrollToTop()" id="back-to-up">
-          <i class="fa fa-arrow-up" aria-hidden="true"></i>
-        </button>
+
       <!-- Accordion with ghost mode -->
       <nz-collapse nzAccordion nzGhost>
         <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
@@ -76,6 +75,8 @@
           <p>{{ location.duration }}</p>
         </nz-collapse-panel>
       </nz-collapse>
-    </div>
+        <button class="btn btn-sm btn-primary rounded-circle fixed-bottom-btn" (click)="scrollToTop()" id="back-to-up">
+          <i class="fa fa-arrow-up" aria-hidden="true"></i>
+        </button>
   </div>
 </div>

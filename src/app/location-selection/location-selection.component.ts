@@ -477,6 +477,10 @@ clearAllSelections(): void {
     }
   }
 
+  ngOnDestroy(): void {
+    // Cleanup the event listener when the component is destroyed
+    this.locationContainer.nativeElement.removeEventListener('scroll', this.toggleTopButton.bind(this));
+  }
   
   clearAllMarkers(): void {
     this.markers.forEach(marker => {
