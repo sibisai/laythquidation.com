@@ -25,12 +25,6 @@ body {
   align-items: center;
 }
 
-.map-container {
-  position: relative;
-  height: 50vh;
-  width: 100%;
-}
-
 .place-picker-container {
   position: absolute;
   top: 20px;
@@ -45,19 +39,21 @@ body {
   width: 300px;
 }
 
-.map-below-image {
-  width: 50%;
-  /* Adjust this value as needed to control the image size */
-  height: auto;
-  display: block;
-  margin: 20px auto 0;
-  /* Center the image and add space above it */
+.map-container {
+  position: relative;
+  height: 50vh;
+  width: 100%;
 }
 
 .image-container {
   text-align: center;
   padding: 10px 0;
   /* Adds padding around the image container */
+}
+
+.logo-image {
+  width: 150px;
+  height: auto;
 }
 
 nz-input-group {
@@ -76,7 +72,7 @@ nz-input-group {
 }
 
 .button-container {
-  margin-top: 20px;
+  margin-top: 16px;
   /* Add margin to separate the button from the map */
   display: flex;
   flex-direction: column;
