@@ -64,6 +64,20 @@ nz-footer {
   /* Adds a slight hover effect */
 }
 
+.transparent-header {
+  background-color: transparent !important;
+  position: absolute !important;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: none;
+}
+
+.transparent-header .title {
+  color: black !important;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
+    0 0 10px rgba(255, 255, 255, 0.5);
+}
+
 /* Responsive design adjustments */
 @media (max-width: 768px) {
   .header-container {

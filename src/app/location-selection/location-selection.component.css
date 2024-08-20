@@ -198,7 +198,18 @@ button[nz-button] {
   /* Adjust the color on click */
 }
 
+/* location-selection.component.css */
+:host ::ng-deep nz-header {
+  background-color: transparent !important;
+  position: absolute !important;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: none;
+}
 
+:host ::ng-deep .title {
+  color: black !important;
+}
 
 @media only screen and (max-width: 750px) {
   .location-selection-container {
