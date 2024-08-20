@@ -147,15 +147,11 @@ button[nz-button] {
 
 .fixed-bottom-btn {
   position: sticky;
-  /* Use sticky to keep it visible while scrolling */
   bottom: 20px;
-  /* Stick to the bottom of the container */
   left: 50%;
-  /* Center horizontally */
   transform: translateX(-50%);
-  /* Adjust for centering */
   z-index: 10;
-  background-color: #ffffff;
+  background-color: rgba(0, 0, 0, 0.85);
   border: 1px solid #d3d3d3;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   width: 40px;
@@ -164,23 +160,45 @@ button[nz-button] {
   border-radius: 50%;
   display: flex;
   align-items: center;
-  /* Center vertically */
   justify-content: center;
-  /* Center horizontally */
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  cursor: pointer;
+  /* Indicates it's clickable */
 }
 
 .fixed-bottom-btn i {
   font-size: 20px;
-  color: #000;
+  color: #ffffff;
+  /* Changed to white for better contrast */
 }
 
+/* Show the button */
 .fixed-bottom-btn.show {
   display: block;
 }
 
+/* Hide the button */
 .fixed-bottom-btn.d-none {
   display: none;
 }
+
+/* Add a scale effect on hover */
+.fixed-bottom-btn:hover {
+  transform: translateX(-50%) scale(1.1);
+  /* Slightly enlarge the button */
+  background-color: rgba(0, 0, 0, 1);
+  /* Darken background on hover */
+}
+
+/* Add a click effect */
+.fixed-bottom-btn:active {
+  transform: translateX(-50%) scale(0.95);
+  /* Slightly shrink the button on click */
+  background-color: rgba(0, 0, 0, 0.9);
+  /* Adjust the color on click */
+}
+
+
 
 @media only screen and (max-width: 750px) {
   .location-selection-container {
