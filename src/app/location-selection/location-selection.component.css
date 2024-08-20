@@ -146,12 +146,14 @@ button[nz-button] {
 }
 
 .fixed-bottom-btn {
-  position: fixed;
+  position: sticky;
+  /* Use sticky to keep it visible while scrolling */
   bottom: 20px;
+  /* Stick to the bottom of the container */
   left: 50%;
-  /* Center the button horizontally */
+  /* Center horizontally */
   transform: translateX(-50%);
-  /* Adjust position for centering */
+  /* Adjust for centering */
   z-index: 10;
   background-color: #ffffff;
   border: 1px solid #d3d3d3;
