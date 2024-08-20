@@ -26,8 +26,6 @@ nz-header {
 
 /* Logo styles */
 .logo {
-  position: absolute;
-  left: 20px;
   height: 40px;
   text-decoration: none;
 }
@@ -69,18 +67,21 @@ nz-footer {
 /* Responsive design adjustments */
 @media (max-width: 768px) {
   .header-container {
-    justify-content: space-between;
-    /* Aligns logo and title on smaller screens */
+    justify-content: center;
+    /* Center logo and title on smaller screens */
+    position: relative;
+  }
+
+  .logo {
+    position: absolute;
+    left: 10px;
+    height: 30px;
   }
 
   .title {
     font-size: 20px;
     text-align: center;
-    /* Centers the title on smaller screens */
-  }
-
-  .logo {
-    left: 10px;
-    /* Adjusts the logo position on smaller screens */
+    margin-left: auto;
+    margin-right: auto;
   }
 }
