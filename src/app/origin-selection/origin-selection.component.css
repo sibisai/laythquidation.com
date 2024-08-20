@@ -45,6 +45,20 @@ body {
   width: 300px;
 }
 
+.map-below-image {
+  width: 100%;
+  /* Makes the image responsive */
+  height: auto;
+  margin-top: 10px;
+  /* Adds some space between the map and the image */
+}
+
+.image-container {
+  text-align: center;
+  /* Centers the image horizontally */
+  padding: 10px 0;
+}
+
 nz-input-group {
   flex: 1;
   display: flex;
