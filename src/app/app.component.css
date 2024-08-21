@@ -5,7 +5,7 @@ nz-layout {
   min-height: 100vh;
 }
 
-/* Header styles */
+/* Main Header styles */
 nz-header {
   background: #001529;
   padding: 0 20px;
@@ -13,9 +13,11 @@ nz-header {
   align-items: center;
   height: 64px;
   position: relative;
+  z-index: 5;
+  /* Ensure main header is on top */
 }
 
-/* Centering logo and title in the header */
+/* Centering logo and title in the main header */
 .header-container {
   display: flex;
   align-items: center;
@@ -44,34 +46,27 @@ nz-header {
   position: relative;
 }
 
-/* Footer styles */
-nz-footer {
-  text-align: center;
-  background-color: #f0f0f0;
-  padding: 10px 0;
-}
-
-.footer-content p {
-  margin: 0;
-  color: #333;
-  font-size: 14px;
-}
-
-/* Hover effect for clickable elements */
-.title:hover,
-.logo:hover {
-  opacity: 0.8;
-  /* Adds a slight hover effect */
-}
-
+/* Transparent Header */
 .transparent-header {
   background-color: transparent !important;
   position: absolute !important;
-  width: 100%;
-  z-index: 1000;
+  width: auto;
+  /* Automatically adjust to content width */
+  max-width: 40%;
+  /* Reduce the max-width to make it more compact */
+  z-index: 4;
+  /* Adjust as needed, lower than main header */
   box-shadow: none;
+  left: 50%;
+  transform: translateX(-50%);
+  /* Center the transparent header */
+  padding: 0 20px;
+  /* Add padding if needed */
+  display: flex;
+  justify-content: center;
 }
 
+/* Title styling for the transparent header */
 .transparent-header .title {
   color: black !important;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
@@ -82,7 +77,6 @@ nz-footer {
 @media (max-width: 768px) {
   .header-container {
     justify-content: center;
-    /* Center logo and title on smaller screens */
     position: relative;
   }
 

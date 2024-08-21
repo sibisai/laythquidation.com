@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
+  z-index: 2;
 }
 
 .map-container {
@@ -16,6 +17,7 @@
   left: 0;
   width: 100%;
   height: 100vh;
+  z-index: 1;
 }
 
 #map {
@@ -47,6 +49,7 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  z-index: 4;
 }
 
 .header-container {
@@ -198,19 +201,6 @@ button[nz-button] {
   /* Adjust the color on click */
 }
 
-/* location-selection.component.css */
-:host ::ng-deep nz-header {
-  background-color: transparent !important;
-  position: absolute !important;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: none;
-}
-
-:host ::ng-deep .title {
-  color: black !important;
-}
-
 @media only screen and (max-width: 750px) {
   .location-selection-container {
     flex-direction: column;
@@ -231,7 +221,7 @@ button[nz-button] {
     top: auto;
     right: auto;
     border-radius: 0;
-    z-index: 1;
+    z-index: 10;
   }
 
   .header-container {
