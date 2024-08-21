@@ -14,7 +14,13 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
-/*
+
+
+// const tableName = 'stores';
+const tableName = 'dev_stores';
+
+console.log('NODE_ENV for db table is set to:', tableName);
+
 // local testing config
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
 console.log('maps api key', googleMapsApiKey);
@@ -26,22 +32,22 @@ const pool = new Pool({
   
   console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
    
+/*
+// Prod config
+if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
+  throw new Error('Critical environment variables are missing!');
+}
+
+const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+console.log('Google Maps API Key Loaded:', googleMapsApiKey ? 'Yes' : 'No');
+
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
+  ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
+});
 
 */
-  // Prod config
-  if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
-    throw new Error('Critical environment variables are missing!');
-  }
-  
-  const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
-  console.log('Google Maps API Key Loaded:', googleMapsApiKey ? 'Yes' : 'No');
-  
-  
-  const pool = new Pool({
-    connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
-    ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
-  });
-
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {
   try {
@@ -77,7 +83,7 @@ app.post('/calculate-distance', async (req, res) => {
 
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM stores');
+    const result = await client.query(`SELECT * FROM ${tableName}`);
 
     const rowsToUpdate = [];
 
@@ -100,7 +106,7 @@ app.post('/calculate-distance', async (req, res) => {
     // Update rows with missing latitude and longitude
     for (const row of rowsToUpdate) {
       const location = await geocodeAddress(row.location);
-      await client.query('UPDATE stores SET latitude = $1, longitude = $2 WHERE id = $3', [location.lat, location.lng, row.id]);
+      await client.query(`UPDATE ${tableName} SET latitude = $1, longitude = $2 WHERE id = $3`, [location.lat, location.lng, row.id]);
       destinations.push(row.location);
       storeInfo.push({
         name: row.store_name,
