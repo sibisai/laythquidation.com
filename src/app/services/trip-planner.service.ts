@@ -21,7 +21,7 @@ export class TripPlannerService {
   }
 
   // New method to recalculate the route after deleting a waypoint
-  recalculateRoute(data: { origin: string, locations: string[] }): Observable<any> {
+  recalculateRoute(data: { origin: string, remainingLocations: string[] }): Observable<any> {
     return this.http.post(`${this.apiUrl}/recalculate-route`, data);
   }
 }
