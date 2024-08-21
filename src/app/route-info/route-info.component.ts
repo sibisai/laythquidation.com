@@ -2,6 +2,8 @@ import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { TripPlannerService } from '../services/trip-planner.service';
 import { SelectionService } from '../services/selection.service';
 import { Location } from '@angular/common';
@@ -30,7 +32,9 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     private selectionService: SelectionService,
     private location: Location,
     private tripPlannerService: TripPlannerService,
-    private ngZone: NgZone // Make sure to include NgZone here
+    private ngZone: NgZone, // Make sure to include NgZone here
+    private modal: NzModalService,
+    private nzMessageService: NzMessageService
   ) {}
 
   ngOnInit() {
@@ -260,35 +264,52 @@ loadMap() {
 // editRoute() {
 //   this.location.back();
 // }
-
 deleteWaypoint(index: number): void {
-  // Remove the waypoint from the tripInfo
-  this.tripInfo.waypointsForPins.splice(index, 1);
-  this.tripInfo.waypointsDurations.splice(index, 1);
+  this.ngZone.run(() => {
+    // Check if this is the last waypoint
+    if (this.tripInfo.waypointsForPins.length === 1) {
+      this.modal.error({
+        nzTitle: 'Cannot Delete Last Waypoint',
+        nzContent: 'You cannot delete the last waypoint. Please keep at least one waypoint in your route.'
+      });
+      return;
+    }
 
-  const origin = this.locationService.getOrigin(); // Get the origin from LocationService
+    // Remove the waypoint from the tripInfo
+    this.tripInfo.waypointsForPins.splice(index, 1);
+    this.tripInfo.waypointsDurations.splice(index, 1);
 
-  if (origin) {  // Ensure origin is not null
-    // Recalculate the route with the valid origin
-    this.tripPlannerService.recalculateRoute({ origin, remainingLocations: this.tripInfo.waypointsForPins }).subscribe(
-      (newRouteData) => {
-        this.tripInfo = newRouteData;
-        
-        // Update the QR code URL to the new one received from the server
-        this.qrCodeUrl = newRouteData.qrCodeUrl;
+    const origin = this.locationService.getOrigin(); // Get the origin from LocationService
 
-        this.loadMap(); // Re-render the map with updated route data
-      },
-      (error) => {
-        console.error('Failed to recalculate route:', error);
-      }
-    );
-  } else {
-    console.error('Origin is null, cannot recalculate route.');
-    // Optionally handle this case, e.g., show a user notification or fallback behavior
-  }
+    if (origin) {  // Ensure origin is not null
+      // Recalculate the route with the valid origin
+      this.tripPlannerService.recalculateRoute({ origin, remainingLocations: this.tripInfo.waypointsForPins }).subscribe(
+        (newRouteData) => {
+          this.tripInfo = newRouteData;
+
+          // Update the QR code URL to the new one received from the server
+          this.qrCodeUrl = newRouteData.qrCodeUrl;
+
+          this.loadMap(); // Re-render the map with updated route data
+
+          // Display success modal
+          const modal = this.modal.success({
+            nzTitle: 'Waypoint Deleted',
+            nzContent: 'The waypoint was successfully deleted.'
+          });
+
+          setTimeout(() => modal.destroy(), 1000);
+        },
+        (error) => {
+          console.error('Failed to recalculate route:', error);
+        }
+      );
+    } else {
+      console.error('Origin is null, cannot recalculate route.');
+    }
+  });
 }
-
+  
 newRoute() {
   this.routeDataService.clearRouteInfo();
   this.locationService.clearOrigin();
