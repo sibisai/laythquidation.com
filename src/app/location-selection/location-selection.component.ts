@@ -400,25 +400,37 @@ updateMarkerIcon(marker: any, isSelected: boolean): void {
 }
   
 togglePanel(panelIndex: number): void {
-  const isActive = this.activePanelIndex === panelIndex;
-  this.activePanelIndex = isActive ? null : panelIndex;
-  this.updatePanelStyles(panelIndex, !isActive);
-}
-
-updatePanelStyles(panelIndex: number, isActive: boolean): void {
-  // Reset the styles for the previously active panel
+  // If there was a previously active panel, reset its background color
   if (this.activePanelIndex !== null && this.activePanelIndex !== panelIndex) {
     this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
   }
 
-  // Update the styles for the current panel
-  this.panelStyles[panelIndex] = { 'background-color': isActive ? '#d0e8ff' : 'transparent' };
+  const isActive = this.activePanelIndex === panelIndex;
+  this.activePanelIndex = isActive ? null : panelIndex;
+
+  // Update the panel styles for the newly active panel
+  this.updatePanelStyles(panelIndex, !isActive);
 }
 
+updatePanelStyles(panelIndex: number, isActive: boolean): void {
+  // Update the styles for the current panel
+  this.panelStyles[panelIndex] = { 'background-color': isActive ? '#d0e8ff' : 'transparent' };
+
+  // If the panel is being activated, reset the previously active panel's background color
+  if (!isActive && this.activePanelIndex !== null && this.activePanelIndex !== panelIndex) {
+    this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
+  }
+}
 onPanelChange(index: number, active: boolean): void {
+  // If there was a previously active panel, reset its background color
+  if (this.activePanelIndex !== null && this.activePanelIndex !== index) {
+    this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
+  }
+
+  // Update the panel styles for the newly active panel
   this.updatePanelStyles(index, active);
 
-  // If the panel was just closed, reset the active panel index
+  // Update the active panel index
   if (!active) {
     this.activePanelIndex = null;
   } else {
