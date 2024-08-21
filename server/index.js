@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
 const tableName = 'dev_stores';
 console.log('db table is set to:', tableName);
 
-/*
+
 // local testing config
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
 console.log('maps api key', googleMapsApiKey);
@@ -31,7 +31,7 @@ const pool = new Pool({
   
   console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
    
-*/
+/*
 // Prod config
 if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
   throw new Error('Critical environment variables are missing!');
@@ -46,7 +46,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
 });
 
-
+*/
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {
   try {

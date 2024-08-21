@@ -45,6 +45,7 @@ export class LocationSelectionComponent implements OnInit {
   AdvancedMarkerElement: any;
   PinElement: any;
   activePanelIndex: number | null = null;
+  panelStyles: { [key: number]: { 'background-color': string } } = {};
   infoWindows: Map<any, google.maps.InfoWindow> = new Map();
 
 constructor(
@@ -373,6 +374,7 @@ addSingleMarker(location: any, index: number): void {
     }
   });
 }
+  
 updateMarkerIcon(marker: any, isSelected: boolean): void {
   if (marker.content) {
     // Get the original location's index or number (glyph)
@@ -394,6 +396,37 @@ updateMarkerIcon(marker: any, isSelected: boolean): void {
   }
 }
   
+togglePanel(panelIndex: number): void {
+    const isActive = this.activePanelIndex === panelIndex;
+    this.activePanelIndex = isActive ? null : panelIndex;
+    this.updatePanelStyles(panelIndex, !isActive);
+  }
+
+  updatePanelStyles(panelIndex: number, isActive: boolean): void {
+    // Reset the styles for the previously active panel
+    if (this.activePanelIndex !== null && this.activePanelIndex !== panelIndex) {
+      this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
+    }
+
+    // Update the styles for the current panel
+    this.panelStyles[panelIndex] = { 'background-color': isActive ? '#d0e8ff' : 'transparent' };
+  }
+
+  onPanelChange(index: number, active: boolean): void {
+    this.updatePanelStyles(index, active);
+
+    // If the panel was just closed, reset the active panel index
+    if (!active) {
+      this.activePanelIndex = null;
+    } else {
+      this.activePanelIndex = index;
+    }
+  }
+
+isPanelActive(index: number): boolean {
+  return this.activePanelIndex === index;
+}
+
 toggleSelection(location: any): void {
   const locationId = location.address;
   const marker = this.markers.find(m => this.markerLocationMap.get(m)?.address === locationId);
@@ -404,18 +437,18 @@ toggleSelection(location: any): void {
     this.allSelectedLocations = this.allSelectedLocations.filter(loc => loc.address !== location.address);
     if (marker) {
       this.updateMarkerIcon(marker, false);
-      if (infoWindow) {
-        infoWindow.close(); // Close the info window when unselected
-      }
+      // if (infoWindow) {
+      //   infoWindow.close(); // Close the info window when unselected
+      // }
     }
   } else {
     this.selectedLocationIndices.add(locationId);
     this.allSelectedLocations.push(location);
     if (marker) {
       this.updateMarkerIcon(marker, true);
-      if (infoWindow) {
-        infoWindow.open(this.map, marker); // Open the info window when selected
-      }
+      // if (infoWindow) {
+      //   infoWindow.open(this.map, marker); // Open the info window when selected
+      // }
     }
   }
 

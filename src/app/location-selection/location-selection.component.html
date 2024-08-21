@@ -52,33 +52,30 @@
       <div *ngIf="!searchLoading && filteredLocations.length === 0" class="no-locations-found">
         No locations found.
       </div>
+        <nz-collapse nzAccordion nzGhost>
+          <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
+            [nzHeader]="(i + 1) + '. ' + location.storeName" [nzActive]="isPanelActive(i)" [id]="'accordion-item-' + i"
+            (nzActiveChange)="onPanelChange(i, $event)" [ngClass]="{
+              'selected-accordion': selectedLocationIndices.has(location.address), 
+              'location-accordion-panel': true
+            }" [ngStyle]="panelStyles[i]" [nzExtra]="extraTemplate">
 
-      <!-- Accordion with ghost mode -->
-      <nz-collapse nzAccordion nzGhost>
-        <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
-          [nzHeader]="(i + 1) + '. ' + location.storeName" [nzActive]="activePanelIndex === i"
-          [id]="'accordion-item-' + i"
-          [ngClass]="{
-      'selected-accordion': selectedLocationIndices.has(location.address), 
-      'location-accordion-panel': true
-    }" [nzExtra]="extraTemplate">
+            <!-- Button template inside the panel -->
+            <ng-template #extraTemplate>
+              <button nz-button nzType="primary" [nzDanger]="selectedLocationIndices.has(location.address)"
+                (click)="toggleSelection(location)">
+                {{ selectedLocationIndices.has(location.address) ? 'Unselect' : 'Select' }}
+              </button>
+            </ng-template>
 
-          <!-- Button template inside the panel -->
-          <ng-template #extraTemplate>
-            <button nz-button nzType="primary" [nzDanger]="selectedLocationIndices.has(location.address)"
-              (click)="toggleSelection(location)">
-              {{ selectedLocationIndices.has(location.address) ? 'Unselect' : 'Select' }}
-            </button>
-          </ng-template>
-
-          <p>{{ location.address }}</p>
-          <p>{{ location.phoneNumber }}</p>
-          <p>{{ location.distance }}</p>
-          <p>{{ location.duration }}</p>
-        </nz-collapse-panel>
-      </nz-collapse>
-        <button class="btn btn-sm btn-primary rounded-circle fixed-bottom-btn d-none" (click)="scrollToTop()" id="back-to-up">
-          <i class="fa fa-arrow-up" aria-hidden="true"></i>
-        </button>
+            <p>{{ location.address }}</p>
+            <p>{{ location.phoneNumber }}</p>
+            <p>{{ location.distance }}</p>
+            <p>{{ location.duration }}</p>
+          </nz-collapse-panel>
+        </nz-collapse>
+          <button class="btn btn-sm btn-primary rounded-circle fixed-bottom-btn d-none" (click)="scrollToTop()" id="back-to-up">
+      <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </button>
   </div>
 </div>
