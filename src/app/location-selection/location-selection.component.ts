@@ -359,11 +359,19 @@ addSingleMarker(location: any, index: number): void {
           const panelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
           this.togglePanel(panelIndex);  // This will update the panel styles accordingly
 
-          // Scroll to the corresponding accordion item
-          const accordionItem = document.getElementById(`accordion-item-${panelIndex}`);
-          if (accordionItem) {
-            accordionItem.scrollIntoView({ behavior: 'smooth' });
-          }
+             const accordionItem = document.getElementById(`accordion-item-${panelIndex}`);
+              if (accordionItem) {
+                const container = this.locationContainer.nativeElement;
+                const elementOffset = accordionItem.offsetTop;
+                const containerHeight = container.clientHeight;
+                const scrollPosition = elementOffset - containerHeight / 2 + accordionItem.clientHeight / 2;
+
+                container.scrollTo({
+                  top: scrollPosition,
+                  behavior: 'smooth'
+                });
+              }
+
 
           // Show the info window only when a marker is selected
           const infoWindow = this.infoWindows.get(marker);
