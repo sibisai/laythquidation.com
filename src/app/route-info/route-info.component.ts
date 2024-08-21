@@ -20,6 +20,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   qrCodeUrl: string = '';
   showQRCode: boolean = false;
   map: google.maps.Map | null = null;
+  loading: boolean = false;
   AdvancedMarkerElement: any;
   PinElement: any;
   activePanelIndex: number | null = null;
@@ -266,7 +267,6 @@ loadMap() {
 // }
 deleteWaypoint(index: number): void {
   this.ngZone.run(() => {
-    // Check if this is the last waypoint
     if (this.tripInfo.waypointsForPins.length === 1) {
       this.modal.error({
         nzTitle: 'Cannot Delete Last Waypoint',
@@ -275,24 +275,22 @@ deleteWaypoint(index: number): void {
       return;
     }
 
-    // Remove the waypoint from the tripInfo
+    this.loading = true; // Start loading
+
     this.tripInfo.waypointsForPins.splice(index, 1);
     this.tripInfo.waypointsDurations.splice(index, 1);
 
-    const origin = this.locationService.getOrigin(); // Get the origin from LocationService
+    const origin = this.locationService.getOrigin();
 
-    if (origin) {  // Ensure origin is not null
-      // Recalculate the route with the valid origin
+    if (origin) {
       this.tripPlannerService.recalculateRoute({ origin, remainingLocations: this.tripInfo.waypointsForPins }).subscribe(
         (newRouteData) => {
           this.tripInfo = newRouteData;
-
-          // Update the QR code URL to the new one received from the server
           this.qrCodeUrl = newRouteData.qrCodeUrl;
 
-          this.loadMap(); // Re-render the map with updated route data
+          this.loading = false; // Stop loading after success
+          this.loadMap();
 
-          // Display success modal
           const modal = this.modal.success({
             nzTitle: 'Waypoint Deleted',
             nzContent: 'The waypoint was successfully deleted.'
@@ -302,10 +300,12 @@ deleteWaypoint(index: number): void {
         },
         (error) => {
           console.error('Failed to recalculate route:', error);
+          this.loading = false; // Stop loading on error
         }
       );
     } else {
       console.error('Origin is null, cannot recalculate route.');
+      this.loading = false; // Stop loading on error
     }
   });
 }

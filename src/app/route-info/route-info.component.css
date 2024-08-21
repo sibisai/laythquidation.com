@@ -48,6 +48,33 @@ body {
   width: 100%;
 }
 
+/* New CSS for hiding map and displaying spinner */
+.map-container.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s ease;
+}
+
+.loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  transition: visibility 0s, opacity 0.5s ease;
+}
+
+.loading-container.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s ease;
+}
+
 .qr-code-container {
   display: flex;
   justify-content: center;
