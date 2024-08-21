@@ -34,16 +34,24 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit() {
-    this.tripInfo = this.routeDataService.getRouteInfo();
-    if (!this.tripInfo) {
-      console.error('No trip info found');
-      this.router.navigate(['/select-origin']);
-      return;
-    }
-
-    // Use the QR code URL from the tripInfo
-    this.qrCodeUrl = this.tripInfo.qrCodeUrl;
+  this.tripInfo = this.routeDataService.getRouteInfo();
+  console.log('Trip Info:', this.tripInfo); // Debugging log
+  if (!this.tripInfo) {
+    console.error('No trip info found');
+    this.router.navigate(['/select-origin']);
+    return;
   }
+
+  // Check if origin exists
+  if (!this.tripInfo.origin) {
+    console.error('Origin is not defined in tripInfo');
+  } else {
+    console.log('Origin:', this.tripInfo.origin); // Debugging log
+  }
+
+  // Use the QR code URL from the tripInfo
+  this.qrCodeUrl = this.tripInfo.qrCodeUrl;
+}
 
   ngAfterViewInit() {
     this.loadGoogleMapsScript().then(() => {
