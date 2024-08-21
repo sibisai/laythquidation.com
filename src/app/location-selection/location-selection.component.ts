@@ -353,20 +353,23 @@ addSingleMarker(location: any, index: number): void {
       // Store the infoWindow reference
       this.infoWindows.set(marker, infoWindow);
 
-      // Add click event listener
       marker.addListener('gmp-click', () => {
         this.ngZone.run(() => {
           // Set the active panel index
-          this.activePanelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+          const panelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+          this.togglePanel(panelIndex);  // This will update the panel styles accordingly
 
           // Scroll to the corresponding accordion item
-          const accordionItem = document.getElementById(`accordion-item-${this.activePanelIndex}`);
+          const accordionItem = document.getElementById(`accordion-item-${panelIndex}`);
           if (accordionItem) {
             accordionItem.scrollIntoView({ behavior: 'smooth' });
           }
 
           // Show the info window only when a marker is selected
-          infoWindow.open(this.map, marker);
+          const infoWindow = this.infoWindows.get(marker);
+          if (infoWindow) {
+            infoWindow.open(this.map, marker);
+          }
         });
       });
     } else {
@@ -397,32 +400,31 @@ updateMarkerIcon(marker: any, isSelected: boolean): void {
 }
   
 togglePanel(panelIndex: number): void {
-    const isActive = this.activePanelIndex === panelIndex;
-    this.activePanelIndex = isActive ? null : panelIndex;
-    this.updatePanelStyles(panelIndex, !isActive);
+  const isActive = this.activePanelIndex === panelIndex;
+  this.activePanelIndex = isActive ? null : panelIndex;
+  this.updatePanelStyles(panelIndex, !isActive);
+}
+
+updatePanelStyles(panelIndex: number, isActive: boolean): void {
+  // Reset the styles for the previously active panel
+  if (this.activePanelIndex !== null && this.activePanelIndex !== panelIndex) {
+    this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
   }
 
-  updatePanelStyles(panelIndex: number, isActive: boolean): void {
-    // Reset the styles for the previously active panel
-    if (this.activePanelIndex !== null && this.activePanelIndex !== panelIndex) {
-      this.panelStyles[this.activePanelIndex] = { 'background-color': 'transparent' };
-    }
+  // Update the styles for the current panel
+  this.panelStyles[panelIndex] = { 'background-color': isActive ? '#d0e8ff' : 'transparent' };
+}
 
-    // Update the styles for the current panel
-    this.panelStyles[panelIndex] = { 'background-color': isActive ? '#d0e8ff' : 'transparent' };
+onPanelChange(index: number, active: boolean): void {
+  this.updatePanelStyles(index, active);
+
+  // If the panel was just closed, reset the active panel index
+  if (!active) {
+    this.activePanelIndex = null;
+  } else {
+    this.activePanelIndex = index;
   }
-
-  onPanelChange(index: number, active: boolean): void {
-    this.updatePanelStyles(index, active);
-
-    // If the panel was just closed, reset the active panel index
-    if (!active) {
-      this.activePanelIndex = null;
-    } else {
-      this.activePanelIndex = index;
-    }
-  }
-
+}
 isPanelActive(index: number): boolean {
   return this.activePanelIndex === index;
 }
