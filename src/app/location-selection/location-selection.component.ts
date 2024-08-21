@@ -330,7 +330,23 @@ addSingleMarker(location: any, index: number): void {
       this.markerLocationMap.set(marker, location);
 
       const infoWindow = new google.maps.InfoWindow({
-        content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
+        content: `
+          <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
+            <h4 style="margin: 0; font-size: 16px; color: #007BFF;">${location.storeName}</h4>
+            <div style="margin-top: 5px;">
+              <strong>Address:</strong> ${location.address}
+            </div>
+            <div style="margin-top: 5px;">
+              <strong>Phone:</strong> ${location.phoneNumber ? location.phoneNumber : 'N/A'}
+            </div>
+            <div style="margin-top: 5px;">
+              <strong>Distance:</strong> ${location.distance ? location.distance : 'N/A'}
+            </div>
+            <div style="margin-top: 5px;">
+              <strong>Duration:</strong> ${location.duration ? location.duration : 'N/A'}
+            </div>
+          </div>
+        `
       });
 
       // Store the infoWindow reference

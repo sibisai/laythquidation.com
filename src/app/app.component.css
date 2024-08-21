@@ -73,6 +73,30 @@ nz-header {
     0 0 10px rgba(255, 255, 255, 0.5);
 }
 
+/* Footer styles */
+nz-footer {
+  text-align: center;
+  background-color: #f0f0f0;
+  padding: 5px 0;
+  /* Reduce padding to make the footer smaller */
+  font-size: 12px;
+  /* Smaller font size for the footer */
+}
+
+.footer-content p {
+  margin: 0;
+  color: #333;
+  font-size: 12px;
+  /* Ensure text is small enough to fit on one line */
+  line-height: 1.2;
+  /* Slightly tighter line height */
+  white-space: nowrap;
+  /* Prevent text from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Add ellipsis if text overflows */
+}
+
 /* Responsive design adjustments */
 @media (max-width: 768px) {
   .header-container {
@@ -91,5 +115,10 @@ nz-header {
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .footer-content p {
+    font-size: 10px;
+    /* Smaller text size on mobile */
   }
 }
