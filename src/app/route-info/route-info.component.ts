@@ -273,6 +273,10 @@ deleteWaypoint(index: number): void {
     this.tripPlannerService.recalculateRoute({ origin, remainingLocations: this.tripInfo.waypointsForPins }).subscribe(
       (newRouteData) => {
         this.tripInfo = newRouteData;
+        
+        // Update the QR code URL to the new one received from the server
+        this.qrCodeUrl = newRouteData.qrCodeUrl;
+
         this.loadMap(); // Re-render the map with updated route data
       },
       (error) => {
