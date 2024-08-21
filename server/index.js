@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
 app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname, '../dist/trip-planner/browser/index.html'));
 });
-/*
+
 // local testing config
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
 console.log('maps api key', googleMapsApiKey);
@@ -31,7 +31,7 @@ const pool = new Pool({
   console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
    
 
-*/
+/*
   // Prod config
   if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
     throw new Error('Critical environment variables are missing!');
@@ -45,7 +45,7 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations',
     ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
   });
- 
+ */
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {
   try {
@@ -186,6 +186,29 @@ app.post('/generate-route-and-metrics', async (req, res) => {
   worker.on('error', (error) => {
     console.error('Worker error:', error);
     res.status(500).json({ error: 'Failed to generate route and metrics' });
+  });
+});
+
+// Add this new endpoint below the existing endpoints in `index.js`
+
+app.post('/update-route-after-deletion', async (req, res) => {
+  const { origin, remainingLocations } = req.body; // Get the origin and remaining locations after deletion
+  const worker = new Worker(path.resolve(__dirname, './worker.js'), {
+    workerData: {
+      generateRoute: true,
+      origin,
+      selectedLocations: remainingLocations, // Use the remaining locations after deletion
+      googleMapsApiKey
+    }
+  });
+
+  worker.on('message', (routeData) => {
+    res.json(routeData); // Respond with the new route data
+  });
+
+  worker.on('error', (error) => {
+    console.error('Worker error:', error);
+    res.status(500).json({ error: 'Failed to generate updated route and metrics' });
   });
 });
 
