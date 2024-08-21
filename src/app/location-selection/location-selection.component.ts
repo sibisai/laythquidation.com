@@ -44,6 +44,8 @@ export class LocationSelectionComponent implements OnInit {
   selectedLocationIndex: number | null = null;
   AdvancedMarkerElement: any;
   PinElement: any;
+  activePanelIndex: number | null = null;
+  infoWindows: Map<any, google.maps.InfoWindow> = new Map();
 
 constructor(
   private router: Router,
@@ -331,8 +333,22 @@ addSingleMarker(location: any, index: number): void {
         content: `<h4>${location.storeName}</h4><p>${location.address}</p><p>${location.phoneNumber}</p><p>Distance: ${location.distance}</p><p>Duration: ${location.duration}</p>`
       });
 
+      // Store the infoWindow reference
+      this.infoWindows.set(marker, infoWindow);
+
+      // Add click event listener
       marker.addListener('gmp-click', () => {
         this.ngZone.run(() => {
+          // Set the active panel index
+          this.activePanelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+
+          // Scroll to the corresponding accordion item
+          const accordionItem = document.getElementById(`accordion-item-${this.activePanelIndex}`);
+          if (accordionItem) {
+            accordionItem.scrollIntoView({ behavior: 'smooth' });
+          }
+
+          // Show the info window only when a marker is selected
           infoWindow.open(this.map, marker);
         });
       });
@@ -341,7 +357,6 @@ addSingleMarker(location: any, index: number): void {
     }
   });
 }
-
 updateMarkerIcon(marker: any, isSelected: boolean): void {
   if (marker.content) {
     // Get the original location's index or number (glyph)
@@ -365,29 +380,40 @@ updateMarkerIcon(marker: any, isSelected: boolean): void {
   
 toggleSelection(location: any): void {
   const locationId = location.address;
-
   const marker = this.markers.find(m => this.markerLocationMap.get(m)?.address === locationId);
+  const infoWindow = this.infoWindows.get(marker);
 
   if (this.selectedLocationIndices.has(locationId)) {
     this.selectedLocationIndices.delete(locationId);
     this.allSelectedLocations = this.allSelectedLocations.filter(loc => loc.address !== location.address);
     if (marker) {
       this.updateMarkerIcon(marker, false);
+      if (infoWindow) {
+        infoWindow.close(); // Close the info window when unselected
+      }
     }
   } else {
     this.selectedLocationIndices.add(locationId);
     this.allSelectedLocations.push(location);
     if (marker) {
       this.updateMarkerIcon(marker, true);
+      if (infoWindow) {
+        infoWindow.open(this.map, marker); // Open the info window when selected
+      }
     }
   }
 
   this.updateSelectedLocations();
 }
-  
 clearAllSelections(): void {
+  // Clear all selected locations
   this.selectedLocationIndices.clear();
   this.allSelectedLocations = [];
+
+  // Close all info windows
+  this.infoWindows.forEach((infoWindow) => {
+    infoWindow.close();
+  });
 
   // Reset all markers to unselected state
   this.markers.forEach(marker => {
