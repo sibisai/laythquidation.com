@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
@@ -17,13 +17,18 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   qrCodeUrl: string = '';
   showQRCode: boolean = false;
   map: google.maps.Map | null = null;
+  AdvancedMarkerElement: any;
+  PinElement: any;
+  activePanelIndex: number | null = null;
+  infoWindows: Map<any, google.maps.InfoWindow> = new Map();
 
   constructor(
     private router: Router,
     private routeDataService: RouteDataService,
     private locationService: LocationService,
     private selectionService: SelectionService,
-    private location: Location
+    private location: Location,
+    private ngZone: NgZone // Make sure to include NgZone here
   ) {}
 
   ngOnInit() {
@@ -40,20 +45,24 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.loadGoogleMapsScript().then(() => {
+      return google.maps.importLibrary("marker"); // Import marker library
+    }).then(({ AdvancedMarkerElement, PinElement }) => {
+      this.AdvancedMarkerElement = AdvancedMarkerElement;
+      this.PinElement = PinElement;
       this.loadMap();
     }).catch(error => {
       console.error('Error loading Google Maps script:', error);
     });
   }
+
   ngOnDestroy() {
-  // Clean up Google Maps listeners or any other resource
-  if (this.map) {
-    google.maps.event.clearInstanceListeners(this.map);
-    this.map = null;
-  }
+    if (this.map) {
+      google.maps.event.clearInstanceListeners(this.map);
+      this.map = null;
+    }
   }
   
-   toggleQRCode() {
+  toggleQRCode() {
     this.showQRCode = !this.showQRCode;
     const mapContainer = document.querySelector('.map-container');
     const qrCodeContainer = document.querySelector('.qr-code-container');
@@ -73,20 +82,21 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     }
   }
 
-  loadMap() {
-    const mapElement = document.getElementById('map');
-    if (!mapElement) {
-      console.error('Map element not found');
-      return;
-    }
+loadMap() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Map element not found');
+    return;
+  }
 
-    const map = new google.maps.Map(mapElement, {
-      center: { lat: 34.0522, lng: -118.2437 },
-      zoom: 12,
-      mapTypeControl: false
-    });
+  const map = new google.maps.Map(mapElement, {
+    center: { lat: 34.0522, lng: -118.2437 },
+    zoom: 12,
+    mapTypeControl: false,
+    mapId: '7199e2fcf31ab2c5' // Your Map ID
+  });
 
-    const bounds = new google.maps.LatLngBounds();
+  const bounds = new google.maps.LatLngBounds();
 
     // Decode the polyline data from the tripInfo
     const path = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
@@ -117,44 +127,53 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
       segmentPath.forEach((point: any) => bounds.extend(point));
     });
 
-  // Add markers for waypoints
-  if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
-    this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
-      const [lat, lng] = waypoint.split(',').map(Number);
-      const position = new google.maps.LatLng(lat, lng);
+    // Add markers for waypoints
+    if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
+      this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
+        const [lat, lng] = waypoint.split(',').map(Number);
+        const position = new google.maps.LatLng(lat, lng);
 
-      const marker = new google.maps.Marker({
-        position,
-        map,
-        title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`,
-        label: {
-          text: `${index + 1}`,  // Display the waypoint number
-          color: 'white',
-          fontSize: '15px'
-        }
+        const pin = new this.PinElement({
+          background: '#FF0000', // Set your desired color
+          glyph: `${index + 1}`,
+          glyphColor: 'white',
+          borderColor: 'white'
+        });
+
+        const marker = new this.AdvancedMarkerElement({
+          map: map,
+          position,
+          title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`,
+          content: pin.element
+        });
+        
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
+              <h4 style="margin: 0; font-size: 16px; color: #007BFF;">Waypoint ${index + 1}</h4>
+              <div style="margin-top: 5px;">
+                <strong>Duration:</strong> ${this.tripInfo.waypointsDurations[index]}
+              </div>
+              <button id="deleteWaypointBtn-${index}" style="margin-top: 10px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+            </div>
+          `
+        });
+
+        marker.addListener('gmp-click', () => {
+          infoWindow.open(map, marker);
+
+          // Set up the delete button listener
+          google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+            document.getElementById(`deleteWaypointBtn-${index}`)?.addEventListener('click', () => {
+              this.ngZone.run(() => this.deleteWaypoint(index));
+            });
+          });
+        });
+
+        bounds.extend(position);
       });
-
-    const infoWindow = new google.maps.InfoWindow({
-      content: `
-        <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
-          <h4 style="margin: 0; font-size: 16px; color: #007BFF;">Waypoint ${index + 1}</h4>
-          <div style="margin-top: 5px;">
-            <strong>Duration:</strong> ${this.tripInfo.waypointsDurations[index]}
-          </div>
-        </div>
-      `
-    });
-
-      marker.addListener('click', () => {
-        infoWindow.open(map, marker);
-      });
-
-      // Extend the bounds to include this waypoint
-      bounds.extend(position);
-    });
-  }
-    
-
+    }
+ 
     // Add a marker for the current location from LocationService
     const currentLocation = this.locationService.getOrigin();
     if (typeof currentLocation === 'string') {
@@ -236,7 +255,16 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
 // editRoute() {
 //   this.location.back();
 // }
-  
+
+  deleteWaypoint(index: number): void {
+  // Remove the waypoint from the tripInfo
+  this.tripInfo.waypointsForPins.splice(index, 1);
+  this.tripInfo.waypointsDurations.splice(index, 1);
+
+  // Re-render the map
+  this.loadMap(); // Re-add markers after deletion
+}
+
 
 
 newRoute() {
