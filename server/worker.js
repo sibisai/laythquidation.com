@@ -201,9 +201,14 @@ const generateRouteAndMetrics = async (origin, selectedLocations, googleMapsApiK
 };
 
 // Function to generate the route and metrics using only Google Maps API (For recalculation)
+// Function to generate the route and metrics using only Google Maps API (For recalculation)
 const generateRouteAndMetricsWithoutOpenAI = async (origin, selectedLocations, googleMapsApiKey) => {
     try {
-        const waypoints = selectedLocations.slice(1, -1); // Use selected locations directly as waypoints
+        if (!origin || !selectedLocations || selectedLocations.length === 0) {
+            throw new Error('Origin and selected locations must be provided.');
+        }
+
+        const waypoints = selectedLocations; // Use all selected locations as waypoints
 
         // Geocode origin and waypoints
         const geocodePromises = [geocodeAddress(origin, googleMapsApiKey), ...waypoints.map(address => geocodeAddress(address, googleMapsApiKey))];
@@ -292,7 +297,6 @@ const generateRouteAndMetricsWithoutOpenAI = async (origin, selectedLocations, g
         throw error;
     }
 };
-
 // Main worker logic
 (async () => {
     try {

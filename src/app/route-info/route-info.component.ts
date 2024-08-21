@@ -84,21 +84,21 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     }
   }
 
-loadMap() {
-  const mapElement = document.getElementById('map');
-  if (!mapElement) {
-    console.error('Map element not found');
-    return;
-  }
+  loadMap() {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error('Map element not found');
+      return;
+    }
 
-  const map = new google.maps.Map(mapElement, {
-    center: { lat: 34.0522, lng: -118.2437 },
-    zoom: 12,
-    mapTypeControl: false,
-    mapId: '7199e2fcf31ab2c5' // Your Map ID
-  });
+    const map = new google.maps.Map(mapElement, {
+      center: { lat: 34.0522, lng: -118.2437 },
+      zoom: 12,
+      mapTypeControl: false,
+      mapId: '7199e2fcf31ab2c5' // Your Map ID
+    });
 
-  const bounds = new google.maps.LatLngBounds();
+    const bounds = new google.maps.LatLngBounds();
 
     // Decode the polyline data from the tripInfo
     const path = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
@@ -175,81 +175,79 @@ loadMap() {
         bounds.extend(position);
       });
     }
- 
-    // Add a marker for the current location from LocationService
-    const currentLocation = this.locationService.getOrigin();
-    if (typeof currentLocation === 'string') {
+    // Add a marker for the origin from tripInfo
+    const origin = this.tripInfo.origin;
+
+    if (origin && typeof origin === 'string') {
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: currentLocation }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
+      geocoder.geocode({ address: origin }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
         if (status === google.maps.GeocoderStatus.OK) {
           const location = results[0].geometry.location;
 
-          const currentMarker = new google.maps.Marker({
+          const originMarker = new google.maps.Marker({
             position: location,
             map,
-            title: 'Your Current Location',
+            title: 'Origin Location',
             icon: {
-              url: 'assets/images/current_location.png',
+              url: 'assets/images/origin_location.png',
               scaledSize: new google.maps.Size(40, 40),
               origin: new google.maps.Point(0, 0),
               anchor: new google.maps.Point(20, 20)
             }
           });
 
-          const currentLocationInfoWindow = new google.maps.InfoWindow({
-            content: `<h4>Your Current Location</h4><p>Latitude: ${location.lat()}</p><p>Longitude: ${location.lng()}</p>`
+          const originInfoWindow = new google.maps.InfoWindow({
+            content: `<h4>Origin Location</h4><p>Latitude: ${location.lat()}</p><p>Longitude: ${location.lng()}</p>`
           });
 
-          currentMarker.addListener('click', () => {
-            currentLocationInfoWindow.open(map, currentMarker);
+          originMarker.addListener('click', () => {
+            originInfoWindow.open(map, originMarker);
           });
 
-          // Extend the bounds to include the current location
+          // Extend the bounds to include the origin location
           bounds.extend(location);
 
           // Adjust the map's bounds after all elements are added
           map.fitBounds(bounds);
+
+          // Set the origin in tripInfo if not already set
+          if (!this.tripInfo.origin) {
+            this.tripInfo.origin = { lat: location.lat(), lng: location.lng() };
+          }
         } else {
           console.error('Geocode was not successful for the following reason: ' + status);
         }
       });
-    } else if (currentLocation && (currentLocation as any).lat && (currentLocation as any).lng) {
-      const currentMarker = new google.maps.Marker({
-        position: currentLocation,
+    } else if (origin && origin.lat && origin.lng) {
+      const originMarker = new google.maps.Marker({
+        position: origin,
         map,
-        title: 'Your Current Location',
+        title: 'Origin Location',
         icon: {
-          url: 'assets/images/current_location.png',
+          url: 'assets/images/origin_location.png',
           scaledSize: new google.maps.Size(40, 40),
           origin: new google.maps.Point(0, 0),
           anchor: new google.maps.Point(20, 20)
         }
       });
 
-
-      const currentLocationInfoWindow = new google.maps.InfoWindow({
-        content: `<h4>Your Current Location</h4><p>Latitude: ${(currentLocation as any).lat}</p><p>Longitude: ${(currentLocation as any).lng}</p>`
+      const originInfoWindow = new google.maps.InfoWindow({
+        content: `<h4>Origin Location</h4><p>Latitude: ${origin.lat}</p><p>Longitude: ${origin.lng()}</p>`
       });
 
-      currentMarker.addListener('click', () => {
-        currentLocationInfoWindow.open(map, currentMarker);
+      originMarker.addListener('click', () => {
+        originInfoWindow.open(map, originMarker);
       });
 
-      // Extend the bounds to include the current location
-      bounds.extend(currentLocation);
+      // Extend the bounds to include the origin location
+      bounds.extend(origin);
 
       // Adjust the map's bounds after all elements are added
       map.fitBounds(bounds);
     } else {
-      console.error('Current location not found');
+      console.error('Origin not found or is invalid');
     }
-
-    // Finally, fit the bounds to ensure the entire route is visible
-    map.fitBounds(bounds);
-
-    console.log("Bounds:", bounds);
   }
-
   viewInGoogleMaps() {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
@@ -257,7 +255,6 @@ loadMap() {
 // editRoute() {
 //   this.location.back();
 // }
-
 deleteWaypoint(index: number): void {
   // Remove the waypoint from the tripInfo
   this.tripInfo.waypointsForPins.splice(index, 1);
@@ -265,24 +262,27 @@ deleteWaypoint(index: number): void {
 
   // Prepare data for the recalculateRoute call
   const data = {
-    origin: this.tripInfo.origin, // or wherever the origin is stored
+    origin: this.tripInfo.origin, // Ensure this uses the correct origin from tripInfo
     locations: this.tripInfo.waypointsForPins
   };
 
-  // Call the service to recalculate the route
+  // Debugging logs
+  console.log('Data before making POST request:', data);
+  console.log('Origin:', this.tripInfo.origin);
+  console.log('Locations:', this.tripInfo.waypointsForPins);
+
   this.tripPlannerService.recalculateRoute(data).subscribe(
     (newRouteData) => {
-      // Update the tripInfo with the new route data
+      console.log('Response from recalculateRoute:', newRouteData);
       this.tripInfo = newRouteData;
       this.loadMap(); // Re-render the map with the new route data
     },
     (error) => {
       console.error('Failed to recalculate route:', error);
+      console.log('Request data that caused the error:', data);
     }
   );
 }
-
-
 
 newRoute() {
   this.routeDataService.clearRouteInfo();
