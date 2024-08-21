@@ -18,9 +18,11 @@ body {
   gap: 20px;
 }
 
-.header-button-container {
+.footer-button-container {
   display: flex;
+  justify-content: center;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .content-container {

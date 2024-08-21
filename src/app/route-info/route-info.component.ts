@@ -185,7 +185,6 @@ loadMap() {
   // const currentLocation = this.locationService.getOrigin();
   // Add a marker for the current location from LocationService
   const currentLocation = this.locationService.getOrigin();
-  console.log('currentLocation', currentLocation);
     if (typeof currentLocation === 'string') {
       const geocoder = new google.maps.Geocoder();
       geocoder.geocode({ address: currentLocation }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
@@ -255,7 +254,6 @@ loadMap() {
     // Finally, fit the bounds to ensure the entire route is visible
     map.fitBounds(bounds);
 
-    console.log("Bounds:", bounds);
   }
 
   viewInGoogleMaps() {

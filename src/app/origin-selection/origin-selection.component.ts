@@ -98,7 +98,7 @@ export class OriginSelectionComponent implements OnInit {
           this.showProceedButton = true;
           this.locationSet = true; // Set the locationSet flag to true
           // Log the selected address
-          console.log('Selected address:', place.formatted_address);
+          // console.log('Selected address:', place.formatted_address);
         } else {
           console.error('No formatted address available');
         }
