@@ -4,8 +4,8 @@
     <nz-statistic [nzValue]="tripInfo.totalDistance" [nzTitle]="'Distance'"></nz-statistic>
   </div>
   <div class="header-button-container">
-    <!-- <button nz-button nzType="default" (click)="editRoute()">Edit Route</button> -->
-    <button nz-button nzType="default" (click)="newRoute()">New Route</button>
+    <button nz-button nzType="default" (click)="editRoute()">Edit Route</button>
+    <!-- <button nz-button nzType="default" (click)="newRoute()">New Route</button> -->
     <button nz-button nzType="primary" (click)="toggleQRCode()">
       {{ showQRCode ? 'Hide QR Code' : 'Send to Phone' }}
     </button>

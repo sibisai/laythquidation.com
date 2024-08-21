@@ -262,9 +262,10 @@ loadMap() {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
 
-// editRoute() {
-//   this.location.back();
-// }
+editRoute() {
+  this.location.back();
+}
+  
 deleteWaypoint(index: number): void {
   this.ngZone.run(() => {
     if (this.tripInfo.waypointsForPins.length === 1) {
