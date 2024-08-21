@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { RouteDataService } from '../services/route-data.service';
 import { LocationService } from '../services/location.service';
 import { SelectionService } from '../services/selection.service';
+import { TripPlannerService } from '../services/trip-planner.service';
 import { Location } from '@angular/common';
 
 declare var google: any;
@@ -28,6 +29,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     private locationService: LocationService,
     private selectionService: SelectionService,
     private location: Location,
+    private tripPlannerService: TripPlannerService,
     private ngZone: NgZone // Make sure to include NgZone here
   ) {}
 
@@ -256,13 +258,28 @@ loadMap() {
 //   this.location.back();
 // }
 
-  deleteWaypoint(index: number): void {
+deleteWaypoint(index: number): void {
   // Remove the waypoint from the tripInfo
   this.tripInfo.waypointsForPins.splice(index, 1);
   this.tripInfo.waypointsDurations.splice(index, 1);
 
-  // Re-render the map
-  this.loadMap(); // Re-add markers after deletion
+  // Prepare data for the recalculateRoute call
+  const data = {
+    origin: this.tripInfo.origin, // or wherever the origin is stored
+    locations: this.tripInfo.waypointsForPins
+  };
+
+  // Call the service to recalculate the route
+  this.tripPlannerService.recalculateRoute(data).subscribe(
+    (newRouteData) => {
+      // Update the tripInfo with the new route data
+      this.tripInfo = newRouteData;
+      this.loadMap(); // Re-render the map with the new route data
+    },
+    (error) => {
+      console.error('Failed to recalculate route:', error);
+    }
+  );
 }
 
 

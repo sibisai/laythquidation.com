@@ -1,7 +1,7 @@
 const { workerData, parentPort } = require('worker_threads');
 const axios = require('axios');
 const NodeCache = require('node-cache');
-const { generateRoute } = require('./openai');
+const { generateRoute } = require('./openai');  // Keep OpenAI for the initial route generation
 const QRCode = require('qrcode');
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 
@@ -30,8 +30,8 @@ const geocodeAddress = async (address, googleMapsApiKey) => {
 
 // Function to construct Google Maps URL for the generated route
 const constructGoogleMapsUrl = (origin, waypoints) => {
-  const waypointsString = waypoints.join('|');
-  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(origin)}`;
+    const waypointsString = waypoints.join('|');
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(origin)}`;
 };
 
 // Function to get duration using the Distance Matrix API
@@ -200,6 +200,99 @@ const generateRouteAndMetrics = async (origin, selectedLocations, googleMapsApiK
     }
 };
 
+// Function to generate the route and metrics using only Google Maps API (For recalculation)
+const generateRouteAndMetricsWithoutOpenAI = async (origin, selectedLocations, googleMapsApiKey) => {
+    try {
+        const waypoints = selectedLocations.slice(1, -1); // Use selected locations directly as waypoints
+
+        // Geocode origin and waypoints
+        const geocodePromises = [geocodeAddress(origin, googleMapsApiKey), ...waypoints.map(address => geocodeAddress(address, googleMapsApiKey))];
+        const geocodeResults = await Promise.all(geocodePromises);
+
+        // Ensure valid geocoding results
+        const validGeocodeResults = geocodeResults.filter(result => result !== null);
+        const validOrigin = validGeocodeResults.shift();
+        const validWaypoints = validGeocodeResults.map(result => `${result.lat},${result.lng}`);
+
+        if (!validOrigin) {
+            throw new Error(`Failed to geocode origin address: ${origin}`);
+        }
+
+        // Get durations from Distance Matrix API
+        const distanceMatrixData = await getDurations(`${validOrigin.lat},${validOrigin.lng}`, validWaypoints, googleMapsApiKey);
+
+        const response = await axios.post('https://routes.googleapis.com/directions/v2:computeRoutes', {
+            origin: {
+                location: {
+                    latLng: {
+                        latitude: validOrigin.lat,
+                        longitude: validOrigin.lng
+                    }
+                }
+            },
+            destination: {
+                location: {
+                    latLng: {
+                        latitude: validOrigin.lat,
+                        longitude: validOrigin.lng
+                    }
+                }
+            },
+            travelMode: 'DRIVE',
+            extraComputations: ['TRAFFIC_ON_POLYLINE'],
+            routingPreference: 'TRAFFIC_AWARE_OPTIMAL',
+            departureTime: { seconds: Math.floor((Date.now() + 5 * 60000) / 1000) }, // Adjusted for real-time traffic
+            intermediates: validWaypoints.map(latLng => ({
+                location: {
+                    latLng: {
+                        latitude: parseFloat(latLng.split(',')[0]),
+                        longitude: parseFloat(latLng.split(',')[1])
+                    }
+                }
+            }))
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': googleMapsApiKey,
+                'X-Goog-FieldMask': 'routes.legs.duration,routes.legs.distanceMeters,routes.polyline.encodedPolyline,routes.travelAdvisory.speedReadingIntervals'
+            }
+        });
+
+        if (!response.data.routes || response.data.routes.length === 0) {
+            throw new Error('Failed to retrieve directions from Google Maps API');
+        }
+
+        const routeData = response.data.routes[0];
+
+        if (!routeData.legs || routeData.legs.length === 0) {
+            throw new Error('No legs data available in the route');
+        }
+
+        const totalDistance = routeData.legs.reduce((total, leg) => total + (leg.distanceMeters || 0), 0);
+        const polylineData = routeData.polyline.encodedPolyline;
+
+        // Construct Google Maps URL
+        const googleMapsUrl = constructGoogleMapsUrl(origin, waypoints);
+
+        // Generate QR code
+        const qrCodeUrl = await QRCode.toDataURL(googleMapsUrl);
+
+        return {
+            googleMapsUrl,
+            qrCodeUrl, // Include the QR code URL in the response
+            totalDistance: (totalDistance / 1609.34).toFixed(1) + ' miles',
+            totalDuration: distanceMatrixData.totalDuration,
+            polylineData: polylineData,
+            travelAdvisory: routeData.travelAdvisory,
+            waypointsForPins: validWaypoints,
+            waypointsDurations: distanceMatrixData.durations
+        };
+    } catch (error) {
+        console.error('Error generating route and metrics:', error);
+        throw error;
+    }
+};
+
 // Main worker logic
 (async () => {
     try {
@@ -210,10 +303,17 @@ const generateRouteAndMetrics = async (origin, selectedLocations, googleMapsApiK
         console.log('Worker data received:', workerData);
 
         if (workerData.generateRoute) {
+            // If the task is to generate the route using OpenAI
             const routeData = await generateRouteAndMetrics(workerData.origin, workerData.selectedLocations, workerData.googleMapsApiKey);
-            console.log('Generated route:', routeData);
+            console.log('Generated route using OpenAI:', routeData);
+            parentPort.postMessage(routeData);
+        } else if (workerData.recalculateRoute) {
+            // If the task is to recalculate the route without OpenAI
+            const routeData = await generateRouteAndMetricsWithoutOpenAI(workerData.origin, workerData.selectedLocations, workerData.googleMapsApiKey);
+            console.log('Recalculated route using Google Maps API:', routeData);
             parentPort.postMessage(routeData);
         } else {
+            // Fallback to the processDestinations function
             const distances = await processDestinations(workerData);
             console.log('Calculated distances:', distances);
             parentPort.postMessage(distances);

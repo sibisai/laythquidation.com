@@ -19,4 +19,9 @@ export class TripPlannerService {
   generateRouteAndMetrics(data: { origin: string, locations: string[] }): Observable<any> {
     return this.http.post(`${this.apiUrl}/generate-route-and-metrics`, data);
   }
+
+  // New method to recalculate the route after deleting a waypoint
+  recalculateRoute(data: { origin: string, locations: string[] }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recalculate-route`, data);
+  }
 }
