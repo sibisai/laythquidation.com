@@ -134,6 +134,7 @@
 
 button[nz-button] {
   min-width: 100px;
+  max-width: 100px;
 }
 
 .selected-accordion {
@@ -218,23 +219,64 @@ button[nz-button] {
   text-align: left;
   /* controls mobile accordion width control as well */
 }
-/*
 
-.ant-collapse-item {
-  width: 100%;
-  padding: 0;
+/* For screens smaller than 1200px */
+@media (max-width: 1200px) {
+  .header-container h1.location-header {
+    font-size: 1.5rem;
+  }
 
+  .ant-collapse .ant-collapse-header {
+    font-size: 0.9rem;
+  }
+
+  .nz-collapse-panel .ant-collapse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 10px;
+    flex-wrap: wrap;
+  }
+
+  .ant-collapse-header button[nz-button] {
+    margin-left: auto;
+    white-space: nowrap;
+  }
 }
 
-.ant-collapse-header {
-  width: 100%;
-  padding: 12px 16px;
-}
-.locations-overlay-container {
-  width: 100%;
-}
-*/
+/* For screens smaller than 992px */
+@media (max-width: 992px) {
+  .header-container h1.location-header {
+    font-size: 1.3rem;
+  }
 
+  .ant-collapse .ant-collapse-header {
+    font-size: 0.85rem;
+  }
+
+  button[nz-button] {
+    min-width: 70px;
+    max-width: 70px;
+    font-size: 0.7rem;
+  }
+
+  .nz-collapse-panel .ant-collapse-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 5px;
+  }
+
+  .ant-collapse-header button[nz-button] {
+    margin-left: auto;
+  }
+
+  .nz-collapse-panel {
+    padding: 0 10px;
+  }
+}
+
+/* For screens smaller than 750px */
 @media only screen and (max-width: 750px) {
   .location-selection-container {
     flex-direction: column;
@@ -265,6 +307,7 @@ button[nz-button] {
     align-items: center;
     justify-content: center;
     text-align: center;
+    font-size: 1rem;
   }
 
   .filter-container {
@@ -272,6 +315,46 @@ button[nz-button] {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    /* box-sizing: border-box; */
+  }
+
+  .header-container h1.location-header {
+    font-size: 1.5rem;
+  }
+
+  .ant-collapse .ant-collapse-header {
+    font-size: 0.9rem;
+  }
+
+  /* Reset button size and font size */
+  button[nz-button] {
+    min-width: 100px;
+    max-width: 100px;
+    font-size: 1rem;
+  }
+
+  .nz-collapse-panel .ant-collapse-header {
+    padding-right: 10px;
+  }
+}
+
+/* For screens smaller than 576px */
+@media (max-width: 576px) {
+  .header-container h1.location-header {
+    font-size: 1.5rem;
+  }
+
+  .ant-collapse .ant-collapse-header {
+    font-size: 0.9rem;
+  }
+
+  /* Reset button size and font size */
+  button[nz-button] {
+    min-width: 100px;
+    max-width: 100px;
+    font-size: 1rem;
+  }
+
+  .nz-collapse-panel .ant-collapse-header {
+    padding-right: 10px;
   }
 }
