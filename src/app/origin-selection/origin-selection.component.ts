@@ -93,7 +93,11 @@ export class OriginSelectionComponent implements OnInit {
         this.marker.setPosition(place.geometry.location);
         if (place.formatted_address) {
           this.originControl.setValue(place.formatted_address);
-          this.locationService.setOrigin(place.formatted_address); // Set origin in LocationService
+          this.locationService.setOrigin(
+            place.formatted_address, 
+            place.geometry.location.lat(), 
+            place.geometry.location.lng()
+          );
           // Show the proceed button when an address is selected
           this.showProceedButton = true;
           this.locationSet = true; // Set the locationSet flag to true
@@ -155,7 +159,11 @@ export class OriginSelectionComponent implements OnInit {
         if (status === google.maps.GeocoderStatus.OK && results[0]) {
           const formattedAddress = results[0].formatted_address;
           this.originControl.setValue(formattedAddress);
-          this.locationService.setOrigin(formattedAddress); // Set origin in LocationService
+          this.locationService.setOrigin(
+            formattedAddress, 
+            lat, 
+            lng
+          );
           this.map.setCenter(latLng);
           this.map.setZoom(17);
           this.marker.setPosition(latLng);

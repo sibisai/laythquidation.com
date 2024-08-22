@@ -76,10 +76,12 @@ async ngOnInit(): Promise<void> {
   this.AdvancedMarkerElement = AdvancedMarkerElement;
   this.PinElement = PinElement;
   this.initMap();
-  const origin = this.locationService.getOrigin();
-  if (origin) {
-    this.addOriginMarker(origin);
+
+  const originCoordinates = this.locationService.getOriginCoordinates();
+  if (originCoordinates) {
+    this.addOriginMarker(originCoordinates.latitude, originCoordinates.longitude);
   }
+  
   this.addMarkers(); 
   this.filterLocations(); 
   this.filterLocationsByRadius(); 
@@ -246,40 +248,34 @@ initMap() {
     clickable: false
   });
 }
-  addOriginMarker(origin: string) {
-    const geocoder = new google.maps.Geocoder();
-    geocoder.geocode({ address: origin }, (results: any, status: any) => {
-      if (status === google.maps.GeocoderStatus.OK) {
-        this.originMarker = new google.maps.Marker({
-          map: this.map,
-          position: results[0].geometry.location,
-          title: 'Origin Location',
-          icon: {
-            url: 'assets/images/current_location.png',
-            scaledSize: new google.maps.Size(40, 40),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(20, 20)
-          },
-          zIndex: 9999
-        });
-        
-        this.radiusCircle?.setCenter(this.originMarker?.getPosition() as google.maps.LatLng); // <-- Add this line
-        this.map.setCenter(this.originMarker?.getPosition() as google.maps.LatLng);
+  
+addOriginMarker(latitude: number, longitude: number) {
+  const position = { lat: latitude, lng: longitude };
+  this.originMarker = new google.maps.Marker({
+    map: this.map,
+    position: position,
+    title: 'Origin Location',
+    icon: {
+      url: 'assets/images/current_location.png',
+      scaledSize: new google.maps.Size(40, 40),
+      origin: new google.maps.Point(0, 0),
+      anchor: new google.maps.Point(20, 20)
+    },
+    zIndex: 9999
+  });
 
-        this.originMarker?.addListener('click', () => {
-          this.ngZone.run(() => {
-            const infoWindow = new google.maps.InfoWindow({
-              content: `<h4>Origin Location</h4><p>${origin}</p>`
-            });
-            infoWindow.open(this.map, this.originMarker!);
-          });
-        });
-      } else {
-        console.error('Geocode failed for origin: ' + status);
-      }
+  this.radiusCircle?.setCenter(position);
+  this.map.setCenter(position);
+
+  this.originMarker?.addListener('click', () => {
+    this.ngZone.run(() => {
+      const infoWindow = new google.maps.InfoWindow({
+        content: `<h4>Origin Location</h4><p>${latitude}, ${longitude}</p>`
+      });
+      infoWindow.open(this.map, this.originMarker!);
     });
-  }
-
+  });
+}
     // Method to update the radius circle
   updateRadiusCircle(): void {
     if (this.radiusCircle) {
@@ -308,81 +304,64 @@ addMarkers(): void {
 
   addBatch(); // Start the batching process
 }
+  
 addSingleMarker(location: any, index: number): void {
-  const { AdvancedMarkerElement, PinElement } = this; 
-  const geocoder = new google.maps.Geocoder();
-  geocoder.geocode({ address: location.address }, (results: any, status: any) => {
-    if (status === google.maps.GeocoderStatus.OK) {
-      const pin = new PinElement({
-        background: this.selectedLocationIndices.has(location.address) ? '#0000FF' : '#FF0000', // Blue if selected, red if not
-        glyph: `${index + 1}`,
-        glyphColor: 'white',
-        borderColor: 'white'
-      });
+  const { AdvancedMarkerElement, PinElement } = this;
+  console.log('Latitude:', location.latitude, 'Longitude:', location.longitude);
+  const position = { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) };
+  console.log('position', position);
+  const pin = new PinElement({
+    background: this.selectedLocationIndices.has(location.address) ? '#0000FF' : '#FF0000',
+    glyph: `${index + 1}`,
+    glyphColor: 'white',
+    borderColor: 'white'
+  });
 
-      const marker = new AdvancedMarkerElement({
-        map: this.map,
-        position: results[0].geometry.location,
-        title: location.storeName,
-        content: pin.element
-      });
+  const marker = new AdvancedMarkerElement({
+    map: this.map,
+    position: position,
+    title: location.storeName,
+    content: pin.element
+  });
 
-      this.markers.push(marker);
-      this.markerLocationMap.set(marker, location);
+  this.markers.push(marker);
+  this.markerLocationMap.set(marker, location);
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
-          <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
-            <h4 style="margin: 0; font-size: 16px; color: #007BFF;">${location.storeName}</h4>
-            <div style="margin-top: 5px;">
-              <strong>Address:</strong> ${location.address}
-            </div>
-            <div style="margin-top: 5px;">
-              <strong>Phone:</strong> ${location.phoneNumber ? location.phoneNumber : 'N/A'}
-            </div>
-            <div style="margin-top: 5px;">
-              <strong>Distance:</strong> ${location.distance ? location.distance : 'N/A'}
-            </div>
-            <div style="margin-top: 5px;">
-              <strong>Duration:</strong> ${location.duration ? location.duration : 'N/A'}
-            </div>
-          </div>
-        `
-      });
+  const infoWindow = new google.maps.InfoWindow({
+    content: `<div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
+      <h4 style="margin: 0; font-size: 16px; color: #007BFF;">${location.storeName}</h4>
+      <div style="margin-top: 5px;"><strong>Address:</strong> ${location.address}</div>
+      <div style="margin-top: 5px;"><strong>Phone:</strong> ${location.phoneNumber ? location.phoneNumber : 'N/A'}</div>
+      <div style="margin-top: 5px;"><strong>Distance:</strong> ${location.distance ? location.distance : 'N/A'}</div>
+      <div style="margin-top: 5px;"><strong>Duration:</strong> ${location.duration ? location.duration : 'N/A'}</div>
+    </div>`
+  });
 
-      // Store the infoWindow reference
-      this.infoWindows.set(marker, infoWindow);
+  this.infoWindows.set(marker, infoWindow);
 
-      marker.addListener('gmp-click', () => {
-        this.ngZone.run(() => {
-          // Set the active panel index
-          const panelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
-          this.togglePanel(panelIndex);  // This will update the panel styles accordingly
+  marker.addListener('gmp-click', () => {
+    this.ngZone.run(() => {
+      const panelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
+      this.togglePanel(panelIndex);
 
-             const accordionItem = document.getElementById(`accordion-item-${panelIndex}`);
-              if (accordionItem) {
-                const container = this.locationContainer.nativeElement;
-                const elementOffset = accordionItem.offsetTop;
-                const containerHeight = container.clientHeight;
-                const scrollPosition = elementOffset - containerHeight / 2 + accordionItem.clientHeight / 2;
+      const accordionItem = document.getElementById(`accordion-item-${panelIndex}`);
+      if (accordionItem) {
+        const container = this.locationContainer.nativeElement;
+        const elementOffset = accordionItem.offsetTop;
+        const containerHeight = container.clientHeight;
+        const scrollPosition = elementOffset - containerHeight / 2 + accordionItem.clientHeight / 2;
 
-                container.scrollTo({
-                  top: scrollPosition,
-                  behavior: 'smooth'
-                });
-              }
-
-
-          // Show the info window only when a marker is selected
-          const infoWindow = this.infoWindows.get(marker);
-          if (infoWindow) {
-            infoWindow.open(this.map, marker);
-          }
+        container.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth'
         });
-      });
-    } else {
-      console.error('Geocode failed: ' + status);
-    }
+      }
+
+      const infoWindow = this.infoWindows.get(marker);
+      if (infoWindow) {
+        infoWindow.open(this.map, marker);
+      }
+    });
   });
 }
   

@@ -94,7 +94,9 @@ const processDestinations = async ({ destinations, origins, batchSize, googleMap
                     phoneNumber: storeInfo[i + index].phone,
                     notes: storeInfo[i + index].notes,
                     distance: element.distance.value, // distance in meters
-                    duration: Math.floor(element.duration.value / 60) // duration in minutes
+                    duration: Math.floor(element.duration.value / 60), // duration in minutes
+                    latitude: storeInfo[i + index].latitude,  // Access latitude
+                    longitude: storeInfo[i + index].longitude // Access longitude
                 }));
                 return distances;
             })
@@ -112,7 +114,6 @@ const generateRouteAndMetrics = async (origin, selectedLocations, googleMapsApiK
         const optimizedRoute = await generateRoute(origin, selectedLocations);
         const waypoints = optimizedRoute.route.slice(1, -1).map(step => step.address);
 
-        // Geocode origin and waypoints
         const geocodePromises = [geocodeAddress(origin, googleMapsApiKey), ...waypoints.map(address => geocodeAddress(address, googleMapsApiKey))];
         const geocodeResults = await Promise.all(geocodePromises);
 

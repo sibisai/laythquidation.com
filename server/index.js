@@ -19,7 +19,7 @@ app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
 const tableName = 'dev_stores';
 console.log('db table is set to:', tableName);
 
-/*
+
 // local testing config
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
 console.log('maps api key', googleMapsApiKey);
@@ -31,7 +31,7 @@ const pool = new Pool({
   
   console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
    
-*/
+/*
 // Prod config
 if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
   throw new Error('Critical environment variables are missing!');
@@ -46,7 +46,7 @@ const pool = new Pool({
   ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false } // Disable SSL for local, enable for production
 });
 
-
+*/
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {
   try {
@@ -84,9 +84,9 @@ app.post('/calculate-distance', async (req, res) => {
     const client = await pool.connect();
     const result = await client.query(`SELECT * FROM ${tableName}`);
 
-    const rowsToUpdate = [];
-
+    // Loop through each store in the database
     result.rows.forEach(row => {
+      // Only include stores that have both latitude and longitude
       if (row.latitude && row.longitude) {
         destinations.push(row.location);
         storeInfo.push({
@@ -97,29 +97,13 @@ app.post('/calculate-distance', async (req, res) => {
           latitude: row.latitude,
           longitude: row.longitude
         });
-      } else {
-        rowsToUpdate.push(row);
       }
     });
 
-    // Update rows with missing latitude and longitude
-    for (const row of rowsToUpdate) {
-      const location = await geocodeAddress(row.location);
-      await client.query(`UPDATE ${tableName} SET latitude = $1, longitude = $2 WHERE id = $3`, [location.lat, location.lng, row.id]);
-      destinations.push(row.location);
-      storeInfo.push({
-        name: row.store_name,
-        location: row.location,
-        phone: row.phone_number,
-        notes: row.notes,
-        latitude: location.lat,
-        longitude: location.lng
-      });
-    }
-
     client.release();
 
-    const originLocation = await geocodeAddress(originAddress);
+    // Geocode the origin address
+    const originLocation = await geocodeAddress(originAddress); 
     const origins = [`${originLocation.lat},${originLocation.lng}`];
 
     const worker = new Worker(path.resolve(__dirname, './worker.js'), {
@@ -146,13 +130,19 @@ app.post('/calculate-distance', async (req, res) => {
 
       const resultObj = {
         origin: originAddress,
+        originCoordinates: {
+          latitude: originLocation.lat,
+          longitude: originLocation.lng
+        },
         topNClosest: topNClosest.map(dest => ({
           storeName: dest.storeName,
           address: dest.address,
           phoneNumber: dest.phoneNumber,
           notes: dest.notes,
           distance: (dest.distance / 1609.34).toFixed(1) + ' miles', // Convert meters to miles and round to one decimal place
-          duration: dest.duration > 60 ? `${Math.floor(dest.duration / 60)} hrs ${dest.duration % 60} mins` : `${dest.duration} mins`
+          duration: dest.duration > 60 ? `${Math.floor(dest.duration / 60)} hrs ${dest.duration % 60} mins` : `${dest.duration} mins`,
+          latitude: dest.latitude,
+          longitude: dest.longitude
         }))
       };
 
@@ -168,6 +158,7 @@ app.post('/calculate-distance', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 app.post('/generate-route-and-metrics', async (req, res) => {
     const { origin, locations: selectedLocations } = req.body;
     const worker = new Worker(path.resolve(__dirname, './worker.js'), {
