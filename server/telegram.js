@@ -1,7 +1,11 @@
 const axios = require('axios');
 
 const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || '7308283785:AAGqqRxvPr3m1wqZtGFOnG_rcQGdqXkkuJI';
+// Production channel
 const telegramChatId = process.env.TELEGRAM_CHAT_ID || '-4515672907';
+
+// Dev Test Channel
+// const telegramChatId = process.env.TELEGRAM_CHAT_ID || '-4529142676';
 
 async function sendTelegramMessage(globalRouteData) {
     // Construct the message using globalRouteData

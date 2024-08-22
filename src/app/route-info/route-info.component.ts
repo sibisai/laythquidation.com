@@ -85,7 +85,13 @@ toggleQRCode() {
     if (!this.hasSentToPhone) {
       this.tripPlannerService.sendRouteToPhone().subscribe(
         response => {
-          console.log('Route sent to phone successfully', response);
+          // console.log('Route sent to phone successfully', response);
+          const modal = this.modal.success({
+            nzTitle: 'Route sent',
+            nzContent: 'The route was successfully sent to Telegram.'
+          });
+
+          setTimeout(() => modal.destroy(), 1000);
           this.hasSentToPhone = true;  // Set the flag to true to prevent further calls
         },
         error => {
@@ -261,6 +267,7 @@ deleteWaypoint(index: number): void {
           this.qrCodeUrl = newRouteData.qrCodeUrl;
 
           this.loading = false; // Stop loading after success
+          this.hasSentToPhone = false;
           this.loadMap();
 
           const modal = this.modal.success({
