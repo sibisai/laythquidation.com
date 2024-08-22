@@ -6,6 +6,8 @@ const NodeCache = require('node-cache');
 const { Pool } = require('pg');
 const { Worker } = require('worker_threads');
 const path = require('path');
+const { sendTelegramMessage } = require('./telegram');
+const { setGlobalRouteData, getGlobalRouteData } = require('./globalRouteData'); // Import the functions
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -18,7 +20,7 @@ app.use(express.static(path.join(__dirname, '../dist/trip-planner/browser')));
 // const tableName = 'stores';
 const tableName = 'dev_stores';
 console.log('db table is set to:', tableName);
-/*
+
 // local testing config
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || 'AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg';
 console.log('maps api key', googleMapsApiKey);
@@ -31,7 +33,7 @@ const pool = new Pool({
   console.log('database', process.env.DATABASE_URL || 'postgres://sibi:leo@localhost:5432/maclocations');
   
   
- */
+ /*
 // Prod config
 if (!process.env.GOOGLE_MAPS_API_KEY || !process.env.DATABASE_URL) {
   throw new Error('Critical environment variables are missing!');
@@ -47,6 +49,7 @@ const pool = new Pool({
 });
 
 
+*/
 
 const geocodeCache = new NodeCache({ stdTTL: 2592000, checkperiod: 3600 }); // Cache for 30 days
 const geocodeAddress = async (address) => {
@@ -171,7 +174,8 @@ app.post('/generate-route-and-metrics', async (req, res) => {
         }
     });
 
-    worker.on('message', (routeData) => {
+  worker.on('message', (routeData) => {
+        setGlobalRouteData(routeData)
         res.json(routeData);
     });
 
@@ -201,6 +205,7 @@ app.post('/recalculate-route', async (req, res) => {
   });
 
   worker.on('message', (routeData) => {
+    setGlobalRouteData(routeData);
     res.json(routeData); // Respond with the new route data
   });
 
@@ -208,6 +213,23 @@ app.post('/recalculate-route', async (req, res) => {
     console.error('Worker error:', error);
     res.status(500).json({ error: 'Failed to generate updated route and metrics' });
   });
+});
+
+app.post('/send-telegram-message', async (req, res) => {
+  const globalRouteData = getGlobalRouteData(); // Get the global route data
+  console.log('globalRouteData', globalRouteData);
+
+  if (!globalRouteData) {
+    return res.status(400).json({ error: 'No route data available to send' });
+  }
+
+  try {
+    const response = await sendTelegramMessage(globalRouteData);
+    res.json({ success: true, response });
+  } catch (error) {
+    console.error('Error sending Telegram message:', error);
+    res.status(500).json({ error: 'Failed to send Telegram message' });
+  }
 });
 
 app.get('/*', function(req, res) {

@@ -331,4 +331,4 @@ const generateRouteAndMetricsWithoutOpenAI = async (origin, selectedLocations, g
             console.error('parentPort is not available');
         }
     }
-})();
+})(); 
