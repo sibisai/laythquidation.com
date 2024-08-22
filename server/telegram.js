@@ -8,6 +8,7 @@ const telegramChatId = process.env.TELEGRAM_CHAT_ID || '-4515672907';
 // const telegramChatId = process.env.TELEGRAM_CHAT_ID || '-4529142676';
 
 async function sendTelegramMessage(globalRouteData) {
+  console.log(telegramChatId, telegramBotToken);
     // Construct the message using globalRouteData
     let message = `
 *Route generated:*
