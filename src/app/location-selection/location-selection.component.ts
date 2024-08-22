@@ -340,6 +340,10 @@ addSingleMarker(location: any, index: number): void {
 
   marker.addListener('gmp-click', () => {
     this.ngZone.run(() => {
+    this.infoWindows.forEach((infoWindow) => {
+      infoWindow.close();
+    });
+
       const panelIndex = this.filteredLocations.findIndex(loc => loc.address === location.address);
       this.togglePanel(panelIndex);
 
