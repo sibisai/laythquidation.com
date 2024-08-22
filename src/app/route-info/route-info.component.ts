@@ -25,6 +25,7 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
   PinElement: any;
   activePanelIndex: number | null = null;
   infoWindows: Map<any, google.maps.InfoWindow> = new Map();
+  hasSentToPhone = false;
 
   constructor(
     private router: Router,
@@ -69,25 +70,38 @@ export class RouteInfoComponent implements OnInit, AfterViewInit {
     }
   }
   
-  toggleQRCode() {
-    this.showQRCode = !this.showQRCode;
-    const mapContainer = document.querySelector('.map-container');
-    const qrCodeContainer = document.querySelector('.qr-code-container');
+toggleQRCode() {
+  this.showQRCode = !this.showQRCode;
+  const mapContainer = document.querySelector('.map-container');
+  const qrCodeContainer = document.querySelector('.qr-code-container');
 
-    if (this.showQRCode) {
-      // Reveal the QR code with a smooth transition
-      mapContainer?.classList.add('map-shrink');
-      qrCodeContainer?.classList.add('show');
-      this.map?.setZoom(10);
-    } else {
-      // Hide the QR code first, then expand the map
-      qrCodeContainer?.classList.remove('show');
-      setTimeout(() => {
-        mapContainer?.classList.remove('map-shrink');
-        this.map?.setZoom(10);
-      }, 500); // Match the transition duration to avoid jumping
+  if (this.showQRCode) {
+    // Reveal the QR code with a smooth transition
+    mapContainer?.classList.add('map-shrink');
+    qrCodeContainer?.classList.add('show');
+    this.map?.setZoom(10);
+
+    // Ensure the Telegram endpoint is only called once
+    if (!this.hasSentToPhone) {
+      this.tripPlannerService.sendRouteToPhone().subscribe(
+        response => {
+          console.log('Route sent to phone successfully', response);
+          this.hasSentToPhone = true;  // Set the flag to true to prevent further calls
+        },
+        error => {
+          console.error('Error sending route to phone', error);
+        }
+      );
     }
+  } else {
+    // Hide the QR code first, then expand the map
+    qrCodeContainer?.classList.remove('show');
+    setTimeout(() => {
+      mapContainer?.classList.remove('map-shrink');
+      this.map?.setZoom(10);
+    }, 500); // Match the transition duration to avoid jumping
   }
+}
 
 loadMap() {
   const mapElement = document.getElementById('map');

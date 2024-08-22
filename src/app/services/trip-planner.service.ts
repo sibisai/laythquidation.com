@@ -24,4 +24,8 @@ export class TripPlannerService {
   recalculateRoute(data: { origin: string, remainingLocations: string[] }): Observable<any> {
     return this.http.post(`${this.apiUrl}/recalculate-route`, data);
   }
+
+  sendRouteToPhone(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/send-telegram-message`, {});
+  }
 }

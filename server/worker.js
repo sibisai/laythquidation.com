@@ -27,13 +27,51 @@ const geocodeAddress = async (address, googleMapsApiKey) => {
         throw new Error(`Geocoding failed for address: ${address}`);
     }
 };
-
+/*
 // Function to construct Google Maps URL for the generated route
 const constructGoogleMapsUrl = (origin, waypoints) => {
     const waypointsString = waypoints.join('|');
     return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(origin)}`;
 };
+*/
+const constructGoogleMapsUrls = (origin, waypoints) => {
+    const maxWaypointsPerUrl = 9; // Google Maps allows a maximum of 9 waypoints per URL
+    const urls = [];
+    let currentOrigin = origin;
 
+    for (let i = 0; i < waypoints.length; i += maxWaypointsPerUrl) {
+        const batchWaypoints = waypoints.slice(i, i + maxWaypointsPerUrl);
+        let url;
+
+        if (i === 0) {
+            if (waypoints.length <= maxWaypointsPerUrl) {
+                // Only one segment: origin is the start and end point
+                const waypointsString = waypoints.join('|');
+                url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(origin)}`;
+            } else {
+                // First segment of multiple: origin is the start, last waypoint is the end
+                const waypointsString = batchWaypoints.slice(0, -1).join('|');
+                const destination = batchWaypoints[batchWaypoints.length - 1];
+                url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(destination)}`;
+                currentOrigin = destination; // Update currentOrigin to the last waypoint of this segment
+            }
+        } else if (i + maxWaypointsPerUrl >= waypoints.length) {
+            // Last segment: last waypoint is the destination, origin is the starting point
+            const waypointsString = batchWaypoints.join('|');
+            url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(currentOrigin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(origin)}`;
+        } else {
+            // Intermediate segments: use currentOrigin and last waypoint as destination
+            const waypointsString = batchWaypoints.slice(1, -1).join('|');
+            const destination = batchWaypoints[batchWaypoints.length - 1];
+            url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(currentOrigin)}&waypoints=${encodeURIComponent(waypointsString)}&destination=${encodeURIComponent(destination)}`;
+            currentOrigin = destination; // Update currentOrigin to the last waypoint of this segment
+        }
+
+        urls.push(url);
+    }
+
+    return urls;
+};
 // Function to get duration using the Distance Matrix API
 const getDurations = async (origin, destinations, googleMapsApiKey) => {
     const response = await axios.get('https://maps.googleapis.com/maps/api/distancematrix/json', {
@@ -180,13 +218,13 @@ const generateRouteAndMetrics = async (origin, selectedLocations, googleMapsApiK
         const polylineData = routeData.polyline.encodedPolyline;
 
         // Construct Google Maps URL
-        const googleMapsUrl = constructGoogleMapsUrl(origin, waypoints);
+        const googleMapsUrls = constructGoogleMapsUrls(origin, waypoints);
 
         // Generate QR code
-        const qrCodeUrl = await QRCode.toDataURL(googleMapsUrl);
+        const qrCodeUrl = await QRCode.toDataURL(googleMapsUrls);
 
         return {
-            googleMapsUrl,
+            googleMapsUrls,
             qrCodeUrl, // Include the QR code URL in the response
             totalDistance: (totalDistance / 1609.34).toFixed(1) + ' miles',
             totalDuration: distanceMatrixData.totalDuration,
@@ -278,13 +316,13 @@ const generateRouteAndMetricsWithoutOpenAI = async (origin, selectedLocations, g
         const polylineData = routeData.polyline.encodedPolyline;
 
         // Construct Google Maps URL
-        const googleMapsUrl = constructGoogleMapsUrl(origin, waypoints);
+        const googleMapsUrls = constructGoogleMapsUrls(origin, waypoints);
 
         // Generate QR code
-        const qrCodeUrl = await QRCode.toDataURL(googleMapsUrl);
+        const qrCodeUrl = await QRCode.toDataURL(googleMapsUrls);
 
         return {
-            googleMapsUrl,
+            googleMapsUrls,
             qrCodeUrl, // Include the QR code URL in the response
             totalDistance: (totalDistance / 1609.34).toFixed(1) + ' miles',
             totalDuration: distanceMatrixData.totalDuration,
