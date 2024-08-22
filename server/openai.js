@@ -3,8 +3,8 @@ const OpenAI = require('openai');
 
 
 const openai = new OpenAI({
-  apiKey: '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'
-  // apiKey: process.env.OPENAI_API_KEY
+  // apiKey: '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'
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 const generateRoute = async (origin, selectedLocations) => {
