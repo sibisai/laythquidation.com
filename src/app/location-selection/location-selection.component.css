@@ -3,7 +3,6 @@
   height: 100vh;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
@@ -34,7 +33,6 @@
 
 .locations-overlay-container {
   position: absolute;
-  /* Maintained for web */
   top: 0;
   right: 0;
   width: 34%;
@@ -48,7 +46,6 @@
   border-radius: 8px 0 0 8px;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
   z-index: 4;
 }
 
@@ -85,7 +82,7 @@
 .custom-divider {
   margin-bottom: 0.1rem;
 }
-
+/*
 .location-cards-container {
   overflow-y: auto;
   flex: 1;
@@ -96,14 +93,14 @@
   flex-grow: 1;
   min-width: 100%;
 }
-
+*/
 .nz-collapse {
   width: 100%;
+  /* text-align: left; */
 }
 
 .nz-collapse-panel {
   width: 100%;
-  box-sizing: border-box;
 }
 
 .no-locations-found {
@@ -127,13 +124,14 @@
   align-items: center;
   height: 100px;
   /* Adjust height as needed */
-  width: 100%;
+  width: 80%;
   padding: 20px;
   box-sizing: border-box;
 }
 
 button[nz-button] {
   min-width: 100px;
+  max-width: 150px;
 }
 
 .selected-accordion {
@@ -213,6 +211,40 @@ button[nz-button] {
   /* Border only when the location is selected */
 }
 
+.accordion-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+  }
+  
+  /*
+.accordion-item {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.accordion-item button {
+  width: 80%;
+  text-align: left;
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #f8f8f8;
+  border: none;
+  cursor: pointer;
+}
+
+.accordion-item-content {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.9rem;
+  background-color: #ffffff;
+  border-top: 1px solid #ccc;
+  text-align: left;
+}
+*/
+
 @media only screen and (max-width: 750px) {
   .location-selection-container {
     flex-direction: column;
@@ -230,8 +262,8 @@ button[nz-button] {
     width: 100%;
     height: 60vh;
     position: relative;
-    top: auto;
-    right: auto;
+    /* top: auto; */
+    /* right: auto; */
     border-radius: 0;
     z-index: 10;
   }
@@ -249,6 +281,18 @@ button[nz-button] {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
   }
+
+  .acccordion-container {
+    width: 100%;
+  }
+
+  .button[nz-button] {
+    max-width: none;
+    /* Remove max-width restriction on smaller screens */
+    width: 100%;
+    /* Make buttons take up the full width on mobile */
+  }
+
 }

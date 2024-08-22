@@ -1,3 +1,9 @@
+/* Set box-sizing globally */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 /* Reset default browser margin and padding */
 body,
 h1,
@@ -56,4 +62,3 @@ body {
   margin-bottom: 10px;
 }
 
-/* Additional global styles as needed */

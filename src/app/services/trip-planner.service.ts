@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TripPlannerService {
-  // private apiUrl = 'http://localhost:5001';
-  private apiUrl = 'https://route-plug-9cc83536ca43.herokuapp.com';
+  private apiUrl = 'http://localhost:5001';
+  // private apiUrl = 'https://route-plug-9cc83536ca43.herokuapp.com';
 
   constructor(private http: HttpClient) {}
 
