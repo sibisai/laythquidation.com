@@ -7,7 +7,7 @@ const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN || '7308283785:AAGqqRxvP
 // Dev Test Channel
 const telegramChatId = process.env.TELEGRAM_CHAT_ID || '-4529142676';
 async function sendTelegramMessage(globalRouteData) {
-  console.log(telegramChatId, telegramBotToken);
+  console.log('telegram channel id', telegramChatId, 'telegram bot token', telegramBotToken);
     // Construct the message using globalRouteData
     let message = `
 *Route generated:*
@@ -27,8 +27,13 @@ async function sendTelegramMessage(globalRouteData) {
             parse_mode: 'Markdown' // You can also use 'HTML' here if you prefer
         });
     } catch (error) {
-        console.error('Error sending message to Telegram:', error.message);
-    }
+     if (error.response) {
+         console.error('Error response data:', error.response.data);
+         console.error('Error response status:', error.response.status);
+     } else {
+         console.error('Error message:', error.message);
+     }
+  }
 }
 
 module.exports = {
