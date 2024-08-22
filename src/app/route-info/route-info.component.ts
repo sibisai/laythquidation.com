@@ -105,157 +105,116 @@ loadMap() {
 
   const bounds = new google.maps.LatLngBounds();
 
-    // Decode the polyline data from the tripInfo
-    const path = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
+  // Decode the polyline data from the tripInfo
+  const path = google.maps.geometry.encoding.decodePath(this.tripInfo.polylineData);
 
-    // Define color mapping for traffic conditions
-    const speedToColor: Record<'NORMAL' | 'SLOW' | 'TRAFFIC_JAM', string> = {
-      "NORMAL": "#0000FF",  // Blue for no traffic
-      "SLOW": "#FFFF00",    // Yellow
-      "TRAFFIC_JAM": "#FF0000" // Red
-    };
+  // Define color mapping for traffic conditions
+  const speedToColor: Record<'NORMAL' | 'SLOW' | 'TRAFFIC_JAM', string> = {
+    "NORMAL": "#0000FF",  // Blue for no traffic
+    "SLOW": "#FFFF00",    // Yellow
+    "TRAFFIC_JAM": "#FF0000" // Red
+  };
 
-    // Create multiple polylines based on the traffic speed segments
-    this.tripInfo.travelAdvisory.speedReadingIntervals.forEach((interval: any) => {
-      const segmentPath = path.slice(interval.startPolylinePointIndex, interval.endPolylinePointIndex + 1);
+  // Create multiple polylines based on the traffic speed segments
+  this.tripInfo.travelAdvisory.speedReadingIntervals.forEach((interval: any) => {
+    const segmentPath = path.slice(interval.startPolylinePointIndex, interval.endPolylinePointIndex + 1);
 
-      const strokeWeight = interval.speed === "NORMAL" ? 4 : 2;  // Make "NORMAL" traffic thicker
+    const strokeWeight = interval.speed === "NORMAL" ? 4 : 2;  // Make "NORMAL" traffic thicker
 
-      const polyline = new google.maps.Polyline({
-        path: segmentPath,
-        strokeColor: speedToColor[interval.speed as keyof typeof speedToColor],
-        strokeOpacity: 1.0,
-        strokeWeight: strokeWeight
-      });
-
-      polyline.setMap(map);
-
-      // Extend the bounds to include this segment of the path
-      segmentPath.forEach((point: any) => bounds.extend(point));
+    const polyline = new google.maps.Polyline({
+      path: segmentPath,
+      strokeColor: speedToColor[interval.speed as keyof typeof speedToColor],
+      strokeOpacity: 1.0,
+      strokeWeight: strokeWeight
     });
 
-    // Add markers for waypoints
-    if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
-      this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
-        const [lat, lng] = waypoint.split(',').map(Number);
-        const position = new google.maps.LatLng(lat, lng);
+    polyline.setMap(map);
 
-        const pin = new this.PinElement({
-          background: '#FF0000', // Set your desired color
-          glyph: `${index + 1}`,
-          glyphColor: 'white',
-          borderColor: 'white'
-        });
+    // Extend the bounds to include this segment of the path
+    segmentPath.forEach((point: any) => bounds.extend(point));
+  });
 
-        const marker = new this.AdvancedMarkerElement({
-          map: map,
-          position,
-          title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`,
-          content: pin.element
-        });
-        
-        const infoWindow = new google.maps.InfoWindow({
-          content: `
-            <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
-              <h4 style="margin: 0; font-size: 16px; color: #007BFF;">Waypoint ${index + 1}</h4>
-              <div style="margin-top: 5px;">
-                <strong>Duration:</strong> ${this.tripInfo.waypointsDurations[index]}
-              </div>
-              <button id="deleteWaypointBtn-${index}" style="margin-top: 10px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+  // Add markers for waypoints
+  if (this.tripInfo.waypointsForPins && this.tripInfo.waypointsForPins.length) {
+    this.tripInfo.waypointsForPins.forEach((waypoint: string, index: number) => {
+      const [lat, lng] = waypoint.split(',').map(Number);
+      const position = new google.maps.LatLng(lat, lng);
+
+      const pin = new this.PinElement({
+        background: '#FF0000', // Set your desired color
+        glyph: `${index + 1}`,
+        glyphColor: 'white',
+        borderColor: 'white'
+      });
+
+      const marker = new this.AdvancedMarkerElement({
+        map: map,
+        position,
+        title: `Waypoint ${index + 1}: ${this.tripInfo.waypointsDurations[index]}`,
+        content: pin.element
+      });
+
+      const infoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333; padding: 10px; border-radius: 5px; background-color: #f9f9f9; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);">
+            <h4 style="margin: 0; font-size: 16px; color: #007BFF;">Waypoint ${index + 1}</h4>
+            <div style="margin-top: 5px;">
+              <strong>Duration:</strong> ${this.tripInfo.waypointsDurations[index]}
             </div>
-          `
-        });
+            <button id="deleteWaypointBtn-${index}" style="margin-top: 10px; padding: 5px 10px; background-color: red; color: white; border: none; border-radius: 5px; cursor: pointer;">Delete</button>
+          </div>
+        `
+      });
 
-        marker.addListener('gmp-click', () => {
-          infoWindow.open(map, marker);
+      marker.addListener('gmp-click', () => {
+        infoWindow.open(map, marker);
 
-          // Set up the delete button listener
-          google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-            document.getElementById(`deleteWaypointBtn-${index}`)?.addEventListener('click', () => {
-              this.ngZone.run(() => this.deleteWaypoint(index));
-            });
+        // Set up the delete button listener
+        google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+          document.getElementById(`deleteWaypointBtn-${index}`)?.addEventListener('click', () => {
+            this.ngZone.run(() => this.deleteWaypoint(index));
           });
         });
-
-        bounds.extend(position);
-      });
-    }
- 
-    // Add a marker for the current location from LocationService
-  // const currentLocation = this.locationService.getOrigin();
-  // Add a marker for the current location from LocationService
-  const currentLocation = this.locationService.getOrigin();
-    if (typeof currentLocation === 'string') {
-      const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address: currentLocation }, (results: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus) => {
-        if (status === google.maps.GeocoderStatus.OK) {
-          const location = results[0].geometry.location;
-
-          const currentMarker = new google.maps.Marker({
-            position: location,
-            map,
-            title: 'Your Current Location',
-            icon: {
-              url: 'assets/images/current_location.png',
-              scaledSize: new google.maps.Size(40, 40),
-              origin: new google.maps.Point(0, 0),
-              anchor: new google.maps.Point(20, 20)
-            }
-          });
-
-          const currentLocationInfoWindow = new google.maps.InfoWindow({
-            content: `<h4>Your Current Location</h4><p>Latitude: ${location.lat()}</p><p>Longitude: ${location.lng()}</p>`
-          });
-
-          currentMarker.addListener('click', () => {
-            currentLocationInfoWindow.open(map, currentMarker);
-          });
-
-          // Extend the bounds to include the current location
-          bounds.extend(location);
-
-          // Adjust the map's bounds after all elements are added
-          map.fitBounds(bounds);
-        } else {
-          console.error('Geocode was not successful for the following reason: ' + status);
-        }
-      });
-    } else if (currentLocation && (currentLocation as any).lat && (currentLocation as any).lng) {
-      const currentMarker = new google.maps.Marker({
-        position: currentLocation,
-        map,
-        title: 'Your Current Location',
-        icon: {
-          url: 'assets/images/current_location.png',
-          scaledSize: new google.maps.Size(40, 40),
-          origin: new google.maps.Point(0, 0),
-          anchor: new google.maps.Point(20, 20)
-        }
       });
 
-
-      const currentLocationInfoWindow = new google.maps.InfoWindow({
-        content: `<h4>Your Current Location</h4><p>Latitude: ${(currentLocation as any).lat}</p><p>Longitude: ${(currentLocation as any).lng}</p>`
-      });
-
-      currentMarker.addListener('click', () => {
-        currentLocationInfoWindow.open(map, currentMarker);
-      });
-
-      // Extend the bounds to include the current location
-      bounds.extend(currentLocation);
-
-      // Adjust the map's bounds after all elements are added
-      map.fitBounds(bounds);
-    } else {
-      console.error('Current location not found');
-    }
-
-    // Finally, fit the bounds to ensure the entire route is visible
-    map.fitBounds(bounds);
-
+      bounds.extend(position);
+    });
   }
 
+const currentLocation = this.locationService.getOriginCoordinates();
+
+if (currentLocation && typeof currentLocation.latitude === 'number' && typeof currentLocation.longitude === 'number') {
+
+  const position = { lat: currentLocation.latitude, lng: currentLocation.longitude };
+
+    const marker = new google.maps.Marker({
+      position: position,
+      map: map,
+      title: 'Your Current Location',
+      icon: {
+        url: 'assets/images/current_location.png',
+        scaledSize: new google.maps.Size(40, 40),
+        origin: new google.maps.Point(0, 0),
+        anchor: new google.maps.Point(20, 20)
+      }
+    });
+  
+  const currentLocationInfoWindow = new google.maps.InfoWindow({
+    content: `<h4>Your Current Location</h4><p>Latitude: ${currentLocation.latitude}</p><p>Longitude: ${currentLocation.longitude}</p>`
+  });
+  marker.addListener('click', () => {
+    currentLocationInfoWindow.open(map, marker);
+  });
+
+  bounds.extend(position);
+  map.fitBounds(bounds);
+} else {
+  console.error('Current location not found or invalid');
+}
+
+  // Finally, fit the bounds to ensure the entire route is visible
+  map.fitBounds(bounds);
+}
   viewInGoogleMaps() {
     window.open(this.tripInfo.googleMapsUrl, '_blank');
   }
@@ -325,7 +284,7 @@ newRoute() {
       }
 
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeglibraries=geometry,places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCVMfV8HMmQHWcgZfF1ry3PCQXSxVtwOeg&libraries=geometry,places,marker&v=beta`;
       script.async = true;
       script.defer = true;
       script.onload = () => resolve();

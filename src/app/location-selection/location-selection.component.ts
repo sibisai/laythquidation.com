@@ -81,7 +81,7 @@ async ngOnInit(): Promise<void> {
   if (originCoordinates) {
     this.addOriginMarker(originCoordinates.latitude, originCoordinates.longitude);
   }
-  
+
   this.addMarkers(); 
   this.filterLocations(); 
   this.filterLocationsByRadius(); 
@@ -309,7 +309,6 @@ addSingleMarker(location: any, index: number): void {
   const { AdvancedMarkerElement, PinElement } = this;
   console.log('Latitude:', location.latitude, 'Longitude:', location.longitude);
   const position = { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) };
-  console.log('position', position);
   const pin = new PinElement({
     background: this.selectedLocationIndices.has(location.address) ? '#0000FF' : '#FF0000',
     glyph: `${index + 1}`,
