@@ -52,7 +52,7 @@
       <div *ngIf="!searchLoading && filteredLocations.length === 0" class="no-locations-found">
         No locations found.
       </div>
-        <nz-collapse nzAccordion nzGhost class="accordion-container">
+        <nz-collapse nzAccordion nzGhost>
           <nz-collapse-panel *ngFor="let location of filteredLocations; let i = index"
             [nzHeader]="(i + 1) + '. ' + location.storeName" [nzActive]="isPanelActive(i)" [id]="'accordion-item-' + i"
             (nzActiveChange)="onPanelChange(i, $event)" [ngClass]="{
