@@ -1,27 +1,75 @@
-# TripPlanner
+# Laythquidation
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.3.
+**A Route Generation Tool for Wholesale Business**
 
-## Development server
+---
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Project Overview
+Laythquidation is an automated route-generation solution designed for wholesale businesses. It uses Google Maps, Routes, and Geocoding APIs to compute optimized delivery routes based on vendor and destination data. This tool was made specifically for Layth's business.
 
-## Code scaffolding
+---
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Key Features
+- **Automated Routing**: Leverages Google Maps, Routes, and Geocoding APIs for batching and distance calculations.
+- **AI-Enhanced Optimization**: Integrates OpenAI to refine and prioritize route sequences.
+- **Instant Notifications**: Sends route details via Telegram for seamless driver communication.
+- **Cron Scheduling**: Optional periodic sync job to keep data fresh.
+- **Heroku Deployment**: Deployed on Heroku and accessible at https://laythquidation.com
 
-## Build
+---
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Tech Stack
+- **Frontend**: Angular
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL
+- **APIs**:
+  - Google Maps, Routes & Geocoding
+  - OpenAI
+  - Telegram Bot
 
-## Running unit tests
+---
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Prerequisites
+- Node.js v14+ and npm
+- PostgreSQL database
+- Google Cloud project with Maps, Routes & Geocoding APIs
+- Telegram Bot token
+- OpenAI API key
 
-## Running end-to-end tests
+---
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Installation & Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourorg/laythquidation.git
+   cd laythquidation/server
+   ```
 
-## Further help
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+3. Create a `.env` file in the `server` directory with:
+   ```env
+   PORT=5001
+   DATABASE_URL=postgres://<user>:<pass>@<host>:<port>/<db>
+   GOOGLE_MAPS_API_KEY=<your_google_maps_api_key>
+   TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+   OPENAI_API_KEY=<your_openai_api_key>
+   ```
+
+4. Run the server:
+   ```bash
+   node index.js
+   ```
+
+---
+
+## Usage
+Access the application at: https://laythquidation.com
+
+---
+
+## License
+MIT © Sibisai 2024
