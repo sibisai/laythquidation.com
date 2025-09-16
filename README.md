@@ -1,4 +1,4 @@
-# Laythquidation.com
+# Laythquidation
 
 **A Route Generation Tool for Wholesale Business**
 
