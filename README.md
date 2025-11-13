@@ -64,12 +64,4 @@ Laythquidation is an automated route-generation solution designed for wholesale 
    node index.js
    ```
 
----
 
-## Usage
-Access the application at: https://laythquidation.com
-
----
-
-## License
-MIT © Sibisai 2024
