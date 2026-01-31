@@ -14,7 +14,6 @@ Laythquidation is an automated route-generation solution designed for wholesale 
 - **AI-Enhanced Optimization**: Integrates OpenAI to refine and prioritize route sequences.
 - **Instant Notifications**: Sends route details via Telegram for seamless driver communication.
 - **Cron Scheduling**: Optional periodic sync job to keep data fresh.
-- **Heroku Deployment**: Deployed on Heroku and accessible at https://laythquidation.com
 
 ---
 
